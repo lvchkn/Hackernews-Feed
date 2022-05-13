@@ -1,10 +1,11 @@
-using System.Net;
 using System.Net.Http.Headers;
 using System.Security.Claims;
 using System.Text.Json;
 using HackerNewsCommentsFeed.ApiConnections;
 using HackerNewsCommentsFeed.RabbitConnections;
 using HackerNewsCommentsFeed.RabbitConnections.Publisher;
+using HackerNewsCommentsFeed.Repositories;
+using HackerNewsCommentsFeed.Utils;
 using Hangfire;
 using Hangfire.Mongo;
 using Hangfire.Mongo.Migration.Strategies;
@@ -23,13 +24,15 @@ public static class Registrations
     {
         _configuration = configuration;
         
-        services
-            .AddHttp()
+        services.AddHttp()
             .AddGithubAuth()
+            .AddAuthorization()
+            .AddCorsPolicies()
             .AddApiConnection()
             .AddHangfireWithMongoStorage()
             .AddRabbitConnection()
-            .AddPublisher();
+            .AddPublisher()
+            .AddMongoDb();
     }
     
     private static IServiceCollection AddGithubAuth(this IServiceCollection services)
@@ -62,6 +65,7 @@ public static class Registrations
             config.ClaimActions.MapJsonKey(ClaimTypes.Email, "email");
             config.ClaimActions.MapJsonKey("urn:github:name", "name");
             config.ClaimActions.MapJsonKey("urn:github:url", "url");
+            config.Scope.Add("user:email");
             config.Events = new OAuthEvents
             {
                 OnCreatingTicket = async context =>
@@ -81,25 +85,11 @@ public static class Registrations
             };
         });
 
-        services.AddAuthorization();
+        return services;
+    }
 
-        services.ConfigureApplicationCookie(options =>
-        {
-            options.Events = new CookieAuthenticationEvents
-            {
-                OnRedirectToLogin = ctx =>
-                {
-                    ctx.Response.StatusCode = (int) HttpStatusCode.Unauthorized;
-                    return Task.CompletedTask;
-                },
-                OnRedirectToAccessDenied = ctx =>
-                {
-                    ctx.Response.StatusCode = (int) HttpStatusCode.Forbidden;
-                    return Task.CompletedTask;
-                },
-            };
-        });
-        
+    private static IServiceCollection AddCorsPolicies(this IServiceCollection services)
+    {
         services.AddCors(options =>
         {
             options.AddDefaultPolicy(policy  => 
@@ -109,7 +99,7 @@ public static class Registrations
                     .AllowAnyMethod();
             });
         });
-        
+
         return services;
     }
 
@@ -177,6 +167,15 @@ public static class Registrations
         services.AddHttpClient("ApiV0", options => 
             options.BaseAddress = new Uri(hackernewsApiUrl));
 
+        return services;
+    }
+
+    private static IServiceCollection AddMongoDb(this IServiceCollection services)
+    {
+        services.Configure<MongoSettings>(_configuration?.GetSection("MongoDb"));
+        services.AddSingleton<ICommentsRepository, CommentsRepository>();
+        services.AddSingleton<IUsersRepository, UsersRepository>();
+        
         return services;
     }
 }
