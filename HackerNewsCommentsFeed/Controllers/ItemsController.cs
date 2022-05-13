@@ -1,4 +1,7 @@
 using HackerNewsCommentsFeed.ApiConnections;
+using HackerNewsCommentsFeed.Domain;
+using HackerNewsCommentsFeed.Repositories;
+using Microsoft.AspNetCore.Mvc;
 
 namespace HackerNewsCommentsFeed.Controllers;
 
@@ -21,6 +24,20 @@ public static class ItemsController
             return item is null ? Results.NotFound() : Results.Ok(item);
     
         }).RequireAuthorization();
+        
+        app.MapGet("/saved", async (ICommentsRepository commentsRepository) =>
+        {
+            var comments = await commentsRepository.GetCommentsAsync();
+
+            return Results.Ok(comments.ToList());
+        });
+
+        app.MapPost("/add", async ([FromBody] Comment comment, ICommentsRepository commentsRepository) =>
+        {
+            await commentsRepository.AddCommentAsync(comment);
+
+            return Results.NoContent();
+        });
 
         return app;
     }

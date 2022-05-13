@@ -10,6 +10,7 @@
       <PackageReference Include="Hangfire.AspNetCore" Version="1.7.28" />
       <PackageReference Include="Hangfire.Core" Version="1.7.28" />
       <PackageReference Include="Hangfire.Mongo" Version="1.7.0" />
+      <PackageReference Include="MongoDB.Driver" Version="2.15.1" />
       <PackageReference Include="RabbitMQ.Client" Version="6.3.0" />
     </ItemGroup>
 

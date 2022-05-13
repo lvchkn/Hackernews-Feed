@@ -2,6 +2,7 @@ using System.Text.Json;
 using System.Web;
 using HackerNewsCommentsFeed.Domain;
 using HackerNewsCommentsFeed.RabbitConnections.Publisher;
+using HackerNewsCommentsFeed.Repositories;
 using HackerNewsCommentsFeed.Utils;
 
 namespace HackerNewsCommentsFeed.ApiConnections;
@@ -10,6 +11,7 @@ public class ApiConnector : IApiConnector
 {
     private readonly ILogger<ApiConnector> _logger;
     private readonly IPublisher _publisher;
+    private readonly ICommentsRepository _commentsRepository;
     private readonly HttpClient _httpClient;
     private readonly JsonSerializerOptions _jsonSerializerOptions = new()
     {
@@ -19,11 +21,16 @@ public class ApiConnector : IApiConnector
     private const string ApiUrlItem = "item/{0}.json";
     private const string ApiUrlMaxItem = "maxitem.json";
 
-    public ApiConnector(IHttpClientFactory httpClientFactory, ILogger<ApiConnector> logger, IPublisher publisher)   
+    public ApiConnector(
+        IHttpClientFactory httpClientFactory, 
+        ILogger<ApiConnector> logger, 
+        IPublisher publisher,
+        ICommentsRepository commentsRepository)   
     {
+        _httpClient = httpClientFactory.CreateClient("ApiV0");
         _logger = logger;
         _publisher = publisher;
-        _httpClient = httpClientFactory.CreateClient("ApiV0");
+        _commentsRepository = commentsRepository;
     }
     
     public async Task<Comment?> GetComment(int id)
@@ -70,6 +77,11 @@ public class ApiConnector : IApiConnector
             maxRetries--;
 
         } while (comment is null && id > 1 && maxRetries > 0);
+
+        if (comment is not null)
+        {
+            await _commentsRepository.AddCommentAsync(comment);
+        }
         
         return comment;
     }

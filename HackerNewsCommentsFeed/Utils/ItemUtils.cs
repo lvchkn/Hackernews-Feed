@@ -1,5 +1,5 @@
 using System.Text.Json;
-
+    
 namespace HackerNewsCommentsFeed.Utils;
 
 public static class ItemUtils
@@ -17,6 +17,6 @@ public static class ItemUtils
     public static string? GetItemType(string response)
     {
         var itemType = JsonSerializer.Deserialize<ItemType>(response, _jsonSerializerOptions);
-        return itemType?.Type;
+        return itemType?.Type;          
     }
 }
