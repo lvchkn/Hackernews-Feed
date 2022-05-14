@@ -32,7 +32,9 @@ public static class Registrations
             .AddHangfireWithMongoStorage()
             .AddRabbitConnection()
             .AddPublisher()
-            .AddMongoDb();
+            .AddMongoDb()
+            .AddEndpointsApiExplorer()
+            .AddSwaggerGen();
     }
     
     private static IServiceCollection AddGithubAuth(this IServiceCollection services)

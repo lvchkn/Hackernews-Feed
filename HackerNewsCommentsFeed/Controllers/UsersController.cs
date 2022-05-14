@@ -11,7 +11,8 @@ public static class UsersController
             var users = await usersRepository.GetUsersAsync();
 
             return Results.Ok(users.ToList());
-        });
+            
+        }).WithTags("Users");
         
         return app;
     }

@@ -12,6 +12,7 @@
       <PackageReference Include="Hangfire.Mongo" Version="1.7.0" />
       <PackageReference Include="MongoDB.Driver" Version="2.15.1" />
       <PackageReference Include="RabbitMQ.Client" Version="6.3.0" />
+      <PackageReference Include="Swashbuckle.AspNetCore" Version="6.3.1" />
     </ItemGroup>
 
 </Project>
