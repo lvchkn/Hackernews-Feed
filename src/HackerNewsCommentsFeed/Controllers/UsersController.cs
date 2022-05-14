@@ -12,7 +12,7 @@ public static class UsersController
 
             return Results.Ok(users.ToList());
             
-        }).WithTags("Users");
+        }).RequireAuthorization().WithTags("Users");
         
         return app;
     }
