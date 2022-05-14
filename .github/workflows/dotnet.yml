@@ -33,9 +33,9 @@ jobs:
         path: artifacts/
       
     - name: Display current path
-      working-directory: artifacts/
+      working-directory: artifacts/Tests/
       run: ls -a && pwd
       
     - name: Test
-      working-directory: artifacts/
+      working-directory: artifacts/Tests/
       run: pwd && ls -a && dotnet test --no-build --verbosity normal
