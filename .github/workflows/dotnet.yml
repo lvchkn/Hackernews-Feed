@@ -39,5 +39,8 @@ jobs:
       run: ls -R
       working-directory: src/Tests
       
+    - name: Display current path
+      run: pwd
+      
     - name: Test
-      run: dotnet test --no-build --verbosity normal
+      run: dotnet test --no-build --verbosity detailed
