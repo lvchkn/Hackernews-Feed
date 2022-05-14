@@ -1,4 +1,4 @@
-name: test
+name: build-and-test
 on: push
 jobs:
   build: 
@@ -32,7 +32,7 @@ jobs:
     - uses: actions/checkout@v2
     - uses: actions/download-artifact@v3
       with:
-        name: my-artifact
+        name: src
         path: HackerNewsCommentsFeed/bin/Debug
     
     - name: Display structure of downloaded files
