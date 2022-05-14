@@ -37,5 +37,5 @@ jobs:
       run: ls -a && pwd
       
     - name: Test
-      working-directory: artifacts/Tests/bin/Debug/net6.0
+      working-directory: artifacts/
       run: dotnet test --no-build --verbosity normal
