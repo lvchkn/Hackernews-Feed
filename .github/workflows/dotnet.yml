@@ -38,4 +38,4 @@ jobs:
       
     - name: Test
       working-directory: artifacts/Tests/
-      run: pwd && ls -a && dotnet test --no-build --verbosity normal
+      run: pwd && ls -a && dotnet test --verbosity normal
