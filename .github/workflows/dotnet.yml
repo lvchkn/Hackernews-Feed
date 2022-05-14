@@ -15,14 +15,11 @@ jobs:
       
     - name: Build
       run: dotnet build --no-restore
-    
-    - name: Print directories
-      run: ls -a
       
     - name: Upload artifacts
       uses: actions/upload-artifact@v3
       with:
-        name: src
+        name: artifacts
         path: src/
         
   test:
@@ -32,15 +29,12 @@ jobs:
     - uses: actions/checkout@v3
     - uses: actions/download-artifact@v3
       with:
-        name: src
-        path: src/
-    
-    - name: Display structure of downloaded files
-      run: ls -R
-      working-directory: src/Tests
+        name: artifacts
+        path: artifacts/
       
     - name: Display current path
-      run: pwd
+      run: ls -a && pwd
       
     - name: Test
-      run: dotnet test --no-build --verbosity detailed
+      working-directory: src/Tests
+      run: dotnet test --no-build --verbosity normal
