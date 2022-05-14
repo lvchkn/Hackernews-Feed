@@ -15,7 +15,8 @@ public static class ItemsController
             var item = await apiConnector.GetComment(id);
     
             return item is null ? Results.NotFound() : Results.Ok(item);
-        });
+            
+        }).WithTags("Comments");
 
         app.MapGet("/max", async (IApiConnector apiConnector) =>
         {
@@ -23,21 +24,23 @@ public static class ItemsController
 
             return item is null ? Results.NotFound() : Results.Ok(item);
     
-        }).RequireAuthorization();
+        }).RequireAuthorization().WithTags("Comments");
         
         app.MapGet("/saved", async (ICommentsRepository commentsRepository) =>
         {
             var comments = await commentsRepository.GetCommentsAsync();
 
             return Results.Ok(comments.ToList());
-        });
+            
+        }).WithTags("Comments");
 
         app.MapPost("/add", async ([FromBody] Comment comment, ICommentsRepository commentsRepository) =>
         {
             await commentsRepository.AddCommentAsync(comment);
 
             return Results.NoContent();
-        });
+            
+        }).WithTags("Comments");
 
         return app;
     }

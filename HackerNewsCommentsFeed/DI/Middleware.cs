@@ -18,7 +18,13 @@ public static class Middleware
             .UseAuthentication()
             .UseAuthorization()
             .UseHttpRequestsInterceptor()
-            .UseHangfireDashboard();
+            .UseHangfireDashboard()
+            .UseSwagger()
+            .UseSwaggerUI(options =>
+            {
+                options.SwaggerEndpoint("/swagger/v1/swagger.json", "v1");
+                options.RoutePrefix = string.Empty;
+            });
 
         return app;
     }

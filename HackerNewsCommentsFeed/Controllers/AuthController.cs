@@ -12,7 +12,8 @@ public static class AuthController
             {
                 RedirectUri = returnUrl ?? "/"
             });
-        });
+            
+        }).WithTags("Authentication");
 
         app.MapGet("/userinfo", (HttpContext httpContext) =>
         {
@@ -34,7 +35,8 @@ public static class AuthController
             }
 
             return Results.Ok(userInfo);
-        });
+            
+        }).WithTags("Authentication");
         
         return app;
     }
