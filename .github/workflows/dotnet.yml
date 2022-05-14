@@ -32,10 +32,10 @@ jobs:
         name: artifacts
         path: artifacts/
       
-    - name: Display current path
+    - name: Restore dependencies
       working-directory: artifacts/Tests/
-      run: ls -a && pwd
+      run: dotnet restore
       
     - name: Test
       working-directory: artifacts/Tests/
-      run: pwd && ls -a && dotnet test --verbosity normal
+      run: pwd && ls -a && dotnet test --no-build --verbosity normal
