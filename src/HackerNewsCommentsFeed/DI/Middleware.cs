@@ -50,8 +50,9 @@ public static class Middleware
                 using var response = await client.SendAsync(request, HttpCompletionOption.ResponseHeadersRead);
                 using var payload = JsonDocument.Parse(await response.Content.ReadAsStringAsync());
                 var root = payload.RootElement;
-                
-                var usersRepository = app.ApplicationServices.GetService<IUsersRepository>();
+
+                using var scope = app.ApplicationServices.CreateScope();
+                var usersRepository = scope.ServiceProvider.GetService<IUsersRepository>();
                 const string email = "example@example.com";
                 //var email = httpContext.User.Claims.FirstOrDefault(c => c.Type == "emails");
                 usersRepository?.AddUserAsync(new User {Name = root.GetProperty("login").GetString(), Email = email});
