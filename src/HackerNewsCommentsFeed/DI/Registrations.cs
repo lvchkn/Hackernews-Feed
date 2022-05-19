@@ -175,8 +175,8 @@ public static class Registrations
     private static IServiceCollection AddMongoDb(this IServiceCollection services)
     {
         services.Configure<MongoSettings>(_configuration?.GetSection("MongoDb"));
-        services.AddSingleton<ICommentsRepository, CommentsRepository>();
-        services.AddSingleton<IUsersRepository, UsersRepository>();
+        services.AddScoped<ICommentsRepository, CommentsRepository>();
+        services.AddScoped<IUsersRepository, UsersRepository>();
         
         return services;
     }
