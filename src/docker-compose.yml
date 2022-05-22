@@ -1,0 +1,45 @@
+version: '3'
+services:
+  hnfeed:
+    container_name: hnfeed
+    build: .
+    ports:
+      - "5245:5245"
+    depends_on:
+      - nginx
+      - rabbitmq
+      - mongo
+  nginx:
+    image: nginx:latest
+    ports:
+      - "8082:80"
+  rabbitmq:
+    image: rabbitmq:management
+    hostname: rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+  mongo:
+    image: mongo:latest
+    container_name: mongodb
+    ports:
+      - "27017:27017"
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=${MONGO_USER}
+      - MONGO_INITDB_ROOT_PASSWORD=${MONGO_PW}
+    restart: unless-stopped
+    volumes:
+      - mongodata:/data/db
+  mongoexpress:
+    image: mongo-express:latest
+    container_name: mongoexpress
+    ports:
+      - "8084:8081"
+    environment:
+      - ME_CONFIG_MONGODB_URL="mongodb://${MONGO_USER}:${MONGO_PW}@mongodb:27017"
+    restart: always
+    depends_on:
+      - mongo
+volumes:
+  mongodata:
+    external: true
