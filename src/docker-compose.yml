@@ -1,14 +1,15 @@
 version: '3'
 services:
   hnfeed:
-    container_name: hnfeed
-    build: .
-    ports:
+    image: ghcr.io/lvchkn/hnfeed:latest
+    ports: 
       - "5245:5245"
     depends_on:
       - nginx
       - rabbitmq
       - mongo
+    volumes:
+      - /opt/docker-volumes:/HackerNewsCommentsFeed
   nginx:
     image: nginx:latest
     ports:
