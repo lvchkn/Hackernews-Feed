@@ -1,0 +1,32 @@
+name: push-to-registry
+
+on:
+  workflow_run:
+    workflows: ["build-and-test"]
+    branches: [main]
+    types:
+      - completed
+
+jobs:
+  deploy-packages:
+    name: Push Docker image to Github registry
+    runs-on: ubuntu-latest
+    
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v3
+      
+      - name: Log in to the Github Container registry
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      
+      - name: Build and push Docker images to ghcr
+        uses: docker/build-push-action@v3
+        with:
+          context: .
+          push: true
+          tags: lvchkn/hnfeed:latest
