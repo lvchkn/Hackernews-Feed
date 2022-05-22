@@ -24,9 +24,10 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
       
-      - name: Build and push Docker images to ghcr
-        uses: docker/build-push-action@v3
-        with:
-          context: "{{defaultContext}}:src"
-          push: true
-          tags: lvchkn/hnfeed:latest
+      - name: Build a Docker image
+        run: |
+          docker build -t lvchkn/hnfeed:latest -f src/Dockerfile .
+          
+      - name: Push the image to ghcr
+        run: |
+          docker push ghcr.io/lvchkn/hnfeed:latest
