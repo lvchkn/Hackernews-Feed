@@ -9,7 +9,7 @@ services:
       - rabbitmq
       - mongo
     volumes:
-      - /opt/docker-volumes:/HackerNewsCommentsFeed
+      - ${PWD}/HackerNewsCommentsFeed/appsettings.Development.json:/app/appsettings.Development.json
   nginx:
     image: nginx:latest
     ports:
