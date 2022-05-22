@@ -27,6 +27,6 @@ jobs:
       - name: Build and push Docker images to ghcr
         uses: docker/build-push-action@v3
         with:
-          context: /src
+          context: "{{defaultContext}}:src"
           push: true
           tags: lvchkn/hnfeed:latest
