@@ -136,10 +136,16 @@ public static class Registrations
     private static IServiceCollection AddRabbitConnection(this IServiceCollection services)
     {
         var rabbitHostname = _configuration.GetValue<string>("RabbitMq:Hostname");
+        var rabbitPort = _configuration.GetValue<int>("RabbitMq:Port");
+        var rabbitUsername = _configuration.GetValue<string>("RabbitMq:Username");
+        var rabbitPassword = _configuration.GetValue<string>("RabbitMq:Password");
         
         services.AddSingleton(_ => new ConnectionFactory()
         {
-            HostName = rabbitHostname
+            HostName = rabbitHostname,
+            Port = rabbitPort,
+            UserName = rabbitUsername,
+            Password = rabbitPassword
         });
         
         services.AddSingleton<ChannelWrapper>();

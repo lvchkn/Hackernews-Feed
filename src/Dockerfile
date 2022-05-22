@@ -1,14 +1,15 @@
 ﻿FROM mcr.microsoft.com/dotnet/aspnet:6.0 AS base
 WORKDIR /app
-EXPOSE 5001
-EXPOSE 443
+ENV ASPNETCORE_URLS=http://+:5245
+ENV ASPNETCORE_ENVIRONMENT="Development"
+EXPOSE 5245
 
 FROM mcr.microsoft.com/dotnet/sdk:6.0 AS build
 WORKDIR /sources
 COPY ["HackerNewsCommentsFeed/HackerNewsCommentsFeed.csproj", "HackerNewsCommentsFeed/"]
 RUN dotnet restore "HackerNewsCommentsFeed/HackerNewsCommentsFeed.csproj"
 COPY . .
-WORKDIR "sources/HackerNewsCommentsFeed"
+WORKDIR "/sources/HackerNewsCommentsFeed"
 RUN dotnet build "HackerNewsCommentsFeed.csproj" -c Release -o /app/build
 
 FROM build AS publish
