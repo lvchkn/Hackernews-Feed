@@ -34,7 +34,8 @@ public static class Registrations
             .AddPublisher()
             .AddMongoDb()
             .AddEndpointsApiExplorer()
-            .AddSwaggerGen();
+            .AddSwaggerGen()
+            .AddUtils();
     }
     
     private static IServiceCollection AddGithubAuth(this IServiceCollection services)
@@ -183,6 +184,13 @@ public static class Registrations
         services.Configure<MongoSettings>(_configuration?.GetSection("MongoDb"));
         services.AddScoped<ICommentsRepository, CommentsRepository>();
         services.AddScoped<IUsersRepository, UsersRepository>();
+        
+        return services;
+    }
+
+    private static IServiceCollection AddUtils(this IServiceCollection services)
+    {
+        services.AddScoped<Sorter>();
         
         return services;
     }

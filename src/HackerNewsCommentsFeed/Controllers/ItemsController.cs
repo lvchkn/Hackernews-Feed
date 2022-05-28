@@ -1,6 +1,8 @@
 using HackerNewsCommentsFeed.ApiConnections;
 using HackerNewsCommentsFeed.Domain;
 using HackerNewsCommentsFeed.Repositories;
+using HackerNewsCommentsFeed.Utils;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HackerNewsCommentsFeed.Controllers;
@@ -26,11 +28,16 @@ public static class ItemsController
     
         }).RequireAuthorization().WithTags("Comments");
         
-        app.MapGet("/saved", async (ICommentsRepository commentsRepository) =>
+        app.MapGet("/saved", async (
+            SortField? sortBy, 
+            SortOrder? order, 
+            ICommentsRepository commentsRepository,
+            Sorter sorter) =>
         {
-            var comments = await commentsRepository.GetCommentsAsync();
-
-            return Results.Ok(comments.ToList());
+            var comments = (await commentsRepository.GetCommentsAsync()).ToList();
+            var sortedComments = sorter.Sort(comments, new SortingParameters(order ?? SortOrder.Asc, sortBy ?? SortField.None));
+            
+            return Results.Ok(sortedComments.ToList());
             
         }).WithTags("Comments");
 
