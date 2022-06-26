@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Mvc;
 
 namespace HackerNewsCommentsFeed.Controllers;
 
@@ -6,7 +7,7 @@ public static class AuthController
 {
     public static IEndpointRouteBuilder MapAuthEndpoints(this IEndpointRouteBuilder app)
     {
-        app.MapGet("/login", (string? returnUrl) =>
+        app.MapGet("/login", ([FromQuery] string? returnUrl) =>
         {
             return Results.Challenge(new AuthenticationProperties
             {

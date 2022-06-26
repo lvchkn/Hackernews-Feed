@@ -12,5 +12,6 @@ public record User
     public string? Id { get; init; }
     public string Name { get; init; } = default!;
     public string Email { get; init; } = default!;
-    public DateTime LastActive { get; init; } 
+    public DateTime LastActive { get; init; }
+    public IEnumerable<string> InterestIds { get; init; } = new List<string>();
 }

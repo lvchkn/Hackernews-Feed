@@ -2,7 +2,6 @@ using HackerNewsCommentsFeed.ApiConnections;
 using HackerNewsCommentsFeed.Domain;
 using HackerNewsCommentsFeed.Repositories;
 using HackerNewsCommentsFeed.Utils;
-using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HackerNewsCommentsFeed.Controllers;
@@ -12,15 +11,15 @@ public static class ItemsController
     public static IEndpointRouteBuilder MapItemsEndpoints(this IEndpointRouteBuilder app)
     {
         
-        app.MapGet("/{id:int}", async (int id, IApiConnector apiConnector) =>
+        app.MapGet("/{id:int}", async ([FromRoute] int id, [FromServices] IApiConnector apiConnector) =>
         {
             var item = await apiConnector.GetComment(id);
     
             return item is null ? Results.NotFound() : Results.Ok(item);
             
-        }).WithTags("Comments");
+        }).RequireAuthorization().WithTags("Comments");
 
-        app.MapGet("/max", async (IApiConnector apiConnector) =>
+        app.MapGet("/max", async ([FromServices] IApiConnector apiConnector) =>
         {
             var item = await apiConnector.GetLastComment();
 
@@ -29,25 +28,25 @@ public static class ItemsController
         }).RequireAuthorization().WithTags("Comments");
         
         app.MapGet("/saved", async (
-            SortField? sortBy, 
-            SortOrder? order, 
-            ICommentsRepository commentsRepository,
-            Sorter sorter) =>
+            [FromQuery] SortField? sortBy, 
+            [FromQuery] SortOrder? order, 
+            [FromServices] ICommentsRepository commentsRepository,
+            [FromServices] Sorter sorter) =>
         {
-            var comments = (await commentsRepository.GetCommentsAsync()).ToList();
+            var comments = await commentsRepository.GetAllAsync();
             var sortedComments = sorter.Sort(comments, new SortingParameters(order ?? SortOrder.Asc, sortBy ?? SortField.None));
             
-            return Results.Ok(sortedComments.ToList());
+            return Results.Ok(sortedComments);
             
-        }).WithTags("Comments");
+        }).RequireAuthorization().WithTags("Comments");
 
-        app.MapPost("/add", async ([FromBody] Comment comment, ICommentsRepository commentsRepository) =>
+        app.MapPost("/add", async ([FromBody] Comment comment, [FromServices] ICommentsRepository commentsRepository) =>
         {
-            await commentsRepository.AddCommentAsync(comment);
+            await commentsRepository.AddAsync(comment);
 
             return Results.NoContent();
             
-        }).WithTags("Comments");
+        }).RequireAuthorization().WithTags("Comments");
 
         return app;
     }

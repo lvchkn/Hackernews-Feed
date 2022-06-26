@@ -15,7 +15,7 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OAuth;
 using RabbitMQ.Client;
 
-namespace HackerNewsCommentsFeed.DI;
+namespace HackerNewsCommentsFeed.Configuration;
 
 public static class Registrations
 {
@@ -184,6 +184,7 @@ public static class Registrations
         services.Configure<MongoSettings>(_configuration?.GetSection("MongoDb"));
         services.AddScoped<ICommentsRepository, CommentsRepository>();
         services.AddScoped<IUsersRepository, UsersRepository>();
+        services.AddScoped<IInterestsRepository, InterestsRepository>();
         
         return services;
     }

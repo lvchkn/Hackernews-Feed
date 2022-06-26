@@ -80,7 +80,7 @@ public class ApiConnector : IApiConnector
 
         if (comment is not null)
         {
-            await _commentsRepository.AddCommentAsync(comment);
+            await _commentsRepository.AddAsync(comment);
         }
         
         return comment;
