@@ -40,7 +40,7 @@ public static class Middleware
         {
             var accessToken = await httpContext.GetTokenAsync("access_token");
 
-            if (httpContext.User.Identity is {IsAuthenticated: true})
+            if (httpContext.User.Identity is { IsAuthenticated: true })
             {
                 using var request = new HttpRequestMessage(HttpMethod.Get, userInformationEndpoint);
                 using var client = new HttpClient();
@@ -57,8 +57,9 @@ public static class Middleware
                 var usersRepository = scope.ServiceProvider.GetService<IUsersRepository>();
                 const string email = "example@example.com";
                 //var email = httpContext.User.Claims.FirstOrDefault(c => c.Type == "emails");
-                usersRepository?.AddAsync(new User {Name = root.GetProperty("login").GetString() ?? "", Email = email});
-                usersRepository?.UpdateLastActiveAsync(email);
+
+                var addResult = await usersRepository?.AddAsync(new User { Name = root.GetProperty("login").GetString() ?? "", Email = email });
+                var updateResult = await usersRepository?.UpdateLastActiveAsync(email);
             }
 
             await next(httpContext);

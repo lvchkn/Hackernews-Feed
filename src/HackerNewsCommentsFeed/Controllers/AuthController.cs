@@ -1,3 +1,4 @@
+using HackerNewsCommentsFeed.Utils;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Mvc;
 
@@ -14,7 +15,7 @@ public static class AuthController
                 RedirectUri = returnUrl ?? "/"
             });
             
-        }).WithTags("Authentication");
+        }).WithTags(EndpointGroupTags.Authentication);
 
         app.MapGet("/userinfo", (HttpContext httpContext) =>
         {
@@ -37,7 +38,7 @@ public static class AuthController
 
             return Results.Ok(userInfo);
             
-        }).WithTags("Authentication");
+        }).WithTags(EndpointGroupTags.Authentication);
         
         return app;
     }

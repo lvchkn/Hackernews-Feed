@@ -11,23 +11,23 @@ public static class ItemsController
     public static IEndpointRouteBuilder MapItemsEndpoints(this IEndpointRouteBuilder app)
     {
         
-        app.MapGet("/{id:int}", async ([FromRoute] int id, [FromServices] IApiConnector apiConnector) =>
+        app.MapGet("/comments/{id:int}", async ([FromRoute] int id, [FromServices] IApiConnector apiConnector) =>
         {
             var item = await apiConnector.GetComment(id);
     
             return item is null ? Results.NotFound() : Results.Ok(item);
             
-        }).RequireAuthorization().WithTags("Comments");
+        }).RequireAuthorization().WithTags(EndpointGroupTags.Comments);
 
-        app.MapGet("/max", async ([FromServices] IApiConnector apiConnector) =>
+        app.MapGet("/comments/max", async ([FromServices] IApiConnector apiConnector) =>
         {
             var item = await apiConnector.GetLastComment();
 
             return item is null ? Results.NotFound() : Results.Ok(item);
     
-        }).RequireAuthorization().WithTags("Comments");
+        }).RequireAuthorization().WithTags(EndpointGroupTags.Comments);
         
-        app.MapGet("/saved", async (
+        app.MapGet("/comments", async (
             [FromQuery] SortField? sortBy, 
             [FromQuery] SortOrder? order, 
             [FromServices] ICommentsRepository commentsRepository,
@@ -38,15 +38,15 @@ public static class ItemsController
             
             return Results.Ok(sortedComments);
             
-        }).RequireAuthorization().WithTags("Comments");
+        }).RequireAuthorization().WithTags(EndpointGroupTags.Comments);
 
-        app.MapPost("/add", async ([FromBody] Comment comment, [FromServices] ICommentsRepository commentsRepository) =>
+        app.MapPost("/comments", async ([FromBody] Comment comment, [FromServices] ICommentsRepository commentsRepository) =>
         {
             await commentsRepository.AddAsync(comment);
 
             return Results.NoContent();
             
-        }).RequireAuthorization().WithTags("Comments");
+        }).RequireAuthorization().WithTags(EndpointGroupTags.Comments);
 
         return app;
     }

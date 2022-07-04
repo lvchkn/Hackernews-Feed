@@ -9,17 +9,19 @@ namespace HackerNewsCommentsFeed.Repositories;
 public class UsersRepository : IUsersRepository
 {
     private readonly IMongoCollection<User> _usersCollection;
+    private readonly IMongoCollection<Interest> _interestsCollection;
 
     public UsersRepository(IOptions<MongoSettings> mongoSettings)
     {
         var mongoClient = new MongoClient(mongoSettings.Value.ConnectionString);
         var database = mongoClient.GetDatabase(mongoSettings.Value.FeedDatabaseName);
         _usersCollection = database.GetCollection<User>(mongoSettings.Value.UsersCollectionName);
+        _interestsCollection = database.GetCollection<Interest>(mongoSettings.Value.InterestsCollectionName);
     }
-    
+
     private async Task ThrowIfEmailIsInUseAsync(string email)
     {
-        var user = await GetByEmail(email);
+        var user = await GetByEmailAsync(email);
         
         if (user is not null)
         {
@@ -29,7 +31,7 @@ public class UsersRepository : IUsersRepository
     
     private async Task ThrowIfNotFoundAsync(string email)
     {
-        var user = await GetByEmail(email);
+        var user = await GetByEmailAsync(email);
         
         if (user is null)
         {
@@ -44,14 +46,14 @@ public class UsersRepository : IUsersRepository
         return await users.ToListAsync();
     }
     
-    public async Task<User> GetByEmail(string email)
+    public async Task<User> GetByEmailAsync(string email)
     {
         var filter = Builders<User>.Filter.Eq(u => u.Email, email);
 
         var users = await _usersCollection.FindAsync(filter);
         var user = await users.SingleAsync();
-        
-        return user;
+
+        return user;  
     }
 
     public async Task<string> AddAsync(User user)
@@ -60,7 +62,7 @@ public class UsersRepository : IUsersRepository
 
         var res = await _usersCollection.ReplaceOneAsync(filter, user, new ReplaceOptions { IsUpsert = true });
         
-        return res.UpsertedId.ToString() ?? "Error";
+        return res.UpsertedId?.ToString() ?? "Error";
     }
 
     public async Task<string> UpdateLastActiveAsync(string email)
@@ -87,12 +89,12 @@ public class UsersRepository : IUsersRepository
         return updatedUser.Id ?? "Error";
     }
     
-    public async Task<string> AddInterestAsync(string email, string interestId)
+    public async Task<string> AddInterestAsync(string email, Interest interest)
     {
         await ThrowIfEmailIsInUseAsync(email);
         
         var filter = Builders<User>.Filter.Eq(u => u.Email, email);
-        var update = Builders<User>.Update.AddToSet(u => u.InterestIds, interestId);
+        var update = Builders<User>.Update.AddToSet(u => u.InterestIds, interest.Id);
         
         var updatedUser = await _usersCollection.FindOneAndUpdateAsync(filter, update, new FindOneAndUpdateOptions<User>{ReturnDocument = ReturnDocument.After});
         
@@ -109,5 +111,35 @@ public class UsersRepository : IUsersRepository
         var updatedUser = await _usersCollection.FindOneAndUpdateAsync(filter, update, new FindOneAndUpdateOptions<User>{ReturnDocument = ReturnDocument.After});
         
         return updatedUser.Id ?? "Error";
+    }
+
+    public async Task<List<string>> GetInterestsAsync(string email)
+    {
+        await ThrowIfNotFoundAsync(email);
+
+        var filter = Builders<User>.Filter.Eq(u => u.Email, email);
+        var users = await _usersCollection.FindAsync(filter);
+        var user = await users.SingleAsync();
+
+        return user.InterestIds.ToList();
+    }
+
+    public async Task<List<string>> GetInterestsNamesAsync(string email)
+    {
+        var interests = await GetInterestsAsync(email);
+
+        var names = interests.Select(async id =>
+        {
+            var filter = Builders<Interest>.Filter.Eq(u => u.Id, id);
+
+            var names = await _interestsCollection.FindAsync(filter);
+            var name = await names.SingleAsync();
+
+            return name.Text;
+        });
+        
+        var readableNames = await Task.WhenAll(names);
+
+        return readableNames.ToList();
     }
 }
