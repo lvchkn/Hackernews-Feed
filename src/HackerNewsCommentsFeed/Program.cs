@@ -1,4 +1,4 @@
-using HackerNewsCommentsFeed.ApiConnections;
+using Application.ApiConnections;
 using HackerNewsCommentsFeed.Configuration;
 using Hangfire;
 

@@ -1,11 +1,6 @@
 using System.Net.Http.Headers;
 using System.Security.Claims;
 using System.Text.Json;
-using HackerNewsCommentsFeed.ApiConnections;
-using HackerNewsCommentsFeed.RabbitConnections;
-using HackerNewsCommentsFeed.RabbitConnections.Publisher;
-using HackerNewsCommentsFeed.Repositories;
-using HackerNewsCommentsFeed.Utils;
 using Hangfire;
 using Hangfire.Mongo;
 using Hangfire.Mongo.Migration.Strategies;
@@ -13,7 +8,6 @@ using Hangfire.Mongo.Migration.Strategies.Backup;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OAuth;
-using RabbitMQ.Client;
 
 namespace HackerNewsCommentsFeed.Configuration;
 
@@ -23,19 +17,14 @@ public static class Registrations
     public static void AddDependencies(this IServiceCollection services, IConfiguration configuration)
     {
         _configuration = configuration;
-        
-        services.AddHttp()
+
+        services
             .AddGithubAuth()
             .AddAuthorization()
             .AddCorsPolicies()
-            .AddApiConnection()
             .AddHangfireWithMongoStorage()
-            .AddRabbitConnection()
-            .AddPublisher()
-            .AddMongoDb()
             .AddEndpointsApiExplorer()
-            .AddSwaggerGen()
-            .AddUtils();
+            .AddSwaggerGen();
     }
     
     private static IServiceCollection AddGithubAuth(this IServiceCollection services)
@@ -132,67 +121,5 @@ public static class Registrations
         });
         
         return serviceCollection;
-    }
-
-    private static IServiceCollection AddRabbitConnection(this IServiceCollection services)
-    {
-        var rabbitHostname = _configuration.GetValue<string>("RabbitMq:Hostname");
-        var rabbitPort = _configuration.GetValue<int>("RabbitMq:Port");
-        var rabbitUsername = _configuration.GetValue<string>("RabbitMq:Username");
-        var rabbitPassword = _configuration.GetValue<string>("RabbitMq:Password");
-        
-        services.AddSingleton(_ => new ConnectionFactory()
-        {
-            HostName = rabbitHostname,
-            Port = rabbitPort,
-            UserName = rabbitUsername,
-            Password = rabbitPassword
-        });
-        
-        services.AddSingleton<ChannelWrapper>();
-        services.AddSingleton<IChannelFactory, ChannelFactory>();
-
-        return services;
-    }
-
-    private static IServiceCollection AddPublisher(this IServiceCollection services)
-    {
-        services.AddSingleton<IPublisher, Publisher>();
-
-        return services;
-    }
-
-    private static IServiceCollection AddApiConnection(this IServiceCollection services)
-    {
-        services.AddScoped<IApiConnector, ApiConnector>();
-
-        return services;
-    }
-
-    private static IServiceCollection AddHttp(this IServiceCollection services)
-    {
-        var hackernewsApiUrl = _configuration.GetValue<string>("HackernewsApi:Url");
-        
-        services.AddHttpClient("ApiV0", options => 
-            options.BaseAddress = new Uri(hackernewsApiUrl));
-
-        return services;
-    }
-
-    private static IServiceCollection AddMongoDb(this IServiceCollection services)
-    {
-        services.Configure<MongoSettings>(_configuration?.GetSection("MongoDb"));
-        services.AddScoped<ICommentsRepository, CommentsRepository>();
-        services.AddScoped<IUsersRepository, UsersRepository>();
-        services.AddScoped<IInterestsRepository, InterestsRepository>();
-        
-        return services;
-    }
-
-    private static IServiceCollection AddUtils(this IServiceCollection services)
-    {
-        services.AddScoped<Sorter>();
-        
-        return services;
     }
 }

@@ -1,7 +1,6 @@
 using System.Net.Http.Headers;
 using System.Text.Json;
-using HackerNewsCommentsFeed.Domain;
-using HackerNewsCommentsFeed.Repositories;
+using Application.Interfaces;
 using Hangfire;
 using Microsoft.AspNetCore.Authentication;
 
@@ -58,7 +57,7 @@ public static class Middleware
                 const string email = "example@example.com";
                 //var email = httpContext.User.Claims.FirstOrDefault(c => c.Type == "emails");
 
-                var addResult = await usersRepository?.AddAsync(new User { Name = root.GetProperty("login").GetString() ?? "", Email = email });
+                //var addResult = await usersRepository?.AddAsync(new User { Name = root.GetProperty("login").GetString() ?? "", Email = email });
                 var updateResult = await usersRepository?.UpdateLastActiveAsync(email);
             }
 

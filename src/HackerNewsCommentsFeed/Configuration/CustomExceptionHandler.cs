@@ -1,6 +1,6 @@
+using Shared.Utils;
 using System.Net;
 using System.Text.Json;
-using HackerNewsCommentsFeed.Utils;
 
 namespace HackerNewsCommentsFeed.Configuration;
 
