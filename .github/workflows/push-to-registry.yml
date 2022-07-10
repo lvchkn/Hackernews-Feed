@@ -28,11 +28,9 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
       
       - name: Build a Docker image
-        working-directory: src/
         run: |
           docker build -t ghcr.io/lvchkn/hnfeed:latest .
           
       - name: Push the image to ghcr
-        working-directory: src/
         run: |
           docker push ghcr.io/lvchkn/hnfeed:latest
