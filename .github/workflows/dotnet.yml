@@ -20,7 +20,13 @@ jobs:
       uses: actions/upload-artifact@v3
       with:
         name: artifacts
-        path: src/
+        path: |
+          HackerNewsCommentsFeed/
+          Application/
+          Domain/
+          Infrastructure/
+          Shared/
+          Tests/
         
   test:
     runs-on: ubuntu-latest
