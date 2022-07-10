@@ -1,5 +1,6 @@
 using System.Net.Http.Headers;
 using System.Text.Json;
+using Application.Contracts;
 using Application.Interfaces;
 using Hangfire;
 using Microsoft.AspNetCore.Authentication;
@@ -56,8 +57,6 @@ public static class Middleware
                 var usersRepository = scope.ServiceProvider.GetService<IUsersRepository>();
                 const string email = "example@example.com";
                 //var email = httpContext.User.Claims.FirstOrDefault(c => c.Type == "emails");
-
-                //var addResult = await usersRepository?.AddAsync(new User { Name = root.GetProperty("login").GetString() ?? "", Email = email });
                 var updateResult = await usersRepository!.UpdateLastActiveAsync(email);
             }
 

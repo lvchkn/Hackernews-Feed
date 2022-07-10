@@ -1,6 +1,8 @@
 using System.Net.Http.Headers;
 using System.Security.Claims;
 using System.Text.Json;
+using Application;
+using Infrastructure;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OAuth;
@@ -15,6 +17,8 @@ public static class Registrations
         _configuration = configuration;
 
         services
+            .AddApplication(_configuration)
+            .AddInfrastructure(_configuration)
             .AddGithubAuth()
             .AddAuthorization()
             .AddCorsPolicies()

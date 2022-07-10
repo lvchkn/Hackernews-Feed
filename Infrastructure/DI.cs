@@ -29,7 +29,8 @@ namespace Infrastructure
                 .AddRabbitConnection()
                 .AddPublisher()
                 .AddMongoDb()
-                .AddRepos();
+                .AddRepos()
+                .AddHangfireWithMongoStorage();
 
             return services;
         }
