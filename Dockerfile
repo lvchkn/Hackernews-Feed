@@ -5,11 +5,16 @@ ENV ASPNETCORE_ENVIRONMENT="Development"
 EXPOSE 5245
 
 FROM mcr.microsoft.com/dotnet/sdk:6.0 AS build
-WORKDIR /sources
+WORKDIR /src
 COPY ["HackerNewsCommentsFeed/HackerNewsCommentsFeed.csproj", "HackerNewsCommentsFeed/"]
+COPY ["Application/Application.csproj", "Application/"]
+COPY ["Domain/Domain.csproj", "Domain/"]
+COPY ["Infrastructure/Infrastructure.csproj", "Infrastructure/"]
+COPY ["Shared/Shared.csproj", "Shared/"]
+COPY ["Tests/Tests.csproj", "Tests/"]
 RUN dotnet restore "HackerNewsCommentsFeed/HackerNewsCommentsFeed.csproj"
 COPY . .
-WORKDIR "/sources/HackerNewsCommentsFeed"
+WORKDIR "/src/HackerNewsCommentsFeed"
 RUN dotnet build "HackerNewsCommentsFeed.csproj" -c Release -o /app/build
 
 FROM build AS publish
