@@ -71,6 +71,7 @@ namespace Infrastructure
                 cm.GetMemberMap(c => c.Id).SetIgnoreIfDefault(true);
                 cm.SetIdMember(cm.GetMemberMap(c => c.Id));
                 cm.IdMemberMap.SetIdGenerator(StringObjectIdGenerator.Instance);
+                cm.IdMemberMap.SetSerializer(new StringSerializer(BsonType.String));
             });
 
             BsonClassMap.RegisterClassMap<Interest>(cm =>
@@ -88,6 +89,7 @@ namespace Infrastructure
                 cm.GetMemberMap(c => c.Id).SetIgnoreIfDefault(true);
                 cm.SetIdMember(cm.GetMemberMap(c => c.Id));
                 cm.IdMemberMap.SetIdGenerator(StringObjectIdGenerator.Instance);
+                cm.IdMemberMap.SetSerializer(new StringSerializer(BsonType.ObjectId));
             });
 
             services.Configure<MongoSettings>(_configuration?.GetSection("MongoDb"));

@@ -9,19 +9,13 @@ public static class AuthController
 {
     public static IEndpointRouteBuilder MapAuthEndpoints(this IEndpointRouteBuilder app)
     {
-        app.MapGet("/login", async (
-            HttpContext httpContext,
-            [FromQuery] string? returnUrl,
+        app.MapGet("/login", ([FromQuery] string? returnUrl,
             [FromServices] IUsersService usersService) =>
         {
-            await httpContext.ChallengeAsync(new AuthenticationProperties
+            return Results.Challenge(new AuthenticationProperties
             {
                 RedirectUri = returnUrl ?? "/"
             });
-
-            var userInfo = GetCurrentUserInfo(httpContext);
-
-            return Results.Ok(userInfo);
             
         }).WithTags(EndpointGroupTags.Authentication);
 
