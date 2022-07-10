@@ -1,8 +1,9 @@
-using HackerNewsCommentsFeed.ApiConnections;
-using HackerNewsCommentsFeed.Domain;
-using HackerNewsCommentsFeed.Repositories;
-using HackerNewsCommentsFeed.Utils;
+using Application.ApiConnections;
+using Application.Contracts;
+using Application.Services;
+using Application.Services.Comments;
 using Microsoft.AspNetCore.Mvc;
+using Shared.Utils;
 
 namespace HackerNewsCommentsFeed.Controllers;
 
@@ -30,19 +31,19 @@ public static class ItemsController
         app.MapGet("/comments", async (
             [FromQuery] SortField? sortBy, 
             [FromQuery] SortOrder? order, 
-            [FromServices] ICommentsRepository commentsRepository,
-            [FromServices] Sorter sorter) =>
+            [FromServices] ICommentsService commentsService,
+            [FromServices] ISorter sorter) =>
         {
-            var comments = await commentsRepository.GetAllAsync();
+            var comments = await commentsService.GetAllAsync();
             var sortedComments = sorter.Sort(comments, new SortingParameters(order ?? SortOrder.Asc, sortBy ?? SortField.None));
             
             return Results.Ok(sortedComments);
             
         }).RequireAuthorization().WithTags(EndpointGroupTags.Comments);
 
-        app.MapPost("/comments", async ([FromBody] Comment comment, [FromServices] ICommentsRepository commentsRepository) =>
+        app.MapPost("/comments", async ([FromBody] CommentDto comment, [FromServices] ICommentsService commentsService) =>
         {
-            await commentsRepository.AddAsync(comment);
+            await commentsService.AddAsync(comment);
 
             return Results.NoContent();
             

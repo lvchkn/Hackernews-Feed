@@ -1,7 +1,7 @@
-using HackerNewsCommentsFeed.Domain;
-using HackerNewsCommentsFeed.Repositories;
-using HackerNewsCommentsFeed.Utils;
+using Application.Contracts;
+using Application.Services.Interests;
 using Microsoft.AspNetCore.Mvc;
+using Shared.Utils;
 
 namespace HackerNewsCommentsFeed.Controllers;
 
@@ -11,27 +11,27 @@ public static class InterestsController
     {
         app.MapGet("/interests/{id:int}", async (
             [FromRoute] string id, 
-            [FromServices] IInterestsRepository interestsRepository) =>
+            [FromServices] IInterestsService interestsService) =>
         {
-            var interest = await interestsRepository.GetByIdAsync(id);
+            var interest = await interestsService.GetByIdAsync(id);
     
             return Results.Ok(interest);
             
         }).RequireAuthorization().WithTags(EndpointGroupTags.Interests);
             
-        app.MapGet("/interests", async ([FromServices] IInterestsRepository interestsRepository) =>
+        app.MapGet("/interests", async ([FromServices] IInterestsService interestsService) =>
         {
-            var interests = await interestsRepository.GetAllAsync();
+            var interests = await interestsService.GetAllAsync();
 
             return Results.Ok(interests);
     
         }).RequireAuthorization().WithTags(EndpointGroupTags.Interests);
         
         app.MapPost("/interests", async (
-            [FromBody] Interest interest, 
-            [FromServices] IInterestsRepository interestsRepository) =>
+            [FromBody] InterestDto interest, 
+            [FromServices] IInterestsService interestsService) =>
         {
-            var interestId = await interestsRepository.AddAsync(interest);
+            var interestId = await interestsService.AddAsync(interest);
             
             return Results.Ok(interestId);
  
@@ -39,10 +39,10 @@ public static class InterestsController
 
         app.MapPut("/interests/{id}", async (
             [FromRoute] string id, 
-            [FromBody] Interest interest, 
-            [FromServices] IInterestsRepository interestsRepository) =>
+            [FromBody] InterestDto interest, 
+            [FromServices] IInterestsService interestsService) =>
         {
-            var interestId = await interestsRepository.UpdateAsync(id, interest);
+            var interestId = await interestsService.UpdateAsync(id, interest);
 
             return Results.Ok(interestId);
             
@@ -50,9 +50,9 @@ public static class InterestsController
         
         app.MapDelete("/interests/{id}", async (
             [FromRoute] string id, 
-            [FromServices] IInterestsRepository interestsRepository) =>
+            [FromServices] IInterestsService interestsService) =>
         {
-            var interestId = await interestsRepository.DeleteAsync(id);
+            var interestId = await interestsService.DeleteAsync(id);
 
             return Results.Ok(interestId);
             

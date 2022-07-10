@@ -1,10 +1,10 @@
-using Domain.Entities;
+using Application.Contracts;
 
 namespace Application.ApiConnections
 {
     public interface IApiConnector
     {
-        Task<Comment?> GetComment(int id);
-        Task<Comment?> GetLastComment();
+        Task<CommentDto?> GetComment(int id);
+        Task<CommentDto?> GetLastComment();
     }
 }

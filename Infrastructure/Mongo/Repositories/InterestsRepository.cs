@@ -1,8 +1,8 @@
 using Application.Interfaces;
 using Domain.Entities;
-using HackerNewsCommentsFeed.Utils;
 using Microsoft.Extensions.Options;
 using MongoDB.Driver;
+using Shared.Utils;
 
 namespace Infrastructure.Mongo.Repositories;
 

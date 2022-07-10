@@ -1,5 +1,9 @@
 ﻿using Application.Interfaces;
 using Domain.Entities;
+using Hangfire;
+using Hangfire.Mongo;
+using Hangfire.Mongo.Migration.Strategies;
+using Hangfire.Mongo.Migration.Strategies.Backup;
 using Infrastructure.Mongo;
 using Infrastructure.Mongo.Repositories;
 using Infrastructure.RabbitConnections;
@@ -24,7 +28,8 @@ namespace Infrastructure
             services
                 .AddRabbitConnection()
                 .AddPublisher()
-                .AddMongoDb();
+                .AddMongoDb()
+                .AddRepos();
 
             return services;
         }
@@ -85,11 +90,45 @@ namespace Infrastructure
             });
 
             services.Configure<MongoSettings>(_configuration?.GetSection("MongoDb"));
+
+            return services;
+        }
+
+        private static IServiceCollection AddRepos(this IServiceCollection services)
+        {
             services.AddScoped<ICommentsRepository, CommentsRepository>();
             services.AddScoped<IUsersRepository, UsersRepository>();
             services.AddScoped<IInterestsRepository, InterestsRepository>();
 
             return services;
+        }
+
+        private static IServiceCollection AddHangfireWithMongoStorage(this IServiceCollection serviceCollection)
+        {
+            var mongoUrl = _configuration.GetValue<string>("MongoDb:Url");
+            var jobsDatabaseName = _configuration.GetValue<string>("MongoDb:JobsDatabaseName");
+            var hangfireServerName = _configuration.GetValue<string>("Hangfire:ServerName");
+
+            var mongoStorageOptions = new MongoStorageOptions
+            {
+                MigrationOptions = new MongoMigrationOptions
+                {
+                    MigrationStrategy = new DropMongoMigrationStrategy(),
+                    BackupStrategy = new NoneMongoBackupStrategy(),
+                },
+                CheckQueuedJobsStrategy = CheckQueuedJobsStrategy.TailNotificationsCollection,
+                Prefix = "hangfire.mongo",
+            };
+
+            serviceCollection.AddHangfire(config =>
+                config.UseMongoStorage(mongoUrl, jobsDatabaseName, mongoStorageOptions));
+
+            serviceCollection.AddHangfireServer(serverOptions =>
+            {
+                serverOptions.ServerName = hangfireServerName;
+            });
+
+            return serviceCollection;
         }
     }
 }

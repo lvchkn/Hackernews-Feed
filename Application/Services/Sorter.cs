@@ -1,4 +1,4 @@
-using Domain.Entities;
+using Application.Contracts;
 
 namespace Application.Services;
 
@@ -21,7 +21,7 @@ public class Sorter : ISorter
         [SortField.None] = SortOrder.Asc
     };
 
-    public List<Comment> Sort(IEnumerable<Comment> unsorted, SortingParameters parameters)
+    public List<CommentDto> Sort(IEnumerable<CommentDto> unsorted, SortingParameters parameters)
     {
         var (sortOrder, fieldToSort) = parameters;
 
@@ -31,7 +31,7 @@ public class Sorter : ISorter
         }
 
         var index = 0;
-        var listToSort = new List<Comment>(unsorted);
+        var listToSort = new List<CommentDto>(unsorted);
 
         foreach (var (field, order) in _sortingState)
         {
@@ -43,7 +43,7 @@ public class Sorter : ISorter
         return listToSort;
     }
 
-    private static List<Comment> GetSortedList(IEnumerable<Comment> list, SortField field, SortOrder order, bool thenable)
+    private static List<CommentDto> GetSortedList(IEnumerable<CommentDto> list, SortField field, SortOrder order, bool thenable)
     {
         var listToOrder = list.OrderBy(_ => true);
 

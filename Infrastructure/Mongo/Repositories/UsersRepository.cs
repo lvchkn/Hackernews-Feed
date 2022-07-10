@@ -1,8 +1,8 @@
 using Application.Interfaces;
 using Domain.Entities;
-using HackerNewsCommentsFeed.Utils;
 using Microsoft.Extensions.Options;
 using MongoDB.Driver;
+using Shared.Utils;
 
 namespace Infrastructure.Mongo.Repositories;
 
@@ -60,9 +60,9 @@ public class UsersRepository : IUsersRepository
     {
         var filter = Builders<User>.Filter.Eq(u => u.Name, user.Name);
 
-        var res = await _usersCollection.ReplaceOneAsync(filter, user, new ReplaceOptions { IsUpsert = true });
+        var upsertResult = await _usersCollection.ReplaceOneAsync(filter, user, new ReplaceOptions { IsUpsert = true });
 
-        return res.UpsertedId?.ToString() ?? "Error";
+        return upsertResult.UpsertedId?.ToString() ?? "Error";
     }
 
     public async Task<string> UpdateLastActiveAsync(string email)

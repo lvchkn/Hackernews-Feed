@@ -58,7 +58,7 @@ public static class Middleware
                 //var email = httpContext.User.Claims.FirstOrDefault(c => c.Type == "emails");
 
                 //var addResult = await usersRepository?.AddAsync(new User { Name = root.GetProperty("login").GetString() ?? "", Email = email });
-                var updateResult = await usersRepository?.UpdateLastActiveAsync(email);
+                var updateResult = await usersRepository!.UpdateLastActiveAsync(email);
             }
 
             await next(httpContext);

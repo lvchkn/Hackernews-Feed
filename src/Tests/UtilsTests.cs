@@ -1,9 +1,9 @@
 ﻿using System.Text.Json;
+using Application.Contracts;
 using Application.Services;
 using Domain.Entities;
 using FluentAssertions;
-using HackerNewsCommentsFeed.Domain;
-using HackerNewsCommentsFeed.Utils;
+using Shared.Utils;
 using Xunit;
 
 namespace Tests;
@@ -15,7 +15,7 @@ public class UtilsTests
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase
     };
     
-    private List<Comment> Comments => new()
+    private List<CommentDto> Comments => new()
     {
         new() {By = "A random person", Text = "What is going on?"},
         new() {By = "Christopher Robin", Text = "Actions speak louder than words"},

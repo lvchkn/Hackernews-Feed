@@ -1,7 +1,8 @@
 using System.Text.Json;
 using System.Web;
+using Application.Contracts;
 using Application.Interfaces;
-using Domain.Entities;
+using Application.Services.Comments;
 using Microsoft.Extensions.Logging;
 using Shared.Utils;
 
@@ -11,7 +12,7 @@ public class ApiConnector : IApiConnector
 {
     private readonly ILogger<ApiConnector> _logger;
     private readonly IPublisher _publisher;
-    private readonly ICommentsRepository _commentsRepository;
+    private readonly ICommentsService _commentsService;
     private readonly HttpClient _httpClient;
     private readonly JsonSerializerOptions _jsonSerializerOptions = new()
     {
@@ -25,15 +26,15 @@ public class ApiConnector : IApiConnector
         IHttpClientFactory httpClientFactory,
         ILogger<ApiConnector> logger,
         IPublisher publisher,
-        ICommentsRepository commentsRepository)
+        ICommentsService commentsService)
     {
         _httpClient = httpClientFactory.CreateClient("ApiV0");
         _logger = logger;
         _publisher = publisher;
-        _commentsRepository = commentsRepository;
+        _commentsService = commentsService;
     }
 
-    public async Task<Comment?> GetComment(int id)
+    public async Task<CommentDto?> GetComment(int id)
     {
         var response = await _httpClient.GetAsync(string.Format(ApiUrlItem, id.ToString()));
         var responseString = await response.Content.ReadAsStringAsync();
@@ -46,7 +47,7 @@ public class ApiConnector : IApiConnector
             return null;
         }
 
-        var comment = JsonSerializer.Deserialize<Comment>(responseString, _jsonSerializerOptions);
+        var comment = JsonSerializer.Deserialize<CommentDto>(responseString, _jsonSerializerOptions);
 
         if (comment?.Text is not null)
         {
@@ -61,13 +62,13 @@ public class ApiConnector : IApiConnector
         return comment;
     }
 
-    public async Task<Comment?> GetLastComment()
+    public async Task<CommentDto?> GetLastComment()
     {
         var response = await _httpClient.GetAsync(ApiUrlMaxItem);
         var responseString = await response.Content.ReadAsStringAsync();
 
         var id = JsonSerializer.Deserialize<int>(responseString);
-        Comment? comment;
+        CommentDto? comment;
         var maxRetries = 100;
 
         do
@@ -80,7 +81,7 @@ public class ApiConnector : IApiConnector
 
         if (comment is not null)
         {
-            await _commentsRepository.AddAsync(comment);
+            await _commentsService.AddAsync(comment);
         }
 
         return comment;

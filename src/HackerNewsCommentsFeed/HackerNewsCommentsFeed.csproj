@@ -8,12 +8,13 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <PackageReference Include="Hangfire.AspNetCore" Version="1.7.28" />
-      <PackageReference Include="Hangfire.Core" Version="1.7.28" />
-      <PackageReference Include="Hangfire.Mongo" Version="1.7.0" />
-      <PackageReference Include="MongoDB.Driver" Version="2.15.1" />
-      <PackageReference Include="RabbitMQ.Client" Version="6.3.0" />
+      <PackageReference Include="Hangfire.AspNetCore" Version="1.7.30" />
       <PackageReference Include="Swashbuckle.AspNetCore" Version="6.3.1" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\..\Application\Application.csproj" />
+      <ProjectReference Include="..\..\Shared\Shared.csproj" />
     </ItemGroup>
 
 </Project>

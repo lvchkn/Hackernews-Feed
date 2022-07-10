@@ -1,9 +1,9 @@
-﻿using Domain.Entities;
+﻿using Application.Contracts;
 
 namespace Application.Services
 {
     public interface ISorter
     {
-        List<Comment> Sort(IEnumerable<Comment> unsorted, SortingParameters parameters);
+        List<CommentDto> Sort(IEnumerable<CommentDto> unsorted, SortingParameters parameters);
     }
 }

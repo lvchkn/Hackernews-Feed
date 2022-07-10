@@ -1,13 +1,17 @@
 ﻿using Application.ApiConnections;
 using Application.Services;
+using Application.Services.Comments;
+using Application.Services.Interests;
+using Application.Services.Users;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using System.Reflection;
 
 namespace Application
 {
     public static class DI
     {
-        private static IConfiguration _configuration;
+        private static IConfiguration? _configuration;
         public static IServiceCollection AddApplication(this IServiceCollection services, IConfiguration configuration)
         {
             _configuration = configuration;
@@ -15,7 +19,9 @@ namespace Application
             services
                 .AddHttp()
                 .AddUtils()
-                .AddApiConnection();
+                .AddApiConnection()
+                .AddMapper()
+                .AddServices();
 
             return services;
         }
@@ -40,6 +46,21 @@ namespace Application
         private static IServiceCollection AddApiConnection(this IServiceCollection services)
         {
             services.AddScoped<IApiConnector, ApiConnector>();
+
+            return services;
+        }
+
+        private static IServiceCollection AddMapper(this IServiceCollection services)
+        {
+            services.AddAutoMapper(Assembly.GetExecutingAssembly());
+
+            return services;
+        }
+        private static IServiceCollection AddServices(this IServiceCollection services)
+        {
+            services.AddScoped<ICommentsService, CommentsService>();
+            services.AddScoped<IUsersService, UsersService>();
+            services.AddScoped<IInterestsService, InterestsService>();
 
             return services;
         }

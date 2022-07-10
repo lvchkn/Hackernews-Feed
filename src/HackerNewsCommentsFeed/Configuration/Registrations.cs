@@ -1,10 +1,6 @@
 using System.Net.Http.Headers;
 using System.Security.Claims;
 using System.Text.Json;
-using Hangfire;
-using Hangfire.Mongo;
-using Hangfire.Mongo.Migration.Strategies;
-using Hangfire.Mongo.Migration.Strategies.Backup;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OAuth;
@@ -22,7 +18,6 @@ public static class Registrations
             .AddGithubAuth()
             .AddAuthorization()
             .AddCorsPolicies()
-            .AddHangfireWithMongoStorage()
             .AddEndpointsApiExplorer()
             .AddSwaggerGen();
     }
@@ -93,33 +88,5 @@ public static class Registrations
         });
 
         return services;
-    }
-
-    private static IServiceCollection AddHangfireWithMongoStorage(this IServiceCollection serviceCollection)
-    {
-        var mongoUrl = _configuration.GetValue<string>("MongoDb:Url");
-        var jobsDatabaseName = _configuration.GetValue<string>("MongoDb:JobsDatabaseName");
-        var hangfireServerName = _configuration.GetValue<string>("Hangfire:ServerName");
-        
-        var mongoStorageOptions = new MongoStorageOptions
-        {
-            MigrationOptions = new MongoMigrationOptions
-            {
-                MigrationStrategy = new DropMongoMigrationStrategy(),
-                BackupStrategy = new NoneMongoBackupStrategy(),
-            },
-            CheckQueuedJobsStrategy = CheckQueuedJobsStrategy.TailNotificationsCollection,
-            Prefix = "hangfire.mongo",
-        };
-        
-        serviceCollection.AddHangfire(config =>
-            config.UseMongoStorage(mongoUrl, jobsDatabaseName, mongoStorageOptions));
-
-        serviceCollection.AddHangfireServer(serverOptions =>
-        {
-            serverOptions.ServerName = hangfireServerName;
-        });
-        
-        return serviceCollection;
     }
 }
