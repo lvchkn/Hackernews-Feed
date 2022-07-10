@@ -1,4 +1,4 @@
-namespace HackerNewsCommentsFeed.Utils;
+namespace HackerNewsCommentsFeed.Configuration;
 
 public record MongoSettings
 {
@@ -6,5 +6,5 @@ public record MongoSettings
     public string FeedDatabaseName { get; init; } = default!;
     public string CommentsCollectionName { get; init; } = default!;
     public string UsersCollectionName { get; init; } = default!;
-
+    public string InterestsCollectionName { get; init; } = default!;
 }

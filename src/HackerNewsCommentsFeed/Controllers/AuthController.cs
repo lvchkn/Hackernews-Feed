@@ -1,4 +1,6 @@
+using HackerNewsCommentsFeed.Utils;
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Mvc;
 
 namespace HackerNewsCommentsFeed.Controllers;
 
@@ -6,14 +8,14 @@ public static class AuthController
 {
     public static IEndpointRouteBuilder MapAuthEndpoints(this IEndpointRouteBuilder app)
     {
-        app.MapGet("/login", (string? returnUrl) =>
+        app.MapGet("/login", ([FromQuery] string? returnUrl) =>
         {
             return Results.Challenge(new AuthenticationProperties
             {
                 RedirectUri = returnUrl ?? "/"
             });
             
-        }).WithTags("Authentication");
+        }).WithTags(EndpointGroupTags.Authentication);
 
         app.MapGet("/userinfo", (HttpContext httpContext) =>
         {
@@ -36,7 +38,7 @@ public static class AuthController
 
             return Results.Ok(userInfo);
             
-        }).WithTags("Authentication");
+        }).WithTags(EndpointGroupTags.Authentication);
         
         return app;
     }

@@ -4,6 +4,6 @@ namespace HackerNewsCommentsFeed.Repositories;
 
 public interface ICommentsRepository
 {
-    Task<IEnumerable<Comment>> GetCommentsAsync();
-    Task AddCommentAsync(Comment comment);
+    Task<List<Comment>> GetAllAsync();
+    Task AddAsync(Comment comment);
 }

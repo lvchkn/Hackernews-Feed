@@ -21,7 +21,7 @@ public class Sorter
         [SortField.None] = SortOrder.Asc
     };
 
-    public IEnumerable<Comment> Sort(List<Comment> unsorted, SortingParameters parameters)
+    public List<Comment> Sort(IEnumerable<Comment> unsorted, SortingParameters parameters)
     {
         var (sortOrder, fieldToSort) = parameters;
         
@@ -33,22 +33,17 @@ public class Sorter
         var index = 0;
         var listToSort = new List<Comment>(unsorted);
 
-        foreach (var (key, value) in _sortingState)
+        foreach (var (field, order) in _sortingState)
         {
             var thenable = index > 1;
             index++;
-            listToSort = SortByField(listToSort, key, value, thenable).ToList();
+            listToSort = GetSortedList(listToSort, field, order, thenable);
         }
 
         return listToSort;
     }
 
-    private void RemoveSortingField(SortField field)
-    {
-        _sortingState.Remove(field);
-    }
-
-    private IEnumerable<Comment> SortByField(List<Comment> list, SortField field, SortOrder order, bool thenable)
+    private static List<Comment> GetSortedList(IEnumerable<Comment> list, SortField field, SortOrder order, bool thenable)
     {
         var listToOrder = list.OrderBy(_ => true);
 
@@ -92,6 +87,6 @@ public class Sorter
             default: throw new ArgumentOutOfRangeException(nameof(field), field, null);
         }
 
-        return listToOrder;
+        return listToOrder.ToList();
     }
 }

@@ -12,7 +12,6 @@ public record Comment : IMessage
     [JsonIgnore]
     [BsonRepresentation(BsonType.ObjectId)]
     public string? ObjectId { get; init; }
-    
     public int Id { get; init; }
     public string By { get; init; }
     public int[] Kids { get; init; }

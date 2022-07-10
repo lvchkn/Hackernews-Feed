@@ -1,5 +1,5 @@
+using HackerNewsCommentsFeed.Configuration;
 using HackerNewsCommentsFeed.Domain;
-using HackerNewsCommentsFeed.Utils;
 using Microsoft.Extensions.Options;
 using MongoDB.Driver;
 
@@ -16,14 +16,16 @@ public class CommentsRepository : ICommentsRepository
         _commentsCollection = database.GetCollection<Comment>(mongoSettings.Value.CommentsCollectionName);
     }
     
-    public async Task<IEnumerable<Comment>> GetCommentsAsync()
+    public async Task<List<Comment>> GetAllAsync()
     {
-        var comments = await _commentsCollection.Find(_ => true).ToListAsync();
-        return comments;
+        var comments = await _commentsCollection.FindAsync(_ => true);
+        return await comments.ToListAsync();
     }
 
-    public async Task AddCommentAsync(Comment comment)
+    public async Task AddAsync(Comment comment)
     {
-        await _commentsCollection.ReplaceOneAsync( c => c.Id == comment.Id, comment, new ReplaceOptions {IsUpsert = true});
+        var filter = Builders<Comment>.Filter.Eq(c => c.Id, comment.Id);
+        
+        await _commentsCollection.ReplaceOneAsync(filter, comment, new ReplaceOptions { IsUpsert = true });
     }
 }

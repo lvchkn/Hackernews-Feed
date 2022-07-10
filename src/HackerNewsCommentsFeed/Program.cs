@@ -1,6 +1,5 @@
 using HackerNewsCommentsFeed.ApiConnections;
-using HackerNewsCommentsFeed.Controllers;
-using HackerNewsCommentsFeed.DI;
+using HackerNewsCommentsFeed.Configuration;
 using Hangfire;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -11,9 +10,7 @@ app.UseMiddleware(builder.Configuration);
 
 RecurringJob.AddOrUpdate<ApiConnector>("Fetcher", job => job.GetLastComment(), Cron.Minutely);
 
-app.MapItemsEndpoints()
-    .MapAuthEndpoints()
-    .MapUsersEndpoints();
+app.MapEndpoints();
 
 app.Run();
 
