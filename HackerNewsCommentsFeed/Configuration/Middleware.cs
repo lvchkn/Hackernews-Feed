@@ -1,9 +1,10 @@
 using System.Net.Http.Headers;
 using System.Text.Json;
 using Application.Contracts;
-using Application.Interfaces;
+using Application.Services.Users;
 using Hangfire;
 using Microsoft.AspNetCore.Authentication;
+using Shared.Utils;
 
 namespace HackerNewsCommentsFeed.Configuration;
 
@@ -52,12 +53,34 @@ public static class Middleware
                 using var response = await client.SendAsync(request, HttpCompletionOption.ResponseHeadersRead);
                 using var payload = JsonDocument.Parse(await response.Content.ReadAsStringAsync());
                 var root = payload.RootElement;
+                
+                var keyExists = root.TryGetProperty("login", out var res);
+                var name = string.Empty;
+
+                if (keyExists)
+                {
+                    name = res.GetString();
+                }
 
                 using var scope = app.ApplicationServices.CreateScope();
-                var usersRepository = scope.ServiceProvider.GetService<IUsersRepository>();
+                var usersService = scope.ServiceProvider.GetService<IUsersService>();
                 const string email = "example@example.com";
                 //var email = httpContext.User.Claims.FirstOrDefault(c => c.Type == "emails");
-                var updateResult = await usersRepository!.UpdateLastActiveAsync(email);
+
+                try
+                {
+                    var updateResult = await usersService!.UpdateLastActiveAsync(email);
+                }
+                catch (NotFoundException)
+                {
+                    var newUser = new UserDto
+                    {
+                        Name = name ?? "DEFAULT_USER",
+                        Email = email,
+                    };
+
+                    var createResult = await usersService!.AddAsync(newUser);
+                }
             }
 
             await next(httpContext);

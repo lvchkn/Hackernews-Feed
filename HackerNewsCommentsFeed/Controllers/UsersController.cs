@@ -9,7 +9,7 @@ public static class UsersController
 {
     public static IEndpointRouteBuilder MapUsersEndpoints(this IEndpointRouteBuilder app)
     {
-        app.MapGet("/users", async ([FromServices] IUsersService usersService) =>
+        app.MapGet("/api/users", async ([FromServices] IUsersService usersService) =>
         {
             var users = await usersService.GetAllAsync();
 
@@ -17,7 +17,7 @@ public static class UsersController
             
         }).RequireAuthorization().WithTags(EndpointGroupTags.Users);
         
-        app.MapGet("/user/{email}/interests", async (
+        app.MapGet("/api/user/{email}/interests", async (
             [FromRoute] string email, 
             [FromServices] IUsersService usersService) =>
         {
@@ -27,7 +27,7 @@ public static class UsersController
             
         }).RequireAuthorization().WithTags(EndpointGroupTags.UsersInterests);
 
-        app.MapPost("/user/{email}/interests", async (
+        app.MapPost("/api/user/{email}/interests", async (
             [FromRoute] string email,
             [FromBody] InterestDto interest, 
             [FromServices] IUsersService usersService) =>
@@ -38,7 +38,7 @@ public static class UsersController
 
         }).RequireAuthorization().WithTags(EndpointGroupTags.UsersInterests);
 
-        app.MapDelete("/user/{email}/interests/{id}", async (
+        app.MapDelete("/api/user/{email}/interests/{id}", async (
             [FromRoute] string email, 
             [FromRoute] string id,
             [FromServices] IUsersService usersService) =>

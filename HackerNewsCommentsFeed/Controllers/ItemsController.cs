@@ -12,7 +12,7 @@ public static class ItemsController
     public static IEndpointRouteBuilder MapItemsEndpoints(this IEndpointRouteBuilder app)
     {
         
-        app.MapGet("/comments/{id:int}", async ([FromRoute] int id, [FromServices] IApiConnector apiConnector) =>
+        app.MapGet("/api/comments/{id:int}", async ([FromRoute] int id, [FromServices] IApiConnector apiConnector) =>
         {
             var item = await apiConnector.GetComment(id);
     
@@ -20,7 +20,7 @@ public static class ItemsController
             
         }).RequireAuthorization().WithTags(EndpointGroupTags.Comments);
 
-        app.MapGet("/comments/max", async ([FromServices] IApiConnector apiConnector) =>
+        app.MapGet("/api/comments/max", async ([FromServices] IApiConnector apiConnector) =>
         {
             var item = await apiConnector.GetLastComment();
 
@@ -28,7 +28,7 @@ public static class ItemsController
     
         }).RequireAuthorization().WithTags(EndpointGroupTags.Comments);
         
-        app.MapGet("/comments", async (
+        app.MapGet("/api/comments", async (
             [FromQuery] SortField? sortBy, 
             [FromQuery] SortOrder? order, 
             [FromServices] ICommentsService commentsService,
@@ -41,7 +41,7 @@ public static class ItemsController
             
         }).RequireAuthorization().WithTags(EndpointGroupTags.Comments);
 
-        app.MapPost("/comments", async ([FromBody] CommentDto comment, [FromServices] ICommentsService commentsService) =>
+        app.MapPost("/api/comments", async ([FromBody] CommentDto comment, [FromServices] ICommentsService commentsService) =>
         {
             await commentsService.AddAsync(comment);
 
