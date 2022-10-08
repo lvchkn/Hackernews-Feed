@@ -36,5 +36,5 @@ Desktop.ini
 .DS_Store
 
 appsettings.Development.json
-.env
 .vscode/
+.env
