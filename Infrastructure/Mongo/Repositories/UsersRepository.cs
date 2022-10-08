@@ -51,7 +51,7 @@ public class UsersRepository : IUsersRepository
         var filter = Builders<User>.Filter.Eq(u => u.Email, email);
 
         var users = await _usersCollection.FindAsync(filter);
-        var user = await users.SingleAsync();
+        var user = await users.FirstOrDefaultAsync();
 
         return user;
     }

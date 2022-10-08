@@ -9,7 +9,7 @@ public static class InterestsController
 {
     public static IEndpointRouteBuilder MapInterestsEndpoints(this IEndpointRouteBuilder app)
     {
-        app.MapGet("/interests/{id:int}", async (
+        app.MapGet("/api/interests/{id:int}", async (
             [FromRoute] string id, 
             [FromServices] IInterestsService interestsService) =>
         {
@@ -19,7 +19,7 @@ public static class InterestsController
             
         }).RequireAuthorization().WithTags(EndpointGroupTags.Interests);
             
-        app.MapGet("/interests", async ([FromServices] IInterestsService interestsService) =>
+        app.MapGet("/api/interests", async ([FromServices] IInterestsService interestsService) =>
         {
             var interests = await interestsService.GetAllAsync();
 
@@ -27,7 +27,7 @@ public static class InterestsController
     
         }).RequireAuthorization().WithTags(EndpointGroupTags.Interests);
         
-        app.MapPost("/interests", async (
+        app.MapPost("/api/interests", async (
             [FromBody] InterestDto interest, 
             [FromServices] IInterestsService interestsService) =>
         {
@@ -37,7 +37,7 @@ public static class InterestsController
  
         }).RequireAuthorization().WithTags(EndpointGroupTags.Interests);
 
-        app.MapPut("/interests/{id}", async (
+        app.MapPut("/api/interests/{id}", async (
             [FromRoute] string id, 
             [FromBody] InterestDto interest, 
             [FromServices] IInterestsService interestsService) =>
@@ -48,7 +48,7 @@ public static class InterestsController
             
         }).RequireAuthorization().WithTags(EndpointGroupTags.Interests);
         
-        app.MapDelete("/interests/{id}", async (
+        app.MapDelete("/api/interests/{id}", async (
             [FromRoute] string id, 
             [FromServices] IInterestsService interestsService) =>
         {

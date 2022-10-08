@@ -1,3 +1,4 @@
+using System.Net;
 using System.Net.Http.Headers;
 using System.Security.Claims;
 using System.Text.Json;
@@ -72,7 +73,20 @@ public static class Registrations
                     var root = payload.RootElement;
                     context.RunClaimActions(root);
                 },
-                
+
+                OnRedirectToAuthorizationEndpoint = context => 
+                {
+                    if (context.Request.Path.ToString().Contains("api"))
+                    {
+                        context.Response.StatusCode = (int) HttpStatusCode.Unauthorized;
+                    }
+                    else
+                    {
+                        context.Response.Redirect(context.RedirectUri);
+                    }
+
+                    return Task.CompletedTask;
+                },
             };
         });
 
