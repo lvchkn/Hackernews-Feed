@@ -6,7 +6,7 @@ using FluentAssertions;
 using Shared.Utils;
 using Xunit;
 
-namespace Tests;
+namespace Tests.Unit;
 
 public class UtilsTests
 {

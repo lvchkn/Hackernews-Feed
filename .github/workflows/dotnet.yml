@@ -45,4 +45,10 @@ jobs:
       
     - name: Test
       working-directory: artifacts/Tests/
-      run: dotnet restore && dotnet test --no-build --verbosity normal
+      env:
+        GithubAuth:AppName: ${{ secrets.GH_AUTH_APP_NAME }}
+        GithubAuth:ClientId: ${{ secrets.GH_AUTH_CLIENT_ID }}
+        GithubAuth:ClientSecret: ${{ secrets.GH_AUTH_TEST_CLIENT_SECRET }}
+      run: |
+        dotnet restore
+        dotnet test --no-build --verbosity normal

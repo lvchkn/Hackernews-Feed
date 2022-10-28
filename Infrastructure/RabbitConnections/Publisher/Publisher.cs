@@ -17,7 +17,7 @@ public class Publisher : IPublisher
     public void Publish<TMessage>(string exchangeName, TMessage message) where TMessage : class, IMessage
     {
         _channel.ExchangeDeclare(exchangeName, ExchangeType.Topic);
-        const string routingKey = "feed";
+        const string routingKey = "feed.comment";
 
         var serializedMessageBody = JsonSerializer.Serialize(message);
         var messageBody = Encoding.UTF8.GetBytes(serializedMessageBody);

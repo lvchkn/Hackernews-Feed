@@ -19,7 +19,7 @@ public class InterestsRepository : IInterestsRepository
 
     private async Task ThrowIfNotFoundAsync(string id) //TODO: Remove code duplication across repositories
     {
-        var interest = await GetByIdAsync(id);
+        var interest = await GetByNameAsync(id);
 
         if (interest is null)
         {
@@ -27,9 +27,9 @@ public class InterestsRepository : IInterestsRepository
         }
     }
 
-    public async Task<Interest> GetByIdAsync(string id)
+    public async Task<Interest> GetByNameAsync(string name)
     {
-        var filter = Builders<Interest>.Filter.Eq(i => i.Id, id);
+        var filter = Builders<Interest>.Filter.Eq(i => i.Text, name);
 
         var interests = await _interestsCollection.FindAsync(filter);
         var interest = await interests.SingleAsync();

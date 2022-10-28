@@ -2,7 +2,6 @@ using System.Net.Http.Headers;
 using System.Text.Json;
 using Application.Contracts;
 using Application.Services.Users;
-using Hangfire;
 using Microsoft.AspNetCore.Authentication;
 using Shared.Utils;
 
@@ -20,7 +19,6 @@ public static class Middleware
             .UseAuthentication()
             .UseAuthorization()
             .UseHttpRequestsInterceptor()
-            .UseHangfireDashboard()
             .UseSwagger()
             .UseSwaggerUI(options =>
             {
