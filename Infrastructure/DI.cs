@@ -1,13 +1,11 @@
 ﻿using Application.Interfaces;
 using Domain.Entities;
-using Hangfire;
-using Hangfire.Mongo;
-using Hangfire.Mongo.Migration.Strategies;
-using Hangfire.Mongo.Migration.Strategies.Backup;
 using Infrastructure.Mongo;
 using Infrastructure.Mongo.Repositories;
 using Infrastructure.RabbitConnections;
 using Infrastructure.RabbitConnections.Publisher;
+using Infrastructure.RabbitConnections.Subscriber;
+using Infrastructure.Workers;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using MongoDB.Bson;
@@ -27,10 +25,9 @@ namespace Infrastructure
             
             services
                 .AddRabbitConnection()
-                .AddPublisher()
                 .AddMongoDb()
                 .AddRepos()
-                .AddHangfireWithMongoStorage();
+                .AddHostedService<StoryFetcher>();
 
             return services;
         }
@@ -53,12 +50,8 @@ namespace Infrastructure
             services.AddSingleton<ChannelWrapper>();
             services.AddSingleton<IChannelFactory, ChannelFactory>();
 
-            return services;
-        }
-
-        private static IServiceCollection AddPublisher(this IServiceCollection services)
-        {
             services.AddSingleton<IPublisher, Publisher>();
+            services.AddSingleton<ISubscriber, Subscriber>();
 
             return services;
         }
@@ -92,6 +85,15 @@ namespace Infrastructure
                 cm.IdMemberMap.SetSerializer(new StringSerializer(BsonType.ObjectId));
             });
 
+            BsonClassMap.RegisterClassMap<Story>(cm =>
+            {
+                cm.AutoMap();
+                cm.GetMemberMap(c => c.Id).SetIgnoreIfDefault(true);
+                cm.SetIdMember(cm.GetMemberMap(c => c.Id));
+                cm.IdMemberMap.SetIdGenerator(StringObjectIdGenerator.Instance);
+                cm.IdMemberMap.SetSerializer(new StringSerializer(BsonType.String));
+            });
+
             services.Configure<MongoSettings>(_configuration?.GetSection("MongoDb"));
 
             return services;
@@ -102,36 +104,9 @@ namespace Infrastructure
             services.AddScoped<ICommentsRepository, CommentsRepository>();
             services.AddScoped<IUsersRepository, UsersRepository>();
             services.AddScoped<IInterestsRepository, InterestsRepository>();
+            services.AddScoped<IStoriesRepository, StoriesRepository>();
 
             return services;
-        }
-
-        private static IServiceCollection AddHangfireWithMongoStorage(this IServiceCollection serviceCollection)
-        {
-            var mongoUrl = _configuration.GetValue<string>("MongoDb:Url");
-            var jobsDatabaseName = _configuration.GetValue<string>("MongoDb:JobsDatabaseName");
-            var hangfireServerName = _configuration.GetValue<string>("Hangfire:ServerName");
-
-            var mongoStorageOptions = new MongoStorageOptions
-            {
-                MigrationOptions = new MongoMigrationOptions
-                {
-                    MigrationStrategy = new DropMongoMigrationStrategy(),
-                    BackupStrategy = new NoneMongoBackupStrategy(),
-                },
-                CheckQueuedJobsStrategy = CheckQueuedJobsStrategy.TailNotificationsCollection,
-                Prefix = "hangfire.mongo",
-            };
-
-            serviceCollection.AddHangfire(config =>
-                config.UseMongoStorage(mongoUrl, jobsDatabaseName, mongoStorageOptions));
-
-            serviceCollection.AddHangfireServer(serverOptions =>
-            {
-                serverOptions.ServerName = hangfireServerName;
-            });
-
-            return serviceCollection;
         }
     }
 }

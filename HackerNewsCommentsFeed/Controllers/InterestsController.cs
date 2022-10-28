@@ -9,11 +9,11 @@ public static class InterestsController
 {
     public static IEndpointRouteBuilder MapInterestsEndpoints(this IEndpointRouteBuilder app)
     {
-        app.MapGet("/api/interests/{id:int}", async (
+        app.MapGet("/api/interests/{id}", async (
             [FromRoute] string id, 
             [FromServices] IInterestsService interestsService) =>
         {
-            var interest = await interestsService.GetByIdAsync(id);
+            var interest = await interestsService.GetByNameAsync(id);
     
             return Results.Ok(interest);
             

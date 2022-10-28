@@ -33,9 +33,9 @@ namespace Application.Services.Interests
             return _mapper.Map<List<InterestDto>>(interests);
         }
 
-        public async Task<InterestDto> GetByIdAsync(string id)
+        public async Task<InterestDto> GetByNameAsync(string name)
         {
-            var interest = await _interestsRepository.GetByIdAsync(id);
+            var interest = await _interestsRepository.GetByNameAsync(name);
             return _mapper.Map<InterestDto>(interest);
         }
 

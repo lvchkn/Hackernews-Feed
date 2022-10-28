@@ -1,4 +1,3 @@
-using Application.ApiConnections;
 using Application.Contracts;
 using Application.Services;
 using Application.Services.Comments;
@@ -10,24 +9,7 @@ namespace HackerNewsCommentsFeed.Controllers;
 public static class ItemsController
 {
     public static IEndpointRouteBuilder MapItemsEndpoints(this IEndpointRouteBuilder app)
-    {
-        
-        app.MapGet("/api/comments/{id:int}", async ([FromRoute] int id, [FromServices] IApiConnector apiConnector) =>
-        {
-            var item = await apiConnector.GetComment(id);
-    
-            return item is null ? Results.NotFound() : Results.Ok(item);
-            
-        }).RequireAuthorization().WithTags(EndpointGroupTags.Comments);
-
-        app.MapGet("/api/comments/max", async ([FromServices] IApiConnector apiConnector) =>
-        {
-            var item = await apiConnector.GetLastComment();
-
-            return item is null ? Results.NotFound() : Results.Ok(item);
-    
-        }).RequireAuthorization().WithTags(EndpointGroupTags.Comments);
-        
+    {   
         app.MapGet("/api/comments", async (
             [FromQuery] SortField? sortBy, 
             [FromQuery] SortOrder? order, 
