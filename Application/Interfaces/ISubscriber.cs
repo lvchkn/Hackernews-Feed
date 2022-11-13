@@ -4,5 +4,9 @@ namespace Application.Interfaces;
 
 public interface ISubscriber
 {
-    void Subscribe(string exchangeName, Func<StoryDto, Task> handle);
+    void Subscribe<T>(
+        string exchangeName,
+        string queueName, 
+        string routingKey, 
+        Func<T, Task> handle) where T : IMessage, new();
 }

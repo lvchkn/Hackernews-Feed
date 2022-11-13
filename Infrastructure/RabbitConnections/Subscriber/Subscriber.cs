@@ -1,6 +1,5 @@
 using System.Text;
 using System.Text.Json;
-using Application.Contracts;
 using Application.Interfaces;
 using Microsoft.Extensions.Logging;
 using RabbitMQ.Client;
@@ -21,33 +20,37 @@ public class Subscriber : ISubscriber
         _logger = logger;
     }
 
-    public void Subscribe(string exchangeName, Func<StoryDto, Task> handle)
+    public void Subscribe<T>(
+        string exchangeName,
+        string queueName, 
+        string routingKey, 
+        Func<T, Task> handle) where T : IMessage, new()
     {
         _channel.ExchangeDeclare(exchangeName, ExchangeType.Topic);
-        var queueName = _channel.QueueDeclare("stories", exclusive: false).QueueName;
-
-        const string routingKey = "feed.story";
+        _channel.QueueDeclare(queueName, exclusive: false);
         _channel.QueueBind(queueName, exchangeName, routingKey);
 
-        var consumer = new EventingBasicConsumer(_channel);
+        var consumer = new AsyncEventingBasicConsumer(_channel);
         consumer.Received += async (model, eventArgs) => 
         {
             var body = eventArgs.Body.ToArray();
             var message = Encoding.UTF8.GetString(body);
-            _logger.LogInformation("Story received: {0}", message);
+            _logger.LogInformation("Message received: {0}", message);
             
             var jsonSerializerOptions = new JsonSerializerOptions()
             {
                 PropertyNamingPolicy = JsonNamingPolicy.CamelCase
             };
 
-            var story = JsonSerializer.Deserialize<StoryDto>(message, jsonSerializerOptions);
+            var dto = JsonSerializer.Deserialize<T>(message, jsonSerializerOptions);
             
-            if (story is not null)
+            if (dto is not null)
             {
-                await handle(story);
-                _logger.LogInformation("Story saved: {0}", story.ToString());
+                await handle(dto);
+                _logger.LogInformation("Message saved: {0}", dto.ToString());
             }
+
+            await Task.Yield();
         };
 
         _channel.BasicConsume(queueName, autoAck: true, consumer);

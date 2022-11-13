@@ -20,8 +20,8 @@ public class StoriesRepository : IStoriesRepository
     {
         var filter = Builders<Story>.Filter.Eq(s => s.Id, story.Id);
 
-        var upsertResult = await _storiesCollection.ReplaceOneAsync(filter, story, new ReplaceOptions { IsUpsert = true });
+        var upsertResult = await _storiesCollection.ReplaceOneAsync(filter, story, new ReplaceOptions() { IsUpsert = true });
 
-        return upsertResult.UpsertedId.AsString ?? "Error";
+        return upsertResult.UpsertedId?.AsString ?? "Error";
     }
 }

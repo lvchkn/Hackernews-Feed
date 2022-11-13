@@ -1,7 +1,9 @@
+using Application.Contracts;
 using Application.Interfaces;
 using Application.Services.Stories;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 
 namespace Infrastructure.Workers;
 
@@ -9,25 +11,29 @@ public class StoryFetcher : BackgroundService
 {
     private readonly IServiceScopeFactory _scopeFactory;
     private readonly ISubscriber _subscriber;
+    private readonly ILogger<StoryFetcher> _logger;
 
-    public StoryFetcher(IServiceScopeFactory scopeFactory, ISubscriber subscriber)
+    public StoryFetcher(
+        IServiceScopeFactory scopeFactory,
+        ISubscriber subscriber,
+        ILogger<StoryFetcher> logger)
     {
         _scopeFactory = scopeFactory;
         _subscriber = subscriber;
+        _logger = logger;
     }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        while (!stoppingToken.IsCancellationRequested)
+        _logger.LogWarning("Story fetcher executing");
+
+        _subscriber.Subscribe<StoryDto>("feed", "stories", "feed.stories", async story =>
         {
-            _subscriber.Subscribe("feed", async story => 
-            {
-                using var scope = _scopeFactory.CreateScope();
-                var storiesService = scope.ServiceProvider.GetRequiredService<IStoriesService>();
-            
-                await storiesService.AddAsync(story);
-            });
-        }
+            using var scope = _scopeFactory.CreateScope();
+            var storiesService = scope.ServiceProvider.GetRequiredService<IStoriesService>();
+
+            await storiesService.AddAsync(story);
+        });
 
         await Task.CompletedTask;
     }

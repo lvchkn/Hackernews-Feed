@@ -16,7 +16,7 @@ namespace Application
             var hackernewsApiUrl = configuration.GetValue<string>("HackernewsApi:Url");
 
             services.AddHttpClient("ApiV0", options =>
-                options.BaseAddress = new Uri(hackernewsApiUrl));
+                options.BaseAddress = new Uri(hackernewsApiUrl ?? string.Empty));
 
             services.AddAutoMapper(Assembly.GetExecutingAssembly());
 

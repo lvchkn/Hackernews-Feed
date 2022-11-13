@@ -53,7 +53,7 @@ public class CustomWebApplicationFactory<Program> : WebApplicationFactory<Progra
             .AddEnvironmentVariables()
             .AddJsonFile($"appsettings.{Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT")}.json", optional: true)
             .AddJsonFile("appsettings.test.json")
-            .AddInMemoryCollection(new Dictionary<string, string>()
+            .AddInMemoryCollection(new Dictionary<string, string?>()
             {
                 ["MongoDb:ConnectionString"] = _mongoTestContainer.ConnectionString,
                 ["MongoDB:Url"] = _mongoTestContainer.ConnectionString,
