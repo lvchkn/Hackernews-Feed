@@ -29,12 +29,12 @@ public static class Registrations
     
     private static IServiceCollection AddGithubAuth(this IServiceCollection services)
     {
-        var clientId = _configuration.GetValue<string>("GithubAuth:ClientId");
-        var clientSecret = _configuration.GetValue<string>("GithubAuth:ClientSecret");
-        var callbackPath = _configuration.GetValue<string>("GithubAuth:CallbackPath");
-        var authorizationEndpoint = _configuration.GetValue<string>("GithubAuth:AuthorizationEndpoint");
-        var tokenEndpoint = _configuration.GetValue<string>("GithubAuth:TokenEndpoint");
-        var userInformationEndpoint = _configuration.GetValue<string>("GithubAuth:UserInformationEndpoint");
+        var clientId = _configuration?.GetValue<string>("GithubAuth:ClientId");
+        var clientSecret = _configuration?.GetValue<string>("GithubAuth:ClientSecret");
+        var callbackPath = _configuration?.GetValue<string>("GithubAuth:CallbackPath");
+        var authorizationEndpoint = _configuration?.GetValue<string>("GithubAuth:AuthorizationEndpoint");
+        var tokenEndpoint = _configuration?.GetValue<string>("GithubAuth:TokenEndpoint");
+        var userInformationEndpoint = _configuration?.GetValue<string>("GithubAuth:UserInformationEndpoint");
         
         services.AddAuthentication(options =>
         {
@@ -45,12 +45,12 @@ public static class Registrations
         .AddCookie()
         .AddOAuth("Github", config =>
         {
-            config.ClientId = clientId;
-            config.ClientSecret = clientSecret;
+            config.ClientId = clientId ?? string.Empty;
+            config.ClientSecret = clientSecret ?? string.Empty;
             config.CallbackPath = new PathString(callbackPath);
-            config.AuthorizationEndpoint = authorizationEndpoint;
-            config.TokenEndpoint = tokenEndpoint;
-            config.UserInformationEndpoint = userInformationEndpoint;
+            config.AuthorizationEndpoint = authorizationEndpoint ?? string.Empty;
+            config.TokenEndpoint = tokenEndpoint ?? string.Empty;
+            config.UserInformationEndpoint = userInformationEndpoint ?? string.Empty;
             config.SaveTokens = true;
             config.ClaimActions.MapJsonKey(ClaimTypes.NameIdentifier, "id");
             config.ClaimActions.MapJsonKey(ClaimTypes.Name, "login");

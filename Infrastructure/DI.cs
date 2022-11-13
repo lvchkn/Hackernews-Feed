@@ -34,17 +34,18 @@ namespace Infrastructure
 
         private static IServiceCollection AddRabbitConnection(this IServiceCollection services)
         {
-            var rabbitHostname = _configuration.GetValue<string>("RabbitMq:Hostname");
-            var rabbitPort = _configuration.GetValue<int>("RabbitMq:Port");
-            var rabbitUsername = _configuration.GetValue<string>("RabbitMq:Username");
-            var rabbitPassword = _configuration.GetValue<string>("RabbitMq:Password");
+            var rabbitHostname = _configuration?.GetValue<string>("RabbitMq:Hostname");
+            var rabbitPort = _configuration?.GetValue<int>("RabbitMq:Port");
+            var rabbitUsername = _configuration?.GetValue<string>("RabbitMq:Username");
+            var rabbitPassword = _configuration?.GetValue<string>("RabbitMq:Password");
 
             services.AddSingleton(_ => new ConnectionFactory()
             {
                 HostName = rabbitHostname,
-                Port = rabbitPort,
+                Port = rabbitPort ?? 5672,
                 UserName = rabbitUsername,
-                Password = rabbitPassword
+                Password = rabbitPassword,
+                DispatchConsumersAsync = true,
             });
 
             services.AddSingleton<ChannelWrapper>();
@@ -94,7 +95,7 @@ namespace Infrastructure
                 cm.IdMemberMap.SetSerializer(new StringSerializer(BsonType.String));
             });
 
-            services.Configure<MongoSettings>(_configuration?.GetSection("MongoDb"));
+            services.Configure<MongoSettings>(_configuration?.GetSection("MongoDb")!);
 
             return services;
         }

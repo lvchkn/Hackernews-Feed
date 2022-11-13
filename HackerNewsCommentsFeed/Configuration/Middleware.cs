@@ -32,8 +32,8 @@ public static class Middleware
 
     private static IApplicationBuilder UseHttpRequestsInterceptor(this IApplicationBuilder app)
     {
-        var userInformationEndpoint = _configuration.GetValue<string>("GithubAuth:UserInformationEndpoint");
-        var appName = _configuration.GetValue<string>("GithubAuth:AppName");
+        var userInformationEndpoint = _configuration?.GetValue<string>("GithubAuth:UserInformationEndpoint");
+        var appName = _configuration?.GetValue<string>("GithubAuth:AppName");
 
         app.Use(async (httpContext, next) =>
         {
@@ -44,7 +44,7 @@ public static class Middleware
                 using var request = new HttpRequestMessage(HttpMethod.Get, userInformationEndpoint);
                 using var client = new HttpClient();
 
-                client.DefaultRequestHeaders.UserAgent.Add(new ProductInfoHeaderValue(appName, "1.0"));
+                client.DefaultRequestHeaders.UserAgent.Add(new ProductInfoHeaderValue(appName ?? string.Empty, "1.0"));
                 client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
                 client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Token", accessToken);
 
