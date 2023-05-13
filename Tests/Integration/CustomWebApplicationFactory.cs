@@ -15,21 +15,22 @@ namespace Tests.Integration;
 public class CustomWebApplicationFactory<Program> : WebApplicationFactory<Program>, IAsyncLifetime, IAsyncDisposable 
     where Program: class, new()
 {
-    private readonly TestcontainerDatabase _mongoTestContainer;
+    private readonly TestcontainerDatabase _postgresContainer;
     private readonly TestcontainerMessageBroker _rmqContainer;
 
     public CustomWebApplicationFactory()
     {
-        _mongoTestContainer = new TestcontainersBuilder<MongoDbTestcontainer>()
-            .WithDatabase(new MongoDbTestcontainerConfiguration()
+        _postgresContainer = new TestcontainersBuilder<PostgreSqlTestcontainer>()
+            .WithDatabase(new PostgreSqlTestcontainerConfiguration()
             {
                 Database = "feed",
                 Username = "testuser",
                 Password = "testpw"
             })
-            .WithImage("mongo:5.0.6")
-            .WithName("mongotests")
-            .WithExposedPort(27017)
+            .WithImage("postgres:15.1")
+            .WithName("postgrestests")
+            .WithExposedPort(5432)
+            .WithPortBinding(5432, true)
             .WithCleanUp(true)
             .Build();
 
@@ -52,11 +53,10 @@ public class CustomWebApplicationFactory<Program> : WebApplicationFactory<Progra
         var config = new ConfigurationBuilder()
             .AddEnvironmentVariables()
             .AddJsonFile($"appsettings.{Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT")}.json", optional: true)
-            .AddJsonFile("appsettings.test.json")
+            //.AddJsonFile("appsettings.test.json")
             .AddInMemoryCollection(new Dictionary<string, string?>()
             {
-                ["MongoDb:ConnectionString"] = _mongoTestContainer.ConnectionString,
-                ["MongoDB:Url"] = _mongoTestContainer.ConnectionString,
+                ["ConnectionStrings:Postgres"] = _postgresContainer.ConnectionString,
                 ["RabbitMq:Port"] = _rmqContainer.Port.ToString(),
                 ["RabbitMq:UserName"] = _rmqContainer.Username.ToString(),
                 ["RabbitMq:Password"] = _rmqContainer.Password.ToString(),
@@ -86,13 +86,13 @@ public class CustomWebApplicationFactory<Program> : WebApplicationFactory<Progra
 
     public async Task InitializeAsync()
     {
-        await _mongoTestContainer.StartAsync();
+        await _postgresContainer.StartAsync();
         await _rmqContainer.StartAsync();
     }
 
     async Task IAsyncLifetime.DisposeAsync()
     {
-        await _mongoTestContainer.DisposeAsync();
+        await _postgresContainer.DisposeAsync();
         await _rmqContainer.DisposeAsync();
     }
 }

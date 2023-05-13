@@ -10,7 +10,7 @@ public class InterestsControllerTests : IClassFixture<CustomWebApplicationFactor
 {
     private readonly CustomWebApplicationFactory<Program> _webAppFactory;
     private record UserInfoResponse(bool IsAuthenticated, string AuthenticationType, string Name);
-    private record CreateInterestRequest(string Id, string Text);
+    private record CreateInterestRequest(string Text, int? Id);
 
     public InterestsControllerTests(CustomWebApplicationFactory<Program> webAppFactory)
     {
@@ -26,7 +26,7 @@ public class InterestsControllerTests : IClassFixture<CustomWebApplicationFactor
             PropertyNamingPolicy = JsonNamingPolicy.CamelCase
         };
 
-        var interest = new CreateInterestRequest(string.Empty, "Cloud Native Technologies");
+        var interest = new CreateInterestRequest("Cloud Native Technologies", null);
         var serializedInterest = JsonSerializer.Serialize(interest);
         
         var interestString = new StringContent(serializedInterest);
@@ -43,7 +43,7 @@ public class InterestsControllerTests : IClassFixture<CustomWebApplicationFactor
         postResponse.StatusCode.Should().Be(HttpStatusCode.OK);
         
         var postResponseJson = await postResponse.Content.ReadAsStringAsync();
-        var postedInterestId = JsonSerializer.Deserialize<string>(postResponseJson, jsonSerializerOptions);
+        var postedInterestId = JsonSerializer.Deserialize<int>(postResponseJson, jsonSerializerOptions);
 
         // Act 2 - get newly added interest by id
         var getByIdResponse = await client.GetAsync($"/api/interests/{interest.Text}");
@@ -59,5 +59,41 @@ public class InterestsControllerTests : IClassFixture<CustomWebApplicationFactor
 
         // Assert 2 - the interest returned by id is equivalent to the one we just added
         returnedinterest?.Should().BeEquivalentTo(actualPostedInterest);
+
+        // Act 3 - update interest
+        var updatedInterest = actualPostedInterest with { Text = "Updated Cloud Native Technologies" };
+        var updatedInterestStringContent = new StringContent(serializedInterest);
+        updatedInterestStringContent.Headers.ContentType = new MediaTypeHeaderValue("application/json");
+        
+        var putResponse = await client.PutAsync($"/api/interests/{interest.Text}", updatedInterestStringContent);
+        
+        // Assert 3 - update interest
+        putResponse.EnsureSuccessStatusCode();
+        putResponse.StatusCode.Should().Be(HttpStatusCode.NoContent);
+
+        // Act 4 - get updated interest by name
+        var getByIdUpdatedResponse = await client.GetAsync($"/api/interests/{updatedInterest.Text}");
+    
+        var getByIdUpdatedResponseJson = await getByIdResponse.Content.ReadAsStringAsync();
+
+        var returnedUpdatedInterest = JsonSerializer.Deserialize<CreateInterestRequest>(getByIdResponseJson, jsonSerializerOptions);
+
+        // Assert 4 - the interest returned by id is equivalent to the one we just updated
+        returnedUpdatedInterest?.Should().BeEquivalentTo(updatedInterest);
+
+        // Act 5 - delete interest
+        var deleteResponse = await client.DeleteAsync($"/api/interests/{returnedUpdatedInterest?.Id}");
+
+        // Assert 5 - delete interest
+        deleteResponse.EnsureSuccessStatusCode();
+        deleteResponse.StatusCode.Should().Be(HttpStatusCode.NoContent);
+
+        // Act 6 - try to get the deleted interest
+        var getByIdDeletedResponse = await client.GetAsync($"/api/interests/{returnedUpdatedInterest?.Id}");
+    
+        var getByIdDeletedResponseJson = await getByIdResponse.Content.ReadAsStringAsync();
+
+        // Assert 6 - delete interest
+        deleteResponse.StatusCode.Should().Be(HttpStatusCode.NotFound);
     }
 }
