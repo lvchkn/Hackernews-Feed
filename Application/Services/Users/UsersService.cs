@@ -16,21 +16,21 @@ namespace Application.Services.Users
             _usersRepository = usersRepository;
         }
         
-        public Task<string> AddAsync(UserDto userDto)
+        public async Task AddAsync(UserDto userDto)
         {
             var user = _mapper.Map<User>(userDto);
-            return _usersRepository.AddAsync(user);
+            await _usersRepository.AddAsync(user);
         }
 
-        public Task<string> AddInterestAsync(string email, InterestDto interestDto)
+        public async Task AddInterestAsync(string email, InterestDto interestDto)
         {
             var interest = _mapper.Map<Interest>(interestDto);
-            return _usersRepository.AddInterestAsync(email, interest);
+            await _usersRepository.AddInterestAsync(email, interest.Id);
         }
 
-        public Task<string> DeleteInterestAsync(string email, string interestId)
+        public async Task DeleteInterestAsync(string email, int interestId)
         {
-            return _usersRepository.DeleteInterestAsync(email, interestId);
+            await _usersRepository.DeleteInterestAsync(email, interestId);
         }
 
         public async Task<List<UserDto>> GetAllAsync()
@@ -45,24 +45,15 @@ namespace Application.Services.Users
             return _mapper.Map<UserDto>(user);
         }
 
-        public Task<List<string>> GetInterestsAsync(string email)
+        public async Task<List<InterestDto>> GetInterestsAsync(string email)
         {
-            return _usersRepository.GetInterestsAsync(email);
+            var userInterests = await _usersRepository.GetInterestsAsync(email);
+            return _mapper.Map<List<InterestDto>>(userInterests);
         }
 
-        public Task<List<string>> GetInterestsNamesAsync(string email)
+        public async Task UpdateLastActiveAsync(string email)
         {
-            return _usersRepository.GetInterestsNamesAsync(email);
-        }
-
-        public Task<string> UpdateInterestsAsync(string email, IEnumerable<string> interestIds)
-        {
-            return _usersRepository.UpdateInterestsAsync(email, interestIds);
-        }
-
-        public Task<string> UpdateLastActiveAsync(string email)
-        {
-            return _usersRepository.UpdateLastActiveAsync(email);
+            await _usersRepository.UpdateLastActiveAsync(email);
         }
     }
 }

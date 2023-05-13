@@ -16,9 +16,9 @@ public class StoriesService : IStoriesService
         _mapper = mapper;
     }
 
-    public Task<string> AddAsync(StoryDto storyDto)
+    public async Task AddAsync(StoryDto storyDto)
     {
         var story = _mapper.Map<Story>(storyDto);
-        return _storiesRepository.AddAsync(story);
+        await _storiesRepository.AddAsync(story);
     }
 }

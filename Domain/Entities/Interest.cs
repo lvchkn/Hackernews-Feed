@@ -2,7 +2,7 @@ namespace Domain.Entities;
 
 public record Interest
 {
-    public string Id { get; init; } = string.Empty;
-
+    public int Id { get; init; }
     public string Text { get; init; } = string.Empty;
+    public List<User> InterestedUsers { get; init; } = new ();
 }

@@ -6,8 +6,8 @@ namespace Application.Services.Interests
     {
         Task<InterestDto> GetByNameAsync(string name);
         Task<List<InterestDto>> GetAllAsync();
-        Task<string> AddAsync(InterestDto interest);
-        Task<string> UpdateAsync(string id, InterestDto updatedInterest);
-        Task<string> DeleteAsync(string id);
+        Task AddAsync(InterestDto interest);
+        Task UpdateAsync(int id, InterestDto updatedInterest);
+        Task DeleteAsync(int id);
     }
 }
