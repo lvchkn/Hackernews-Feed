@@ -27,7 +27,7 @@ public static class ItemsController
         {
             await commentsService.AddAsync(comment);
 
-            return Results.NoContent();
+            return Results.Ok();
             
         }).RequireAuthorization().WithTags(EndpointGroupTags.Comments);
 
