@@ -3,7 +3,7 @@ using Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using Shared.Utils;
 
-namespace Infrastructure.Mongo.Repositories;
+namespace Infrastructure.Repositories;
 
 public class UsersRepository : IUsersRepository
 {

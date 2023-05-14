@@ -1,8 +1,8 @@
 ﻿using Application.Interfaces;
-using Infrastructure.Mongo.Repositories;
 using Infrastructure.RabbitConnections;
 using Infrastructure.RabbitConnections.Publisher;
 using Infrastructure.RabbitConnections.Subscriber;
+using Infrastructure.Repositories;
 using Infrastructure.Workers;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -56,7 +56,6 @@ namespace Infrastructure
             services.AddDbContext<AppDbContext>(options =>
                 options.UseNpgsql(_configuration?.GetConnectionString("Postgres")));            
             
-            services.AddScoped<ICommentsRepository, CommentsRepository>();
             services.AddScoped<IUsersRepository, UsersRepository>();
             services.AddScoped<IInterestsRepository, InterestsRepository>();
             services.AddScoped<IStoriesRepository, StoriesRepository>();

@@ -15,90 +15,100 @@ public class UtilsTests
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase
     };
     
-    private List<CommentDto> Comments => new()
+    private List<StoryDto> Stories => new()
     {
-        new() {By = "A random person", Text = "What is going on?"},
-        new() {By = "Christopher Robin", Text = "Actions speak louder than words"},
-        new() {By = "James Hetfield", Text = "Boo!"},
-        new() {By = "Albert Einstein", Text = "E=MC2"},
+        new() { Id = 1, Title = "D Story", Score = 24 },
+        new() { Id = 2, Title = "C Story", Score = 10 },
+        new() { Id = 3, Title = "B Story", Score = 5 },
+        new() { Id = 4, Title = "A Story", Score = 42 },
     };
     
     [Fact]
     public void Item_type_is_inferred_correctly()
     {
         // Arrange
-        var comment = new Comment
+        var story = new Story
         {
-            Text = "Something",
-            Type = "comment"
+            Title = "Something",
+            Type = "story"
         };
-        var item = JsonSerializer.Serialize(comment, _jsonSerializerOptions);
+        var item = JsonSerializer.Serialize(story, _jsonSerializerOptions);
 
         // Act
         var type = ItemUtils.GetItemType(item);
 
         // Assert
-        type.Should().Be("comment");
+        type.Should().Be("story");
     }
 
     [Theory]
-    [InlineData(SortField.By)]
-    [InlineData(SortField.Text)]
+    [InlineData(SortField.Id)]
+    [InlineData(SortField.Score)]
+    [InlineData(SortField.Title)]
     public void Sorting_by_fields_in_ascending_order_works(SortField field)
     {
         // Arrange
         var sortingParameters = new SortingParameters(SortOrder.Asc, field);
         
         // Act
-        var sortedComments = new Sorter().Sort(Comments, sortingParameters);
+        var sortedStories = new Sorter().Sort(Stories, sortingParameters);
         
         // Assert
-        if (field == SortField.By)
+        if (field == SortField.Id)
         {
-            sortedComments.Should().BeInAscendingOrder(c => c.By);
+            sortedStories.Should().BeInAscendingOrder(c => c.Id);
+        }
+        else if (field == SortField.Title)
+        {
+            sortedStories.Should().BeInAscendingOrder(c => c.Title);
         }
         else 
         {
-            sortedComments.Should().BeInAscendingOrder(c => c.Text);
-        }    
+            sortedStories.Should().BeInAscendingOrder(c => c.Score);
+        }
     }
     
     [Theory]
-    [InlineData(SortField.By)]
-    [InlineData(SortField.Text)]
+    [InlineData(SortField.Id)]
+    [InlineData(SortField.Score)]
+    [InlineData(SortField.Title)]
     public void Sorting_by_fields_in_descending_order_works(SortField field)
     {
         // Arrange
         var sortingParameters = new SortingParameters(SortOrder.Desc, field);
         
         // Act
-        var sortedComments = new Sorter().Sort(Comments, sortingParameters);
+        var sortedStories = new Sorter().Sort(Stories, sortingParameters);
         
         // Assert
-        if (field == SortField.By)
+        if (field == SortField.Id)
         {
-            sortedComments.Should().BeInDescendingOrder(c => c.By);
+            sortedStories.Should().BeInDescendingOrder(c => c.By);
+        }
+        else if (field == SortField.Title)
+        {
+            sortedStories.Should().BeInDescendingOrder(c => c.Title);
         }
         else 
         {
-            sortedComments.Should().BeInDescendingOrder(c => c.Text);
-        }
+            sortedStories.Should().BeInDescendingOrder(c => c.Score);
+        }   
     }
     
     [Fact]
     public void Chained_sort_works()
     {
         // Arrange
-        var firstSortingParameters = new SortingParameters(SortOrder.Desc, SortField.By);
-        var secondSortingParameters = new SortingParameters(SortOrder.Asc, SortField.Text);
+        var firstSortingParameters = new SortingParameters(SortOrder.Desc, SortField.Score);
+        var secondSortingParameters = new SortingParameters(SortOrder.Asc, SortField.Title);
         var sorter = new Sorter();
         
         // Act
-        var firstSorting = sorter.Sort(Comments, firstSortingParameters);
-        var secondSorting = sorter.Sort(Comments, secondSortingParameters);
+        var firstSorting = sorter.Sort(Stories, firstSortingParameters);
+        var secondSorting = sorter.Sort(Stories, secondSortingParameters);
         
         // Assert
-        var expected = Comments.OrderByDescending(c => c.By).ThenBy(c => c.Text).ToList();
+        var expected = Stories.OrderByDescending(c => c.Score).ThenBy(c => c.Title).ToList();
         secondSorting.Should().BeEquivalentTo(expected);
     }
 }

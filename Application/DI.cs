@@ -1,5 +1,4 @@
 ﻿using Application.Services;
-using Application.Services.Comments;
 using Application.Services.Interests;
 using Application.Services.Stories;
 using Application.Services.Users;
@@ -22,7 +21,6 @@ namespace Application
 
             services.AddScoped<ISorter, Sorter>();
 
-            services.AddScoped<ICommentsService, CommentsService>();
             services.AddScoped<IUsersService, UsersService>();
             services.AddScoped<IInterestsService, InterestsService>();
             services.AddScoped<IStoriesService, StoriesService>();

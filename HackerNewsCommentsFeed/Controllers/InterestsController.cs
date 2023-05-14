@@ -10,10 +10,10 @@ public static class InterestsController
     public static IEndpointRouteBuilder MapInterestsEndpoints(this IEndpointRouteBuilder app)
     {
         app.MapGet("/api/interests/{id}", async (
-            [FromRoute] string id, 
+            [FromRoute] int id, 
             [FromServices] IInterestsService interestsService) =>
         {
-            var interest = await interestsService.GetByNameAsync(id);
+            var interest = await interestsService.GetByIdAsync(id);
     
             return Results.Ok(interest);
             
@@ -31,9 +31,9 @@ public static class InterestsController
             [FromBody] InterestDto interest, 
             [FromServices] IInterestsService interestsService) =>
         {
-            await interestsService.AddAsync(interest);
+            var id = await interestsService.AddAsync(interest);
             
-            return Results.Ok();
+            return Results.Ok(id);
  
         }).RequireAuthorization().WithTags(EndpointGroupTags.Interests);
 

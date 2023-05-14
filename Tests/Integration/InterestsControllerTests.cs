@@ -46,7 +46,7 @@ public class InterestsControllerTests : IClassFixture<CustomWebApplicationFactor
         var postedInterestId = JsonSerializer.Deserialize<int>(postResponseJson, jsonSerializerOptions);
 
         // Act 2 - get newly added interest by id
-        var getByIdResponse = await client.GetAsync($"/api/interests/{interest.Text}");
+        var getByIdResponse = await client.GetAsync($"/api/interests/{postedInterestId}");
     
         var getByIdResponseJson = await getByIdResponse.Content.ReadAsStringAsync();
 
@@ -62,17 +62,19 @@ public class InterestsControllerTests : IClassFixture<CustomWebApplicationFactor
 
         // Act 3 - update interest
         var updatedInterest = actualPostedInterest with { Text = "Updated Cloud Native Technologies" };
-        var updatedInterestStringContent = new StringContent(serializedInterest);
+        var serializedUpdatedInterest = JsonSerializer.Serialize(updatedInterest);
+
+        var updatedInterestStringContent = new StringContent(serializedUpdatedInterest);
         updatedInterestStringContent.Headers.ContentType = new MediaTypeHeaderValue("application/json");
         
-        var putResponse = await client.PutAsync($"/api/interests/{interest.Text}", updatedInterestStringContent);
+        var putResponse = await client.PutAsync($"/api/interests/{postedInterestId}", updatedInterestStringContent);
         
         // Assert 3 - update interest
         putResponse.EnsureSuccessStatusCode();
         putResponse.StatusCode.Should().Be(HttpStatusCode.NoContent);
 
         // Act 4 - get updated interest by name
-        var getByIdUpdatedResponse = await client.GetAsync($"/api/interests/{updatedInterest.Text}");
+        var getByIdUpdatedResponse = await client.GetAsync($"/api/interests/{updatedInterest.Id}");
     
         var getByIdUpdatedResponseJson = await getByIdResponse.Content.ReadAsStringAsync();
 

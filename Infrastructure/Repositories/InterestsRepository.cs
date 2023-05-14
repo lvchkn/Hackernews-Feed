@@ -3,7 +3,7 @@ using Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using Shared.Utils;
 
-namespace Infrastructure.Mongo.Repositories;
+namespace Infrastructure.Repositories;
 
 public class InterestsRepository : IInterestsRepository
 {
@@ -17,6 +17,7 @@ public class InterestsRepository : IInterestsRepository
     public async Task<Interest?> GetByIdAsync(int id)
     {
         var interest = await _dbContext.Interests
+            .AsNoTracking()
             .Where(i => i.Id == id)
             .SingleOrDefaultAsync();
 
@@ -26,6 +27,7 @@ public class InterestsRepository : IInterestsRepository
     public async Task<Interest?> GetByNameAsync(string name)
     {
         var interest = await _dbContext.Interests
+            .AsNoTracking()
             .Where(i => i.Text == name)
             .SingleOrDefaultAsync();
 
@@ -34,12 +36,14 @@ public class InterestsRepository : IInterestsRepository
 
     public async Task<List<Interest>> GetAllAsync()
     {
-        var interests = await _dbContext.Interests.ToListAsync();
+        var interests = await _dbContext.Interests
+            .AsNoTracking()
+            .ToListAsync();
 
         return interests;
     }
 
-    public async Task AddAsync(Interest newInterest)
+    public async Task<int> AddAsync(Interest newInterest)
     {
         var interest = await GetByNameAsync(newInterest.Text);
 
@@ -51,6 +55,8 @@ public class InterestsRepository : IInterestsRepository
         await _dbContext.Interests.AddAsync(newInterest);
         
         await _dbContext.SaveChangesAsync();
+
+        return newInterest.Id;
     }
 
     public async Task UpdateAsync(int id, Interest updatedInterest)
