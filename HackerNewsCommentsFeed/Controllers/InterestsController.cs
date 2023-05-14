@@ -15,7 +15,9 @@ public static class InterestsController
         {
             var interest = await interestsService.GetByIdAsync(id);
     
-            return Results.Ok(interest);
+            return interest is null
+                ? Results.NotFound()
+                : Results.Ok(interest);
             
         }).RequireAuthorization().WithTags(EndpointGroupTags.Interests);
             

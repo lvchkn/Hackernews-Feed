@@ -76,9 +76,9 @@ public class InterestsControllerTests : IClassFixture<CustomWebApplicationFactor
         // Act 4 - get updated interest by name
         var getByIdUpdatedResponse = await client.GetAsync($"/api/interests/{updatedInterest.Id}");
     
-        var getByIdUpdatedResponseJson = await getByIdResponse.Content.ReadAsStringAsync();
+        var getByIdUpdatedResponseJson = await getByIdUpdatedResponse.Content.ReadAsStringAsync();
 
-        var returnedUpdatedInterest = JsonSerializer.Deserialize<CreateInterestRequest>(getByIdResponseJson, jsonSerializerOptions);
+        var returnedUpdatedInterest = JsonSerializer.Deserialize<CreateInterestRequest>(getByIdUpdatedResponseJson, jsonSerializerOptions);
 
         // Assert 4 - the interest returned by id is equivalent to the one we just updated
         returnedUpdatedInterest?.Should().BeEquivalentTo(updatedInterest);
@@ -96,6 +96,6 @@ public class InterestsControllerTests : IClassFixture<CustomWebApplicationFactor
         var getByIdDeletedResponseJson = await getByIdResponse.Content.ReadAsStringAsync();
 
         // Assert 6 - delete interest
-        deleteResponse.StatusCode.Should().Be(HttpStatusCode.NotFound);
+        getByIdDeletedResponse.StatusCode.Should().Be(HttpStatusCode.NotFound);
     }
 }
