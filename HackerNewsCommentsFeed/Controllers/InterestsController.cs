@@ -10,12 +10,14 @@ public static class InterestsController
     public static IEndpointRouteBuilder MapInterestsEndpoints(this IEndpointRouteBuilder app)
     {
         app.MapGet("/api/interests/{id}", async (
-            [FromRoute] string id, 
+            [FromRoute] int id, 
             [FromServices] IInterestsService interestsService) =>
         {
-            var interest = await interestsService.GetByNameAsync(id);
+            var interest = await interestsService.GetByIdAsync(id);
     
-            return Results.Ok(interest);
+            return interest is null
+                ? Results.NotFound()
+                : Results.Ok(interest);
             
         }).RequireAuthorization().WithTags(EndpointGroupTags.Interests);
             
@@ -31,30 +33,30 @@ public static class InterestsController
             [FromBody] InterestDto interest, 
             [FromServices] IInterestsService interestsService) =>
         {
-            var interestId = await interestsService.AddAsync(interest);
+            var id = await interestsService.AddAsync(interest);
             
-            return Results.Ok(interestId);
+            return Results.Ok(id);
  
         }).RequireAuthorization().WithTags(EndpointGroupTags.Interests);
 
         app.MapPut("/api/interests/{id}", async (
-            [FromRoute] string id, 
+            [FromRoute] int id, 
             [FromBody] InterestDto interest, 
             [FromServices] IInterestsService interestsService) =>
         {
-            var interestId = await interestsService.UpdateAsync(id, interest);
+            await interestsService.UpdateAsync(id, interest);
 
-            return Results.Ok(interestId);
+            return Results.NoContent();
             
         }).RequireAuthorization().WithTags(EndpointGroupTags.Interests);
         
         app.MapDelete("/api/interests/{id}", async (
-            [FromRoute] string id, 
+            [FromRoute] int id, 
             [FromServices] IInterestsService interestsService) =>
         {
-            var interestId = await interestsService.DeleteAsync(id);
+            await interestsService.DeleteAsync(id);
 
-            return Results.Ok(interestId);
+            return Results.NoContent();
             
         }).RequireAuthorization().WithTags(EndpointGroupTags.Interests);
 

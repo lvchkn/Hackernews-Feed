@@ -3,9 +3,10 @@ using Domain.Entities;
 namespace Application.Interfaces;
 public interface IInterestsRepository
 {
-    Task<Interest> GetByNameAsync(string name);
+    Task<Interest?> GetByNameAsync(string name);
+    Task<Interest?> GetByIdAsync(int id);
     Task<List<Interest>> GetAllAsync();
-    Task<string> AddAsync(Interest interest);
-    Task<string> UpdateAsync(string id, Interest updatedInterest);
-    Task<string> DeleteAsync(string id);
+    Task<int> AddAsync(Interest interest);
+    Task UpdateAsync(int id, Interest updatedInterest);
+    Task DeleteAsync(int id);
 }

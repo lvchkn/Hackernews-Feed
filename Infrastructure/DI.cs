@@ -1,17 +1,12 @@
 ﻿using Application.Interfaces;
-using Domain.Entities;
-using Infrastructure.Mongo;
-using Infrastructure.Mongo.Repositories;
 using Infrastructure.RabbitConnections;
 using Infrastructure.RabbitConnections.Publisher;
 using Infrastructure.RabbitConnections.Subscriber;
+using Infrastructure.Repositories;
 using Infrastructure.Workers;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using MongoDB.Bson;
-using MongoDB.Bson.Serialization;
-using MongoDB.Bson.Serialization.IdGenerators;
-using MongoDB.Bson.Serialization.Serializers;
 using RabbitMQ.Client;
 
 namespace Infrastructure
@@ -25,7 +20,6 @@ namespace Infrastructure
             
             services
                 .AddRabbitConnection()
-                .AddMongoDb()
                 .AddRepos()
                 .AddHostedService<StoryFetcher>();
 
@@ -57,52 +51,11 @@ namespace Infrastructure
             return services;
         }
 
-        private static IServiceCollection AddMongoDb(this IServiceCollection services)
-        {
-            BsonClassMap.RegisterClassMap<Comment>(cm =>
-            {
-                cm.AutoMap();
-                cm.GetMemberMap(c => c.Id).SetIgnoreIfDefault(true);
-                cm.SetIdMember(cm.GetMemberMap(c => c.Id));
-                cm.IdMemberMap.SetIdGenerator(StringObjectIdGenerator.Instance);
-                cm.IdMemberMap.SetSerializer(new StringSerializer(BsonType.String));
-            });
-
-            BsonClassMap.RegisterClassMap<Interest>(cm =>
-            {
-                cm.AutoMap();
-                cm.GetMemberMap(c => c.Id).SetIgnoreIfDefault(true);
-                cm.SetIdMember(cm.GetMemberMap(c => c.Id));
-                cm.IdMemberMap.SetIdGenerator(StringObjectIdGenerator.Instance);
-                cm.IdMemberMap.SetSerializer(new StringSerializer(BsonType.ObjectId));
-            });
-
-            BsonClassMap.RegisterClassMap<User>(cm =>
-            {
-                cm.AutoMap();
-                cm.GetMemberMap(c => c.Id).SetIgnoreIfDefault(true);
-                cm.SetIdMember(cm.GetMemberMap(c => c.Id));
-                cm.IdMemberMap.SetIdGenerator(StringObjectIdGenerator.Instance);
-                cm.IdMemberMap.SetSerializer(new StringSerializer(BsonType.ObjectId));
-            });
-
-            BsonClassMap.RegisterClassMap<Story>(cm =>
-            {
-                cm.AutoMap();
-                cm.GetMemberMap(c => c.Id).SetIgnoreIfDefault(true);
-                cm.SetIdMember(cm.GetMemberMap(c => c.Id));
-                cm.IdMemberMap.SetIdGenerator(StringObjectIdGenerator.Instance);
-                cm.IdMemberMap.SetSerializer(new StringSerializer(BsonType.String));
-            });
-
-            services.Configure<MongoSettings>(_configuration?.GetSection("MongoDb")!);
-
-            return services;
-        }
-
         private static IServiceCollection AddRepos(this IServiceCollection services)
         {
-            services.AddScoped<ICommentsRepository, CommentsRepository>();
+            services.AddDbContext<AppDbContext>(options =>
+                options.UseNpgsql(_configuration?.GetConnectionString("Postgres")));            
+            
             services.AddScoped<IUsersRepository, UsersRepository>();
             services.AddScoped<IInterestsRepository, InterestsRepository>();
             services.AddScoped<IStoriesRepository, StoriesRepository>();

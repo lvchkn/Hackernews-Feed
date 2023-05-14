@@ -16,15 +16,17 @@ namespace Application.Services.Interests
             _interestsRepository = interestsRepository;
         }
 
-        public Task<string> AddAsync(InterestDto interestDto)
+        public async Task<int> AddAsync(InterestDto interestDto)
         {
             var interest = _mapper.Map<Interest>(interestDto);
-            return _interestsRepository.AddAsync(interest);
+            var id = await _interestsRepository.AddAsync(interest);
+
+            return id;
         }
 
-        public Task<string> DeleteAsync(string id)
+        public async Task DeleteAsync(int id)
         {
-            return _interestsRepository.DeleteAsync(id);
+            await _interestsRepository.DeleteAsync(id);
         }
 
         public async Task<List<InterestDto>> GetAllAsync()
@@ -39,10 +41,16 @@ namespace Application.Services.Interests
             return _mapper.Map<InterestDto>(interest);
         }
 
-        public Task<string> UpdateAsync(string id, InterestDto updatedInterest)
+        public async Task<InterestDto> GetByIdAsync(int id)
+        {
+            var interest = await _interestsRepository.GetByIdAsync(id);
+            return _mapper.Map<InterestDto>(interest);
+        }
+
+        public async Task UpdateAsync(int id, InterestDto updatedInterest)
         {
             var interest = _mapper.Map<Interest>(updatedInterest);
-            return _interestsRepository.UpdateAsync(id, interest);
+            await _interestsRepository.UpdateAsync(id, interest);
         }
     }
 }

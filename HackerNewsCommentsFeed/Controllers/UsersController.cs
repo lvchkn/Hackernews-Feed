@@ -21,9 +21,9 @@ public static class UsersController
             [FromRoute] string email, 
             [FromServices] IUsersService usersService) =>
         {
-            var users = await usersService.GetInterestsNamesAsync(email);
+            var userInterests = await usersService.GetInterestsAsync(email);
 
-            return Results.Ok(users);
+            return Results.Ok(userInterests);
             
         }).RequireAuthorization().WithTags(EndpointGroupTags.UsersInterests);
 
@@ -32,20 +32,20 @@ public static class UsersController
             [FromBody] InterestDto interest, 
             [FromServices] IUsersService usersService) =>
         {
-            var users = await usersService.AddInterestAsync(email, interest);
+            await usersService.AddInterestAsync(email, interest);
 
-            return Results.Created($"/user/{email}/interests", users);
+            return Results.Ok();
 
         }).RequireAuthorization().WithTags(EndpointGroupTags.UsersInterests);
 
         app.MapDelete("/api/user/{email}/interests/{id}", async (
             [FromRoute] string email, 
-            [FromRoute] string id,
+            [FromRoute] int id,
             [FromServices] IUsersService usersService) =>
         {
-            var users = await usersService.DeleteInterestAsync(email, id);
+            await usersService.DeleteInterestAsync(email, id);
 
-            return Results.Ok(users);
+            return Results.NoContent();
 
         }).RequireAuthorization().WithTags(EndpointGroupTags.UsersInterests);
 

@@ -5,9 +5,10 @@ namespace Application.Services.Interests
     public interface IInterestsService
     {
         Task<InterestDto> GetByNameAsync(string name);
+        Task<InterestDto> GetByIdAsync(int id);
         Task<List<InterestDto>> GetAllAsync();
-        Task<string> AddAsync(InterestDto interest);
-        Task<string> UpdateAsync(string id, InterestDto updatedInterest);
-        Task<string> DeleteAsync(string id);
+        Task<int> AddAsync(InterestDto interest);
+        Task UpdateAsync(int id, InterestDto updatedInterest);
+        Task DeleteAsync(int id);
     }
 }
