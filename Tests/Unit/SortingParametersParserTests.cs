@@ -1,0 +1,129 @@
+using Application.Services;
+using FluentAssertions;
+using Xunit;
+
+namespace Tests.Unit;
+
+public class SortingParametersParserTests
+{
+    [Fact]
+    public void Sorting_params_title_asc_and_score_desc_should_be_parsed_correctly()
+    {
+        // Arrange
+        var query = "title asc, score desc";
+        var expectedResult = new List<SortingParameters>()
+        {
+            new SortingParameters(SortOrder.Asc, SortField.Title),
+            new SortingParameters(SortOrder.Desc, SortField.Score),
+        };
+
+        // Act
+        var sortingParams = new SortingParametersParser().Parse(query);
+
+        // Assert
+        sortingParams.Should().BeEquivalentTo(expectedResult);
+    }
+
+    [Fact]
+    public void Sorting_params_score_desc_and_id_asc_should_be_parsed_correctly()
+    {
+        // Arrange
+        var query = "score desc, id asc";
+        var expectedResult = new List<SortingParameters>()
+        {
+            new SortingParameters(SortOrder.Desc, SortField.Score),
+            new SortingParameters(SortOrder.Asc, SortField.Id),
+        };
+
+        // Act
+        var sortingParams = new SortingParametersParser().Parse(query);
+
+        // Assert
+        sortingParams.Should().BeEquivalentTo(expectedResult);
+    }
+
+    [Fact]
+    public void Sorting_param_score_should_be_parsed_correctly()
+    {
+        // Arrange
+        var query = "score";
+        var expectedResult = new List<SortingParameters>()
+        {
+            new SortingParameters(SortOrder.Asc, SortField.Score),
+        };
+
+        // Act
+        var sortingParams = new SortingParametersParser().Parse(query);
+
+        // Assert
+        sortingParams.Should().BeEquivalentTo(expectedResult);
+    }
+
+    [Fact]
+    public void Sorting_params_score_and_title_should_be_parsed_correctly()
+    {
+        // Arrange
+        var query = "score, title";
+        var expectedResult = new List<SortingParameters>()
+        {
+            new SortingParameters(SortOrder.Asc, SortField.Score),
+            new SortingParameters(SortOrder.Asc, SortField.Title),
+        };
+
+        // Act
+        var sortingParams = new SortingParametersParser().Parse(query);
+
+        // Assert
+        sortingParams.Should().BeEquivalentTo(expectedResult);
+    }
+
+    [Theory]
+    [InlineData("")]
+    [InlineData(null)]
+    public void Empty_sorting_params_should_be_discarded(string? query)
+    {
+        // Arrange
+        var expectedResult = new List<SortingParameters>(0);
+
+        // Act
+        var sortingParamsAct = new SortingParametersParser().Parse(query);
+
+        // Assert
+        sortingParamsAct.Should().BeEquivalentTo(expectedResult);
+    }
+
+    [Fact]
+    public void Incorrectly_formatted_sorting_params_should_be_discarded()
+    {
+        // Arrange
+        var sortingParameters = "author,title descending";
+        var expectedResult = new List<SortingParameters>()
+        {
+            new(SortOrder.Asc, SortField.None),
+            new(SortOrder.Asc, SortField.Title),
+        };
+
+        // Act
+        var sortingParamsAct = new SortingParametersParser().Parse(sortingParameters);
+
+        // Assert
+        sortingParamsAct.Should().BeEquivalentTo(expectedResult);
+    }
+
+    [Fact]
+    public void Incorrectly_formatted_sorting_param_should_be_discarded()
+    {
+        // Arrange
+        var sortingParameters = "author";
+        var expectedResult = new List<SortingParameters>()
+        {
+            new(SortOrder.Asc, SortField.None),
+        };
+
+        // Act
+        var sortingParamsAct = new SortingParametersParser().Parse(sortingParameters);
+
+        // Assert
+        sortingParamsAct.Should().BeEquivalentTo(expectedResult);
+    }
+}

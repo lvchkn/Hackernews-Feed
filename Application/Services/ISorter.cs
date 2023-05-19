@@ -1,9 +1,7 @@
-﻿using Application.Contracts;
-
-namespace Application.Services
+﻿namespace Application.Services
 {
-    public interface ISorter
+    public interface ISorter<T> where T : class
     {
-        List<StoryDto> Sort(IEnumerable<StoryDto> unsorted, SortingParameters parameters);
+        List<T> Sort(IQueryable<T> unsorted, IEnumerable<SortingParameters> parameters);
     }
 }

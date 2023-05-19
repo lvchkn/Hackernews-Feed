@@ -1,5 +1,4 @@
 ﻿using System.Text.Json;
-using Application.Contracts;
 using Application.Services;
 using Domain.Entities;
 using FluentAssertions;
@@ -15,13 +14,13 @@ public class UtilsTests
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase
     };
     
-    private List<StoryDto> Stories => new()
+    private IQueryable<Story> Stories => new List<Story>()
     {
         new() { Id = 1, Title = "D Story", Score = 24 },
         new() { Id = 2, Title = "C Story", Score = 10 },
         new() { Id = 3, Title = "B Story", Score = 5 },
         new() { Id = 4, Title = "A Story", Score = 42 },
-    };
+    }.AsQueryable();
     
     [Fact]
     public void Item_type_is_inferred_correctly()
@@ -48,10 +47,13 @@ public class UtilsTests
     public void Sorting_by_fields_in_ascending_order_works(SortField field)
     {
         // Arrange
-        var sortingParameters = new SortingParameters(SortOrder.Asc, field);
+        var sortingParameters = new List<SortingParameters>()
+        {
+            new(SortOrder.Asc, field),
+        };
         
         // Act
-        var sortedStories = new Sorter().Sort(Stories, sortingParameters);
+        var sortedStories = new StoriesSorter().Sort(Stories, sortingParameters);
         
         // Assert
         if (field == SortField.Id)
@@ -75,10 +77,13 @@ public class UtilsTests
     public void Sorting_by_fields_in_descending_order_works(SortField field)
     {
         // Arrange
-        var sortingParameters = new SortingParameters(SortOrder.Desc, field);
+        var sortingParameters = new List<SortingParameters>
+        {
+            new(SortOrder.Desc, field),
+        };
         
         // Act
-        var sortedStories = new Sorter().Sort(Stories, sortingParameters);
+        var sortedStories = new StoriesSorter().Sort(Stories, sortingParameters);
         
         // Assert
         if (field == SortField.Id)
@@ -99,16 +104,20 @@ public class UtilsTests
     public void Chained_sort_works()
     {
         // Arrange
-        var firstSortingParameters = new SortingParameters(SortOrder.Desc, SortField.Score);
-        var secondSortingParameters = new SortingParameters(SortOrder.Asc, SortField.Title);
-        var sorter = new Sorter();
+        var sortingParameters = new List<SortingParameters>()
+        {
+            new(SortOrder.Desc, SortField.Score),
+            new(SortOrder.Asc, SortField.Title),
+        };
+        
+        var expected = Stories.OrderByDescending(c => c.Score).ThenBy(c => c.Title).ToList();
+
+        var sorter = new StoriesSorter();
         
         // Act
-        var firstSorting = sorter.Sort(Stories, firstSortingParameters);
-        var secondSorting = sorter.Sort(Stories, secondSortingParameters);
+        var sortedStories = sorter.Sort(Stories, sortingParameters);
         
         // Assert
-        var expected = Stories.OrderByDescending(c => c.Score).ThenBy(c => c.Title).ToList();
-        secondSorting.Should().BeEquivalentTo(expected);
+        sortedStories.Should().BeEquivalentTo(expected);
     }
 }
