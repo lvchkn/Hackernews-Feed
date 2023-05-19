@@ -1,4 +1,3 @@
-using Application.Services;
 using Application.Services.Stories;
 using Microsoft.AspNetCore.Mvc;
 using Shared.Utils;
@@ -9,15 +8,11 @@ public static class StoriesController
 {
     public static IEndpointRouteBuilder MapItemsEndpoints(this IEndpointRouteBuilder app)
     {   
-        app.MapGet("/api/stories", async (
-            [FromQuery] SortField? sortBy, 
-            [FromQuery] SortOrder? order, 
-            [FromServices] IStoriesService storiesService,
-            [FromServices] ISorter sorter) =>
+        app.MapGet("/api/stories", (
+            [FromQuery] string? orderBy, 
+            [FromServices] IStoriesService storiesService) =>
         {
-            var stories = await storiesService.GetAllAsync();
-            var sortedStories = sorter.Sort(stories, new SortingParameters(order ?? SortOrder.Asc, sortBy ?? SortField.None));
-            
+            var sortedStories = storiesService.GetSortedStories(orderBy);   
             return Results.Ok(sortedStories);
             
         }).RequireAuthorization().WithTags(EndpointGroupTags.Stories);

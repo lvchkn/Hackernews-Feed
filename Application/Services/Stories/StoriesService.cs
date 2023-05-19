@@ -9,11 +9,16 @@ public class StoriesService : IStoriesService
 {
     private readonly IStoriesRepository _storiesRepository;
     private readonly IMapper _mapper;
+    private readonly SortingParametersParser _sortingParameteresParser;
 
-    public StoriesService(IStoriesRepository storiesRepository, IMapper mapper)
+    public StoriesService(
+        IStoriesRepository storiesRepository, 
+        IMapper mapper, 
+        SortingParametersParser sortingParameteresParser)
     {
         _storiesRepository = storiesRepository;
         _mapper = mapper;
+        _sortingParameteresParser = sortingParameteresParser;
     }
 
     public async Task AddAsync(StoryDto storyDto)
@@ -26,5 +31,13 @@ public class StoriesService : IStoriesService
     {
         var stories = await _storiesRepository.GetAllAsync();
         return _mapper.Map<List<StoryDto>>(stories);
+    }
+
+    public List<StoryDto> GetSortedStories(string? query)
+    {
+        var parsedSortingParameters = _sortingParameteresParser.Parse(query);
+
+        var sortedStories = _storiesRepository.GetSortedStories(parsedSortingParameters);
+        return _mapper.Map<List<StoryDto>>(sortedStories);
     }
 }

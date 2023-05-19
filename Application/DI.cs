@@ -2,6 +2,7 @@
 using Application.Services.Interests;
 using Application.Services.Stories;
 using Application.Services.Users;
+using Domain.Entities;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using System.Reflection;
@@ -19,7 +20,8 @@ namespace Application
 
             services.AddAutoMapper(Assembly.GetExecutingAssembly());
 
-            services.AddScoped<ISorter, Sorter>();
+            services.AddScoped<ISorter<Story>, StoriesSorter>();
+            services.AddScoped<SortingParametersParser>();
 
             services.AddScoped<IUsersService, UsersService>();
             services.AddScoped<IInterestsService, InterestsService>();

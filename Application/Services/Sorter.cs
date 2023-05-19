@@ -1,4 +1,4 @@
-using Application.Contracts;
+using Domain.Entities;
 
 namespace Application.Services;
 
@@ -14,36 +14,27 @@ public enum SortField
 
 public record SortingParameters(SortOrder Order, SortField FieldToSort);
 
-public class Sorter : ISorter
+public class StoriesSorter : ISorter<Story>
 {
-    private readonly Dictionary<SortField, SortOrder> _sortingState = new()
+    public List<Story> Sort(IQueryable<Story> stories, IEnumerable<SortingParameters> parameters)
     {
-        [SortField.None] = SortOrder.Asc
-    };
-
-    public List<StoryDto> Sort(IEnumerable<StoryDto> unsorted, SortingParameters parameters)
-    {
-        var (sortOrder, fieldToSort) = parameters;
-
-        if (!_sortingState.ContainsKey(fieldToSort))
-        {
-            _sortingState.Add(fieldToSort, sortOrder);
-        }
-
         var index = 0;
-        var listToSort = new List<StoryDto>(unsorted);
 
-        foreach (var (field, order) in _sortingState)
+        foreach (var (order, field) in parameters)
         {
             var thenable = index > 1;
             index++;
-            listToSort = GetSortedList(listToSort, field, order, thenable);
+            stories = UpdateListOrder(stories, field, order, thenable);
         }
 
-        return listToSort;
+        return stories.ToList();
     }
 
-    private static List<StoryDto> GetSortedList(IEnumerable<StoryDto> list, SortField field, SortOrder order, bool thenable)
+    private static IQueryable<Story> UpdateListOrder(
+        IQueryable<Story> list, 
+        SortField field, 
+        SortOrder order, 
+        bool thenable)
     {
         var listToOrder = list.OrderBy(_ => true);
 
@@ -105,6 +96,6 @@ public class Sorter : ISorter
             default: throw new ArgumentOutOfRangeException(nameof(field), field, null);
         }
 
-        return listToOrder.ToList();
+        return listToOrder;
     }
 }

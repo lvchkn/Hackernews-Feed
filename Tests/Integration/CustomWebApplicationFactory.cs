@@ -1,47 +1,39 @@
-using DotNet.Testcontainers.Builders;
-using DotNet.Testcontainers.Configurations;
-using DotNet.Testcontainers.Containers;
 using Infrastructure.Workers;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.TestHost;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Testcontainers.PostgreSql;
+using Testcontainers.RabbitMq;
 using Xunit;
 
 namespace Tests.Integration;
 
-public class CustomWebApplicationFactory<Program> : WebApplicationFactory<Program>, IAsyncLifetime, IAsyncDisposable 
+public class CustomWebApplicationFactory<Program> : WebApplicationFactory<Program>, IAsyncLifetime 
     where Program: class, new()
 {
-    private readonly TestcontainerDatabase _postgresContainer;
-    private readonly TestcontainerMessageBroker _rmqContainer;
+    private readonly PostgreSqlContainer _postgresContainer;
+    private readonly RabbitMqContainer _rmqContainer;
 
     public CustomWebApplicationFactory()
     {
-        _postgresContainer = new TestcontainersBuilder<PostgreSqlTestcontainer>()
-            .WithDatabase(new PostgreSqlTestcontainerConfiguration()
-            {
-                Database = "feed",
-                Username = "testuser",
-                Password = "testpw"
-            })
+        _postgresContainer = new PostgreSqlBuilder()
+            .WithDatabase("feed")
+            .WithUsername("testuser")
+            .WithPassword("testpw")
             .WithImage("postgres:15.1")
-            .WithName("postgrestests")
             .WithExposedPort(5432)
             .WithPortBinding(5432, true)
             .WithCleanUp(true)
             .Build();
 
-         _rmqContainer = new TestcontainersBuilder<RabbitMqTestcontainer>()
-            .WithMessageBroker(new RabbitMqTestcontainerConfiguration 
-            {
-                Username = "testuser", 
-                Password = "testpw" 
-            })
+         _rmqContainer = new RabbitMqBuilder()
+            .WithUsername("testuser")
+            .WithPassword("testpw")
             .WithImage("rabbitmq:3.7.28")
-            .WithName("rmqtests")
             .WithExposedPort(5672)
             .WithCleanUp(true)
             .Build();
@@ -49,17 +41,15 @@ public class CustomWebApplicationFactory<Program> : WebApplicationFactory<Progra
 
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
-        Environment.SetEnvironmentVariable("ASPNETCORE_ENVIRONMENT", "development");
+        builder.UseEnvironment("development");
+
         var config = new ConfigurationBuilder()
             .AddEnvironmentVariables()
             .AddJsonFile($"appsettings.{Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT")}.json", optional: true)
-            //.AddJsonFile("appsettings.test.json")
             .AddInMemoryCollection(new Dictionary<string, string?>()
             {
-                ["ConnectionStrings:Postgres"] = _postgresContainer.ConnectionString,
-                ["RabbitMq:Port"] = _rmqContainer.Port.ToString(),
-                ["RabbitMq:UserName"] = _rmqContainer.Username.ToString(),
-                ["RabbitMq:Password"] = _rmqContainer.Password.ToString(),
+                ["ConnectionStrings:Postgres"] = _postgresContainer.GetConnectionString(),
+                ["RabbitMq:Uri"] = _rmqContainer.GetConnectionString(),
             })
             .Build();
         
@@ -75,12 +65,22 @@ public class CustomWebApplicationFactory<Program> : WebApplicationFactory<Progra
             .AddScheme<AuthenticationSchemeOptions, TestAuthHandler>(
                 "Test", options => {});
 
-            var descriptor = services.SingleOrDefault(s => s.ImplementationType == typeof(StoryFetcher));
+            var workerDescriptor = services.SingleOrDefault(s => s.ImplementationType == typeof(StoryFetcher));
             
-            if (descriptor is not null) 
+            if (workerDescriptor is not null) 
             {
-                services.Remove(descriptor);
+                services.Remove(workerDescriptor);
             }
+
+            var dbContextDescriptor = services.SingleOrDefault(d => d.ServiceType == typeof(DbContextOptions<AppDbContext>));
+
+            if (dbContextDescriptor is not null) 
+            {
+                services.Remove(dbContextDescriptor);
+            }
+
+            services.AddDbContext<AppDbContext>(options => 
+                options.UseNpgsql(_postgresContainer.GetConnectionString()));
         });
     }
 

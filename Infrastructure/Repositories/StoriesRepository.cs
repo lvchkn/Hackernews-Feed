@@ -1,4 +1,5 @@
 using Application.Interfaces;
+using Application.Services;
 using Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using Shared.Utils;
@@ -8,10 +9,12 @@ namespace Infrastructure.Repositories;
 public class StoriesRepository : IStoriesRepository
 {
     private readonly AppDbContext _dbContext;
+    private readonly ISorter<Story> _storiesSorter;
 
-    public StoriesRepository(AppDbContext dbContext)
+    public StoriesRepository(AppDbContext dbContext, ISorter<Story> storiesSorter)
     {
         _dbContext = dbContext;
+        _storiesSorter = storiesSorter;
     }
 
     public async Task<Story?> GetByIdAsync(int id)
@@ -37,6 +40,13 @@ public class StoriesRepository : IStoriesRepository
         var stories = await _dbContext.Stories.ToListAsync();
 
         return stories;
+    }
+
+    public List<Story> GetSortedStories(IEnumerable<SortingParameters> sortingParameters)
+    {
+        var sortedStories = _storiesSorter.Sort(_dbContext.Stories, sortingParameters);
+
+        return sortedStories;
     }
 
     public async Task AddAsync(Story newStory)
