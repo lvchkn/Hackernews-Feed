@@ -9,7 +9,6 @@ namespace Tests.Integration;
 public class InterestsControllerTests : IClassFixture<CustomWebApplicationFactory<Program>>
 {
     private readonly CustomWebApplicationFactory<Program> _webAppFactory;
-    private record UserInfoResponse(bool IsAuthenticated, string AuthenticationType, string Name);
     private record CreateInterestRequest(string Text, int? Id);
 
     public InterestsControllerTests(CustomWebApplicationFactory<Program> webAppFactory)

@@ -8,13 +8,6 @@ public static class Middleware
     {
         _configuration = configuration;
 
-        app.ApplicationServices
-            .CreateScope()
-            .ServiceProvider
-            .GetRequiredService<AppDbContext>()
-            .Database.
-            EnsureCreated();
-
         app.UseCors()
             .UseAuthentication()
             .UseAuthorization()
