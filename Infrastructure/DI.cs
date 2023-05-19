@@ -28,17 +28,11 @@ namespace Infrastructure
 
         private static IServiceCollection AddRabbitConnection(this IServiceCollection services)
         {
-            var rabbitHostname = _configuration?.GetValue<string>("RabbitMq:Hostname");
-            var rabbitPort = _configuration?.GetValue<int>("RabbitMq:Port");
-            var rabbitUsername = _configuration?.GetValue<string>("RabbitMq:Username");
-            var rabbitPassword = _configuration?.GetValue<string>("RabbitMq:Password");
+            var connectionString = _configuration?.GetConnectionString("RabbitMq") ?? "";
 
             services.AddSingleton(_ => new ConnectionFactory()
             {
-                HostName = rabbitHostname,
-                Port = rabbitPort ?? 5672,
-                UserName = rabbitUsername,
-                Password = rabbitPassword,
+                Uri = new Uri(connectionString),
                 DispatchConsumersAsync = true,
             });
 
@@ -54,7 +48,9 @@ namespace Infrastructure
         private static IServiceCollection AddRepos(this IServiceCollection services)
         {
             services.AddDbContext<AppDbContext>(options =>
-                options.UseNpgsql(_configuration?.GetConnectionString("Postgres")));            
+            {
+                options.UseNpgsql(_configuration?.GetConnectionString("Postgres"));
+            }); 
             
             services.AddScoped<IUsersRepository, UsersRepository>();
             services.AddScoped<IInterestsRepository, InterestsRepository>();
