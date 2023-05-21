@@ -1,6 +1,4 @@
-using Application.Contracts;
-
-namespace Application.Interfaces;
+namespace Application.Messaging;
 
 public interface ISubscriber
 {

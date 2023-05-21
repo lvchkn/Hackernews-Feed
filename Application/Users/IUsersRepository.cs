@@ -1,6 +1,7 @@
 using Domain.Entities;
 
-namespace Application.Interfaces;
+namespace Application.Users;
+
 public interface IUsersRepository
 {
     Task<List<User>> GetAllAsync();

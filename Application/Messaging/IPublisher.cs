@@ -1,4 +1,4 @@
-namespace Application.Interfaces;
+namespace Application.Messaging;
 
 public interface IPublisher
 {

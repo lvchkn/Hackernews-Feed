@@ -1,4 +1,6 @@
-namespace Application.Services;
+namespace Application.Sort;
+
+public record SortingParameters(SortOrder Order, SortField FieldToSort);
 
 public class SortingParametersParser
 {

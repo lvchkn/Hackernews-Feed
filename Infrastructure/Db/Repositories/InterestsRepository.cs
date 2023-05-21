@@ -1,9 +1,9 @@
-using Application.Interfaces;
+using Application.Interests;
 using Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using Shared.Utils;
 
-namespace Infrastructure.Repositories;
+namespace Infrastructure.Db.Repositories;
 
 public class InterestsRepository : IInterestsRepository
 {

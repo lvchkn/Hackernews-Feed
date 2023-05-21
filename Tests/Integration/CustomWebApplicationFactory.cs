@@ -1,3 +1,4 @@
+using Infrastructure.Db;
 using Infrastructure.Workers;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Hosting;

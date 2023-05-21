@@ -1,6 +1,7 @@
 using Domain.Entities;
 
-namespace Application.Interfaces;
+namespace Application.Interests;
+
 public interface IInterestsRepository
 {
     Task<Interest?> GetByNameAsync(string name);

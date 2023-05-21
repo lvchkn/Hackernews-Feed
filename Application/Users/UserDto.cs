@@ -1,4 +1,7 @@
-namespace Application.Contracts;
+using Application.Interests;
+using Application.Stories;
+
+namespace Application.Users;
 
 public record UserDto
 {

@@ -1,9 +1,10 @@
 using System.Net.Http.Headers;
 using System.Text.Json;
-using Application.Contracts;
-using Application.Services.Users;
+using Application.Users;
 using Microsoft.AspNetCore.Authentication;
 using Shared.Utils;
+
+namespace HackerNewsCommentsFeed.Configuration;
 
 public class HttpRequestsInterceptor
 {

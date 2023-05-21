@@ -1,62 +1,71 @@
-﻿using Application.Interfaces;
+﻿using Application.Filter;
+using Application.Interests;
+using Application.Messaging;
+using Application.Sort;
+using Application.Stories;
+using Application.Users;
+using Domain.Entities;
+using Infrastructure.Db;
+using Infrastructure.Db.Repositories;
 using Infrastructure.RabbitConnections;
 using Infrastructure.RabbitConnections.Publisher;
 using Infrastructure.RabbitConnections.Subscriber;
-using Infrastructure.Repositories;
 using Infrastructure.Workers;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using RabbitMQ.Client;
 
-namespace Infrastructure
+namespace Infrastructure;
+
+public static class DI
 {
-    public static class DI
+    private static IConfiguration? _configuration;
+    public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
     {
-        private static IConfiguration? _configuration;
-        public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
-        {
-            _configuration = configuration;
+        _configuration = configuration;
             
-            services
-                .AddRabbitConnection()
-                .AddRepos()
-                .AddHostedService<StoryFetcher>();
+        services
+            .AddRabbitConnection()
+            .AddRepos()
+            .AddHostedService<StoryFetcher>();
 
-            return services;
-        }
+        return services;
+    }
 
-        private static IServiceCollection AddRabbitConnection(this IServiceCollection services)
+    private static IServiceCollection AddRabbitConnection(this IServiceCollection services)
+    {
+        var connectionString = _configuration?.GetConnectionString("RabbitMq") ?? "";
+
+        services.AddSingleton(_ => new ConnectionFactory()
         {
-            var connectionString = _configuration?.GetConnectionString("RabbitMq") ?? "";
+            Uri = new Uri(connectionString),
+            DispatchConsumersAsync = true,
+        });
 
-            services.AddSingleton(_ => new ConnectionFactory()
-            {
-                Uri = new Uri(connectionString),
-                DispatchConsumersAsync = true,
-            });
+        services.AddSingleton<ChannelWrapper>();
+        services.AddSingleton<IChannelFactory, ChannelFactory>();
 
-            services.AddSingleton<ChannelWrapper>();
-            services.AddSingleton<IChannelFactory, ChannelFactory>();
+        services.AddSingleton<IPublisher, Publisher>();
+        services.AddSingleton<ISubscriber, Subscriber>();
 
-            services.AddSingleton<IPublisher, Publisher>();
-            services.AddSingleton<ISubscriber, Subscriber>();
+        return services;
+    }
 
-            return services;
-        }
-
-        private static IServiceCollection AddRepos(this IServiceCollection services)
+    private static IServiceCollection AddRepos(this IServiceCollection services)
+    {
+        services.AddDbContext<AppDbContext>(options =>
         {
-            services.AddDbContext<AppDbContext>(options =>
-            {
-                options.UseNpgsql(_configuration?.GetConnectionString("Postgres"));
-            }); 
+            options.UseNpgsql(_configuration?.GetConnectionString("Postgres"));
+        }); 
             
-            services.AddScoped<IUsersRepository, UsersRepository>();
-            services.AddScoped<IInterestsRepository, InterestsRepository>();
-            services.AddScoped<IStoriesRepository, StoriesRepository>();
+        services.AddScoped<ISorter<Story>, StoriesSorter>();
+        services.AddScoped<IFilter<Story>, StoriesFilter>();
 
-            return services;
-        }
+        services.AddScoped<IUsersRepository, UsersRepository>();
+        services.AddScoped<IInterestsRepository, InterestsRepository>();
+        services.AddScoped<IStoriesRepository, StoriesRepository>();
+
+        return services;
     }
 }

@@ -1,9 +1,9 @@
-using Application.Interfaces;
+using Application.Users;
 using Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using Shared.Utils;
 
-namespace Infrastructure.Repositories;
+namespace Infrastructure.Db.Repositories;
 
 public class UsersRepository : IUsersRepository
 {

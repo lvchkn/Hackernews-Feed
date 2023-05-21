@@ -1,20 +1,26 @@
-using Application.Interfaces;
-using Application.Services;
+using Application.Stories;
+using Application.Filter;
+using Application.Sort;
 using Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using Shared.Utils;
 
-namespace Infrastructure.Repositories;
+namespace Infrastructure.Db.Repositories;
 
 public class StoriesRepository : IStoriesRepository
 {
     private readonly AppDbContext _dbContext;
     private readonly ISorter<Story> _storiesSorter;
+    private readonly IFilter<Story> _storiesFilter;
 
-    public StoriesRepository(AppDbContext dbContext, ISorter<Story> storiesSorter)
+    public StoriesRepository(
+        AppDbContext dbContext, 
+        ISorter<Story> storiesSorter, 
+        IFilter<Story> filter)
     {
         _dbContext = dbContext;
         _storiesSorter = storiesSorter;
+        _storiesFilter = filter;
     }
 
     public async Task<Story?> GetByIdAsync(int id)
@@ -42,9 +48,10 @@ public class StoriesRepository : IStoriesRepository
         return stories;
     }
 
-    public List<Story> GetSortedStories(IEnumerable<SortingParameters> sortingParameters)
+    public List<Story> GetAll(IEnumerable<SortingParameters> sortingParameters, string? search)
     {
-        var sortedStories = _storiesSorter.Sort(_dbContext.Stories, sortingParameters);
+        var filteredStories = _storiesFilter.Filter(_dbContext.Stories, search);
+        var sortedStories = _storiesSorter.Sort(filteredStories, sortingParameters);
 
         return sortedStories;
     }

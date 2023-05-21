@@ -1,6 +1,8 @@
-using Application.Interfaces;
+using Application.Messaging;
+using Application.Tags;
+using Application.Users;
 
-namespace Application.Contracts;
+namespace Application.Stories;
 
 public record StoryDto : IMessage
 {

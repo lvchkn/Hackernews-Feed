@@ -1,9 +1,8 @@
-using Application.Contracts;
-using Application.Interfaces;
+using Application.Sort;
 using AutoMapper;
 using Domain.Entities;
 
-namespace Application.Services.Stories;
+namespace Application.Stories;
 
 public class StoriesService : IStoriesService
 {
@@ -33,11 +32,11 @@ public class StoriesService : IStoriesService
         return _mapper.Map<List<StoryDto>>(stories);
     }
 
-    public List<StoryDto> GetSortedStories(string? query)
+    public List<StoryDto> GetStories(string? orderBy, string? search)
     {
-        var parsedSortingParameters = _sortingParameteresParser.Parse(query);
-
-        var sortedStories = _storiesRepository.GetSortedStories(parsedSortingParameters);
+        var parsedSortingParameters = _sortingParameteresParser.Parse(orderBy);
+        var sortedStories = _storiesRepository.GetAll(parsedSortingParameters, search);
+        
         return _mapper.Map<List<StoryDto>>(sortedStories);
     }
 }

@@ -1,18 +1,7 @@
+using Application.Sort;
 using Domain.Entities;
 
-namespace Application.Services;
-
-public enum SortOrder
-{
-    Asc, Desc
-}
-
-public enum SortField
-{
-    None, Id, Score, Title
-}
-
-public record SortingParameters(SortOrder Order, SortField FieldToSort);
+namespace Infrastructure.Db;
 
 public class StoriesSorter : ISorter<Story>
 {

@@ -1,4 +1,6 @@
-namespace Application.Contracts;
+using Application.Stories;
+
+namespace Application.Tags;
 
 public record TagDto
 {

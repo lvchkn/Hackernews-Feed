@@ -1,6 +1,5 @@
-using Application.Contracts;
-using Application.Interfaces;
-using Application.Services.Stories;
+using Application.Messaging;
+using Application.Stories;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
