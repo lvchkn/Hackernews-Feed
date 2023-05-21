@@ -1,27 +1,19 @@
 using Domain.Entities;
-using Microsoft.EntityFrameworkCore;
+using Infrastructure.Db;
 
-public class AppDbContext : DbContext
+namespace Tests.Integration;
+
+public static class DataSeeder
 {
-    public DbSet<User> Users { get; set; }
-    public DbSet<Story> Stories { get; set; }
-    public DbSet<Interest> Interests { get; set; }
-    public DbSet<Tag> Tags { get; set; }
-
-    public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)
+    public static void SeedStories(this AppDbContext dbContext)
     {
-        Database.EnsureCreated();
-    }
-
-    public void SeedData()
-    {
-        Stories.RemoveRange(Stories);
+        dbContext.Stories.RemoveRange(dbContext.Stories);
         
-        Stories?.AddRange(
+        dbContext.Stories?.AddRange(
             new Story()
             {
                 By = "User1",
-                Title = "E Story1",
+                Title = "E Story",
                 Score = 25,
                 Time = 1,
             },
@@ -35,26 +27,26 @@ public class AppDbContext : DbContext
             new Story()
             {
                 By = "User3",
-                Title = "A Story1",
+                Title = "A Story",
                 Score = 79,
                 Time = 12,
             },
             new Story()
             {
                 By = "User4",
-                Title = "C Story1",
+                Title = "C Story",
                 Score = 900,
                 Time = 4,
             },
             new Story()
             {
                 By = "User5",
-                Title = "B Story1",
+                Title = "B Story",
                 Score = 250,
                 Time = 9,
             }
         );
 
-        SaveChanges();
+        dbContext.SaveChanges();
     }
 }
