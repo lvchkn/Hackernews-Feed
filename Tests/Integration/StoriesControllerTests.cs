@@ -1,7 +1,8 @@
 using System.Net.Http.Headers;
 using System.Text.Json;
-using Application.Contracts;
+using Application.Stories;
 using FluentAssertions;
+using Infrastructure.Db;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
@@ -31,7 +32,7 @@ public class StoriesControllerTests : IClassFixture<CustomWebApplicationFactory<
 
         using var scope = _webAppFactory.Services.CreateScope();
         var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-        dbContext?.SeedData();
+        dbContext?.SeedStories();
 
         // Act
         var response = await client.GetAsync("/api/stories");
@@ -57,7 +58,7 @@ public class StoriesControllerTests : IClassFixture<CustomWebApplicationFactory<
 
         using var scope = _webAppFactory.Services.CreateScope();
         var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-        dbContext?.SeedData();
+        dbContext?.SeedStories();
 
         var expectedResults = dbContext?.Stories.OrderByDescending(s => s.Title).ToList();
         
@@ -68,5 +69,33 @@ public class StoriesControllerTests : IClassFixture<CustomWebApplicationFactory<
 
         // Assert
         returnedStories.Should().BeEquivalentTo(expectedResults);
+    }
+
+    [Theory]
+    [InlineData("story")]
+    [InlineData("sto")]
+    [InlineData("or")]
+    public async Task Stories_are_filtered_by_title(string search)
+    {
+        // Arrange
+        var jsonSerializerOptions = new JsonSerializerOptions()
+        {
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+        };
+
+        var client = _webAppFactory.CreateClient();
+        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Test");
+
+        using var scope = _webAppFactory.Services.CreateScope();
+        var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+        dbContext?.SeedStories();
+        
+        // Act
+        var response = await client.GetAsync($"/api/stories?search={search}");
+        var responseJson = await response.Content.ReadAsStringAsync();
+        var returnedStories = JsonSerializer.Deserialize<StoryDto[]>(responseJson, jsonSerializerOptions);
+
+        // Assert
+        returnedStories?.Length.Should().Be(5);
     }
 }
