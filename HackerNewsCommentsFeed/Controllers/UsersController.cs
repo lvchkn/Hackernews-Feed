@@ -1,5 +1,5 @@
-using Application.Contracts;
-using Application.Services.Users;
+using Application.Interests;
+using Application.Users;
 using Microsoft.AspNetCore.Mvc;
 using Shared.Utils;
 

@@ -1,33 +1,30 @@
-﻿using Application.Services;
-using Application.Services.Interests;
-using Application.Services.Stories;
-using Application.Services.Users;
-using Domain.Entities;
-using Microsoft.Extensions.Configuration;
+﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using System.Reflection;
+using Application.Sort;
+using Application.Users;
+using Application.Interests;
+using Application.Stories;
 
-namespace Application
+namespace Application;
+
+public static class DI
 {
-    public static class DI
+    public static IServiceCollection AddApplication(this IServiceCollection services, IConfiguration configuration)
     {
-        public static IServiceCollection AddApplication(this IServiceCollection services, IConfiguration configuration)
-        {
-            var hackernewsApiUrl = configuration.GetValue<string>("HackernewsApi:Url");
+        var hackernewsApiUrl = configuration.GetValue<string>("HackernewsApi:Url");
 
-            services.AddHttpClient("ApiV0", options =>
-                options.BaseAddress = new Uri(hackernewsApiUrl ?? string.Empty));
+        services.AddHttpClient("ApiV0", options =>
+            options.BaseAddress = new Uri(hackernewsApiUrl ?? string.Empty));
 
-            services.AddAutoMapper(Assembly.GetExecutingAssembly());
+        services.AddAutoMapper(Assembly.GetExecutingAssembly());
 
-            services.AddScoped<ISorter<Story>, StoriesSorter>();
-            services.AddScoped<SortingParametersParser>();
+        services.AddScoped<SortingParametersParser>();
 
-            services.AddScoped<IUsersService, UsersService>();
-            services.AddScoped<IInterestsService, InterestsService>();
-            services.AddScoped<IStoriesService, StoriesService>();
+        services.AddScoped<IUsersService, UsersService>();
+        services.AddScoped<IInterestsService, InterestsService>();
+        services.AddScoped<IStoriesService, StoriesService>();
 
-            return services;
-        }
+        return services;
     }
 }

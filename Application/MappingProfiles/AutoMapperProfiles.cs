@@ -1,17 +1,19 @@
-﻿using Application.Contracts;
+﻿using Application.Interests;
+using Application.Stories;
+using Application.Tags;
+using Application.Users;
 using AutoMapper;
 using Domain.Entities;
 
-namespace Application.MappingProfiles
+namespace Application.MappingProfiles;
+
+internal class AutoMapperProfiles : Profile
 {
-    internal class AutoMapperProfiles : Profile
+    public AutoMapperProfiles()
     {
-        public AutoMapperProfiles()
-        {
-            CreateMap<InterestDto, Interest>().ReverseMap();
-            CreateMap<UserDto, User>().ReverseMap();
-            CreateMap<StoryDto, Story>().ReverseMap();
-            CreateMap<TagDto, Tag>().ReverseMap();
-        }
+        CreateMap<InterestDto, Interest>().ReverseMap();
+        CreateMap<UserDto, User>().ReverseMap();
+        CreateMap<StoryDto, Story>().ReverseMap();
+        CreateMap<TagDto, Tag>().ReverseMap();
     }
 }

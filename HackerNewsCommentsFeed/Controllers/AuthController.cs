@@ -1,4 +1,4 @@
-using Application.Services.Users;
+using Application.Users;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Mvc;
 using Shared.Utils;

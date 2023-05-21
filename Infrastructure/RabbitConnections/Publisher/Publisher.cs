@@ -1,6 +1,6 @@
 using System.Text;
 using System.Text.Json;
-using Application.Interfaces;
+using Application.Messaging;
 using RabbitMQ.Client;
 
 namespace Infrastructure.RabbitConnections.Publisher;
