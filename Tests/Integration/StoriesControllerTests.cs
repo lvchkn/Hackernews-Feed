@@ -1,14 +1,18 @@
 using System.Net.Http.Headers;
 using System.Text.Json;
 using Application.Stories;
+using Application.Tags;
+using Domain.Entities;
 using FluentAssertions;
 using Infrastructure.Db;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
 namespace Tests.Integration;
 
-public class StoriesControllerTests : IClassFixture<CustomWebApplicationFactory<Program>>
+[Collection("Custom WAF collection")]
+public class StoriesControllerTests
 {
     private readonly CustomWebApplicationFactory<Program> _webAppFactory;
     private record CreateInterestRequest(string Text, int? Id);
@@ -60,7 +64,10 @@ public class StoriesControllerTests : IClassFixture<CustomWebApplicationFactory<
         var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
         dbContext?.SeedStories();
 
-        var expectedResults = dbContext?.Stories.OrderByDescending(s => s.Title).ToList();
+        var expectedResults = dbContext?.Stories
+            .OrderByDescending(s => s.Title)
+            .Select(s => MapToStoryDto(s))
+            .ToList();
         
         // Act
         var response = await client.GetAsync("/api/stories?orderBy=title,asc");
@@ -75,7 +82,7 @@ public class StoriesControllerTests : IClassFixture<CustomWebApplicationFactory<
     [InlineData("story")]
     [InlineData("sto")]
     [InlineData("or")]
-    public async Task Stories_are_filtered_by_title(string search)
+    public async Task Stories_are_filtered_by_title_with_fuzzy_search(string search)
     {
         // Arrange
         var jsonSerializerOptions = new JsonSerializerOptions()
@@ -97,5 +104,63 @@ public class StoriesControllerTests : IClassFixture<CustomWebApplicationFactory<
 
         // Assert
         returnedStories?.Length.Should().Be(5);
+    }
+
+    [Theory]
+    [InlineData("ory")]
+    [InlineData("b")]
+    [InlineData("A")]
+    public async Task Stories_are_ordered_and_filtered(string search)
+    {
+        // Arrange
+        var jsonSerializerOptions = new JsonSerializerOptions()
+        {
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+        };
+
+        var client = _webAppFactory.CreateClient();
+        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Test");
+
+        using var scope = _webAppFactory.Services.CreateScope();
+        var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+        dbContext?.SeedStories();
+        
+        var orderBy = "score asc";
+        var expectedResults = dbContext?.Stories
+            .Where(s => EF.Functions.ILike(s.Title, $"%{search}%"))
+            .OrderBy(s => s.Score)
+            .Select(s => MapToStoryDto(s))
+            .ToList();
+        
+        // Act
+        var response = await client.GetAsync($"/api/stories?orderBy={orderBy}&search={search}");
+        var responseJson = await response.Content.ReadAsStringAsync();
+        var returnedStories = JsonSerializer.Deserialize<StoryDto[]>(responseJson, jsonSerializerOptions);
+
+        // Assert
+        returnedStories?.Should().BeEquivalentTo(expectedResults);
+    }
+
+    private static StoryDto MapToStoryDto(Story story)
+    {
+        return new StoryDto()
+        {
+            By = story.By,
+            Descendants = story.Descendants,
+            Id = story.Id,
+            Kids = story.Kids,
+            Score = story.Score,
+            Time = story.Time,
+            Title = story.Title,
+            Url = story.Url,
+            Type = story.Type,
+            Tags = story.Tags
+                .Select(t => new TagDto
+                {
+                    Id = t.Id, 
+                    Name = t.Name,
+                })
+                .ToList(),
+        };
     }
 }

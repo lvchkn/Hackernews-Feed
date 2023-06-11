@@ -49,4 +49,50 @@ public static class DataSeeder
 
         dbContext.SaveChanges();
     }
+
+    public static void SeedUsers(this AppDbContext dbContext)
+    {
+        dbContext.Users.RemoveRange(dbContext.Users);
+
+        var user = new User()
+        {
+            Name = "testuser1",
+            Email = "test@example.com",
+            LastActive = DateTime.UtcNow,
+            Interests = new List<Interest>(),
+            FavouriteStories = new List<Story>(),
+        };
+
+        var interests = new List<Interest>
+        {
+            new Interest { Text = ".NET Core" },
+            new Interest { Text = "AWS" },
+            new Interest { Text = "finance" },
+        };
+
+        var stories = new List<Story>()
+        {
+            new Story()
+            {
+                By = "someone",
+                Title = "Hello World!",
+                Score = 123,
+                Time = 7000,
+            },
+            new Story()
+            {
+                By = "testing",
+                Title = "how to learn git",
+                Score = 200,
+                Time = 10000,
+            },
+        };
+
+        user.Interests.AddRange(interests);
+        user.FavouriteStories.AddRange(stories);
+
+        dbContext.Users.Add(user);
+
+        dbContext.SaveChanges();
+    }
 }
