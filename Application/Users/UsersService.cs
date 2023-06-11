@@ -21,15 +21,15 @@ public class UsersService : IUsersService
         await _usersRepository.AddAsync(user);
     }
 
-    public async Task AddInterestAsync(string email, InterestDto interestDto)
+    public async Task AddInterestAsync(int id, InterestDto interestDto)
     {
         var interest = _mapper.Map<Interest>(interestDto);
-        await _usersRepository.AddInterestAsync(email, interest.Id);
+        await _usersRepository.AddInterestAsync(id, interest.Id);
     }
 
-    public async Task DeleteInterestAsync(string email, int interestId)
+    public async Task DeleteInterestAsync(int id, int interestId)
     {
-        await _usersRepository.DeleteInterestAsync(email, interestId);
+        await _usersRepository.DeleteInterestAsync(id, interestId);
     }
 
     public async Task<List<UserDto>> GetAllAsync()
@@ -38,20 +38,20 @@ public class UsersService : IUsersService
         return _mapper.Map<List<UserDto>>(users);
     }
 
-    public async Task<UserDto> GetByEmailAsync(string email)
+    public async Task<UserDto> GetByIdAsync(int id)
     {
-        var user = await _usersRepository.GetByEmailAsync(email);
+        var user = await _usersRepository.GetByIdAsync(id);
         return _mapper.Map<UserDto>(user);
     }
 
-    public async Task<List<InterestDto>> GetInterestsAsync(string email)
+    public async Task<List<InterestDto>> GetInterestsAsync(int id)
     {
-        var userInterests = await _usersRepository.GetInterestsAsync(email);
+        var userInterests = await _usersRepository.GetInterestsAsync(id);
         return _mapper.Map<List<InterestDto>>(userInterests);
     }
 
-    public async Task UpdateLastActiveAsync(string email)
+    public async Task UpdateLastActiveAsync(int id)
     {
-        await _usersRepository.UpdateLastActiveAsync(email);
+        await _usersRepository.UpdateLastActiveAsync(id);
     }
 }

@@ -1,6 +1,5 @@
 using Application.Messaging;
 using Application.Tags;
-using Application.Users;
 
 namespace Application.Stories;
 
@@ -16,5 +15,4 @@ public record StoryDto : IMessage
     public string Url { get; init; } = string.Empty;
     public string Type { get; init; } = string.Empty;
     public List<TagDto> Tags { get; init; } = new ();
-    public List<UserDto> FavouritedBy { get; init; } = new ();
 }

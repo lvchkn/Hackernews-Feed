@@ -6,7 +6,8 @@ using Xunit;
 
 namespace Tests.Integration;
 
-public class InterestsControllerTests : IClassFixture<CustomWebApplicationFactory<Program>>
+[Collection("Custom WAF collection")]
+public class InterestsControllerTests
 {
     private readonly CustomWebApplicationFactory<Program> _webAppFactory;
     private record CreateInterestRequest(string Text, int? Id);

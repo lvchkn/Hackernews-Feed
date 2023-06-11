@@ -26,6 +26,10 @@ public class StoriesRepository : IStoriesRepository
     public async Task<Story?> GetByIdAsync(int id)
     {
         var story = await _dbContext.Stories
+            .AsNoTracking()
+            .Include(s => s.Tags)
+            .Include(s => s.FavouritedBy)
+            .AsSplitQuery()
             .Where(i => i.Id == id)
             .SingleOrDefaultAsync();
 
@@ -35,6 +39,10 @@ public class StoriesRepository : IStoriesRepository
     public async Task<List<Story>> GetByAuthorAsync(string author)
     {
         var stories = await _dbContext.Stories
+            .AsNoTracking()
+            .Include(s => s.Tags)
+            .Include(s => s.FavouritedBy)
+            .AsSplitQuery()
             .Where(i => i.By == author)
             .ToListAsync();
 
@@ -43,14 +51,25 @@ public class StoriesRepository : IStoriesRepository
 
     public async Task<List<Story>> GetAllAsync()
     {
-        var stories = await _dbContext.Stories.ToListAsync();
+        var stories = await _dbContext.Stories
+            .AsNoTracking()
+            .Include(s => s.Tags)
+            .Include(s => s.FavouritedBy)
+            .AsSplitQuery()
+            .ToListAsync();
 
         return stories;
     }
 
     public List<Story> GetAll(IEnumerable<SortingParameters> sortingParameters, string? search)
     {
-        var filteredStories = _storiesFilter.Filter(_dbContext.Stories, search);
+        var included = _dbContext.Stories
+            .AsNoTracking()
+            .Include(s => s.Tags)
+            .Include(s => s.FavouritedBy)
+            .AsSplitQuery();
+
+        var filteredStories = _storiesFilter.Filter(included, search);
         var sortedStories = _storiesSorter.Sort(filteredStories, sortingParameters);
 
         return sortedStories;

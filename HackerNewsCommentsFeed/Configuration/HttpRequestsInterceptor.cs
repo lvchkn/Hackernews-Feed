@@ -1,4 +1,5 @@
 using System.Net.Http.Headers;
+using System.Security.Claims;
 using System.Text.Json;
 using Application.Users;
 using Microsoft.AspNetCore.Authentication;
@@ -47,24 +48,26 @@ public class HttpRequestsInterceptor
                 name = res.GetString();
             }
             
-            //using var scope = _app.ApplicationServices.CreateScope();
-            //var usersService = scope.ServiceProvider.GetRequiredService<IUsersService>();
             const string email = "example@example.com";
             //var email = httpContext.User.Claims.FirstOrDefault(c => c.Type == "emails");
+            var claim = httpContext.User.FindFirst(ClaimTypes.NameIdentifier);
+            int.TryParse(claim?.Value ?? string.Empty, out var userId);
 
             try
             {
-                await usersService!.UpdateLastActiveAsync(email);
+                await usersService.UpdateLastActiveAsync(userId);
             }
             catch (NotFoundException)
             {
                 var newUser = new UserDto
                 {
-                    Name = name ?? "DEFAULT_USER",
+                    Id = userId,
+                    Name = name ?? string.Empty,
                     Email = email,
+                    LastActive = DateTime.UtcNow,
                 };
 
-                await usersService!.AddAsync(newUser);
+                await usersService.AddAsync(newUser);
             }
         }
 

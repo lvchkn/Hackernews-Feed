@@ -56,7 +56,8 @@ public static class DI
     {
         services.AddDbContext<AppDbContext>(options =>
         {
-            options.UseNpgsql(_configuration?.GetConnectionString("Postgres"));
+            options.UseNpgsql(_configuration?.GetConnectionString("Postgres"))
+                .UseSnakeCaseNamingConvention();
         }); 
             
         services.AddScoped<ISorter<Story>, StoriesSorter>();
