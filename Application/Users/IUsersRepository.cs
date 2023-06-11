@@ -5,10 +5,10 @@ namespace Application.Users;
 public interface IUsersRepository
 {
     Task<List<User>> GetAllAsync();
-    Task<User> GetByEmailAsync(string email);
-    Task UpdateLastActiveAsync(string email);
-    Task AddInterestAsync(string email, int interestId);
+    Task<User> GetByIdAsync(int id);
+    Task UpdateLastActiveAsync(int id);
+    Task AddInterestAsync(int id, int interestId);
     Task AddAsync(User user);
-    Task DeleteInterestAsync(string email, int interestId);
-    Task<List<Interest>> GetInterestsAsync(string email);
+    Task DeleteInterestAsync(int id, int interestId);
+    Task<List<Interest>> GetInterestsAsync(int id);
 }

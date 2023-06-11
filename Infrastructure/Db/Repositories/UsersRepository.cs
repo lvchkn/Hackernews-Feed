@@ -18,22 +18,27 @@ public class UsersRepository : IUsersRepository
     {
         var users = await _dbContext.Users
             .AsNoTracking()
+            .Include(u => u.Interests)
+            .Include(u => u.FavouriteStories)
+            .AsSplitQuery()
             .ToListAsync();
 
         return users;
     }
 
-    public async Task<User> GetByEmailAsync(string email)
+    public async Task<User> GetByIdAsync(int id)
     {
         var user = await _dbContext.Users
             .AsNoTracking()
             .Include(u => u.Interests)
-            .Where(u => u.Email == email)
+            .Include(u => u.FavouriteStories)
+            .AsSplitQuery()
+            .Where(u => u.Id == id)
             .SingleOrDefaultAsync();
 
         if (user is null)
         {
-            throw new NotFoundException("No user found with this email.");
+            throw new NotFoundException("No user found with this id.");
         }
 
         return user;
@@ -43,12 +48,12 @@ public class UsersRepository : IUsersRepository
     {
         var user = await _dbContext.Users
             .AsNoTracking()
-            .Where(u => u.Id == newUser.Id || u.Email == newUser.Email)
+            .Where(u => u.Id == newUser.Id)
             .SingleOrDefaultAsync();
 
         if (user is not null)
         {
-            throw new AlreadyExistsException("Email is already in use.");
+            throw new AlreadyExistsException("Id is already in use.");
         }
 
         await _dbContext.Users.AddAsync(newUser);
@@ -56,13 +61,13 @@ public class UsersRepository : IUsersRepository
         await _dbContext.SaveChangesAsync();
     }
 
-    public async Task UpdateLastActiveAsync(string email)
+    public async Task UpdateLastActiveAsync(int id)
     {
-        var user = await GetByEmailAsync(email);
+        var user = await GetByIdAsync(id);
         
         if (user is null)
         {
-            throw new NotFoundException("No user found with this email.");
+            throw new NotFoundException("No user found with this id.");
         }
 
         user = user with { LastActive = DateTime.UtcNow };
@@ -71,9 +76,9 @@ public class UsersRepository : IUsersRepository
         await _dbContext.SaveChangesAsync();
     }
 
-    public async Task AddInterestAsync(string email, int interestId)
+    public async Task AddInterestAsync(int id, int interestId)
     {
-        var user = await GetByEmailAsync(email);
+        var user = await GetByIdAsync(id);
         
         if (user is null)
         {
@@ -94,13 +99,13 @@ public class UsersRepository : IUsersRepository
         await _dbContext.SaveChangesAsync();
     }
 
-    public async Task DeleteInterestAsync(string email, int interestId)
+    public async Task DeleteInterestAsync(int id, int interestId)
     {
-        var user = await GetByEmailAsync(email);
+        var user = await GetByIdAsync(id);
         
         if (user is null)
         {
-            throw new NotFoundException("No user found with this email.");
+            throw new NotFoundException("No user found with this id.");
         }
 
         var interest = await _dbContext.Interests
@@ -117,13 +122,13 @@ public class UsersRepository : IUsersRepository
         await _dbContext.SaveChangesAsync();
     }
 
-    public async Task<List<Interest>> GetInterestsAsync(string email)
+    public async Task<List<Interest>> GetInterestsAsync(int id)
     {
-        var user = await GetByEmailAsync(email);
+        var user = await GetByIdAsync(id);
         
         if (user is null)
         {
-            throw new NotFoundException("No user found with this email.");
+            throw new NotFoundException("No user found with this id.");
         }   
         
         return user.Interests.ToList();

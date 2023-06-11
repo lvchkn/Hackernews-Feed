@@ -17,33 +17,33 @@ public static class UsersController
             
         }).RequireAuthorization().WithTags(EndpointGroupTags.Users);
         
-        app.MapGet("/api/user/{email}/interests", async (
-            [FromRoute] string email, 
+        app.MapGet("/api/user/{id}/interests", async (
+            [FromRoute] int id, 
             [FromServices] IUsersService usersService) =>
         {
-            var userInterests = await usersService.GetInterestsAsync(email);
+            var userInterests = await usersService.GetInterestsAsync(id);
 
             return Results.Ok(userInterests);
             
         }).RequireAuthorization().WithTags(EndpointGroupTags.UsersInterests);
 
-        app.MapPost("/api/user/{email}/interests", async (
-            [FromRoute] string email,
+        app.MapPost("/api/user/{id}/interests", async (
+            [FromRoute] int id,
             [FromBody] InterestDto interest, 
             [FromServices] IUsersService usersService) =>
         {
-            await usersService.AddInterestAsync(email, interest);
+            await usersService.AddInterestAsync(id, interest);
 
             return Results.Ok();
 
         }).RequireAuthorization().WithTags(EndpointGroupTags.UsersInterests);
 
-        app.MapDelete("/api/user/{email}/interests/{id}", async (
-            [FromRoute] string email, 
-            [FromRoute] int id,
+        app.MapDelete("/api/user/{userId}/interests/{interestId}", async (
+            [FromRoute] int userId, 
+            [FromRoute] int interestId,
             [FromServices] IUsersService usersService) =>
         {
-            await usersService.DeleteInterestAsync(email, id);
+            await usersService.DeleteInterestAsync(userId, interestId);
 
             return Results.NoContent();
 
