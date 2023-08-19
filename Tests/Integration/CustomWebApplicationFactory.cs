@@ -50,7 +50,7 @@ public class CustomWebApplicationFactory<Program> : WebApplicationFactory<Progra
             .AddInMemoryCollection(new Dictionary<string, string?>()
             {
                 ["ConnectionStrings:Postgres"] = _postgresContainer.GetConnectionString(),
-                ["RabbitMq:Uri"] = _rmqContainer.GetConnectionString(),
+                ["ConnectionStrings:RabbitMq"] = _rmqContainer.GetConnectionString(),
             })
             .Build();
         

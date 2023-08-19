@@ -35,7 +35,9 @@ public static class DI
 
     private static IServiceCollection AddRabbitConnection(this IServiceCollection services)
     {
-        var connectionString = _configuration?.GetConnectionString("RabbitMq") ?? "";
+        var connectionString = _configuration?.GetConnectionString("RabbitMq")
+            ?? Environment.GetEnvironmentVariable("RMQ_URI")
+            ?? "";
 
         services.AddSingleton(_ => new ConnectionFactory()
         {
@@ -56,7 +58,11 @@ public static class DI
     {
         services.AddDbContext<AppDbContext>(options =>
         {
-            options.UseNpgsql(_configuration?.GetConnectionString("Postgres"))
+            var connectionString = _configuration?.GetConnectionString("Postgres") 
+                ?? Environment.GetEnvironmentVariable("POSTGRES_CONNSTRING")
+                ?? "";
+
+            options.UseNpgsql(connectionString)
                 .UseSnakeCaseNamingConvention();
         }); 
             

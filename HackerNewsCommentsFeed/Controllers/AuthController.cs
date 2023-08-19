@@ -1,4 +1,3 @@
-using Application.Users;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Mvc;
 using Shared.Utils;
@@ -9,12 +8,20 @@ public static class AuthController
 {
     public static IEndpointRouteBuilder MapAuthEndpoints(this IEndpointRouteBuilder app)
     {
-        app.MapGet("/login", ([FromQuery] string? returnUrl,
-            [FromServices] IUsersService usersService) =>
+        app.MapGet("/login", ([FromQuery] string? returnUrl) =>
         {
             return Results.Challenge(new AuthenticationProperties
             {
-                RedirectUri = returnUrl ?? "/"
+                RedirectUri = returnUrl ?? "/",
+            }, new [] { "Github" });
+            
+        }).WithTags(EndpointGroupTags.Authentication);
+
+        app.MapGet("/logout", ([FromQuery] string? returnUrl) =>
+        {
+            return Results.SignOut(new AuthenticationProperties
+            {
+                RedirectUri = returnUrl ?? "/",
             });
             
         }).WithTags(EndpointGroupTags.Authentication);

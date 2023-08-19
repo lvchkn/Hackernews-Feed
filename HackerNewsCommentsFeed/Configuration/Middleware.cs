@@ -1,5 +1,3 @@
-using Infrastructure.Db;
-
 namespace HackerNewsCommentsFeed.Configuration;
 
 public static class Middleware
@@ -9,7 +7,6 @@ public static class Middleware
     public static IApplicationBuilder UseMiddleware(this IApplicationBuilder app, IConfiguration configuration)
     {
         _configuration = configuration;
-
         // var dbContext = app.ApplicationServices.CreateScope().ServiceProvider.GetRequiredService<AppDbContext>();
         // dbContext.SeedUsers();
 
