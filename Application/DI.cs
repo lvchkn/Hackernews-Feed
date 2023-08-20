@@ -20,6 +20,7 @@ public static class DI
         services.AddAutoMapper(Assembly.GetExecutingAssembly());
 
         services.AddScoped<SortingParametersParser>();
+        services.AddScoped<IRankingService, RankingService>();
 
         services.AddScoped<IUsersService, UsersService>();
         services.AddScoped<IInterestsService, InterestsService>();
