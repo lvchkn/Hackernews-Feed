@@ -11,9 +11,11 @@ public static class StoriesController
         app.MapGet("/api/stories", (
             [FromQuery] string? orderBy,
             [FromQuery] string? search,
+            [FromQuery] int? pageNumber,
+            [FromQuery] int? pageSize,
             [FromServices] IStoriesService storiesService) =>
         {
-            var stories = storiesService.GetStories(orderBy, search);
+            var stories = storiesService.GetStories(orderBy, search, pageNumber ?? 1, pageSize ?? 10);
 
             return Results.Ok(stories);
             

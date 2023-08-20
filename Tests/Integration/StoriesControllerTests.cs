@@ -17,6 +17,11 @@ public class StoriesControllerTests
     private readonly CustomWebApplicationFactory<Program> _webAppFactory;
     private record CreateInterestRequest(string Text, int? Id);
 
+    private readonly JsonSerializerOptions _jsonSerializerOptions = new ()
+    {
+        PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+    };
+
     public StoriesControllerTests(CustomWebApplicationFactory<Program> webAppFactory)
     {
         _webAppFactory = webAppFactory;
@@ -26,14 +31,9 @@ public class StoriesControllerTests
     public async Task All_stories_are_returned_when_no_query_provided()
     {
         // Arrange
-        var jsonSerializerOptions = new JsonSerializerOptions()
-        {
-            PropertyNamingPolicy = JsonNamingPolicy.CamelCase
-        };
-
         var client = _webAppFactory.CreateClient();
         client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Test");
-
+        
         using var scope = _webAppFactory.Services.CreateScope();
         var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
         dbContext?.SeedStories();
@@ -41,7 +41,7 @@ public class StoriesControllerTests
         // Act
         var response = await client.GetAsync("/api/stories");
         var responseJson = await response.Content.ReadAsStringAsync();
-        var returnedStories = JsonSerializer.Deserialize<StoryDto[]>(responseJson, jsonSerializerOptions);
+        var returnedStories = JsonSerializer.Deserialize<StoryDto[]>(responseJson, _jsonSerializerOptions);
 
         // Assert
         returnedStories.Should().NotBeNull();
@@ -52,14 +52,9 @@ public class StoriesControllerTests
     public async Task Stories_are_sorted_by_title_in_desc_order()
     {
         // Arrange
-        var jsonSerializerOptions = new JsonSerializerOptions()
-        {
-            PropertyNamingPolicy = JsonNamingPolicy.CamelCase
-        };
-
         var client = _webAppFactory.CreateClient();
         client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Test");
-
+        
         using var scope = _webAppFactory.Services.CreateScope();
         var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
         dbContext?.SeedStories();
@@ -72,7 +67,7 @@ public class StoriesControllerTests
         // Act
         var response = await client.GetAsync("/api/stories?orderBy=title,asc");
         var responseJson = await response.Content.ReadAsStringAsync();
-        var returnedStories = JsonSerializer.Deserialize<StoryDto[]>(responseJson, jsonSerializerOptions);
+        var returnedStories = JsonSerializer.Deserialize<StoryDto[]>(responseJson, _jsonSerializerOptions);
 
         // Assert
         returnedStories.Should().BeEquivalentTo(expectedResults);
@@ -85,14 +80,9 @@ public class StoriesControllerTests
     public async Task Stories_are_filtered_by_title_with_fuzzy_search(string search)
     {
         // Arrange
-        var jsonSerializerOptions = new JsonSerializerOptions()
-        {
-            PropertyNamingPolicy = JsonNamingPolicy.CamelCase
-        };
-
         var client = _webAppFactory.CreateClient();
         client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Test");
-
+        
         using var scope = _webAppFactory.Services.CreateScope();
         var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
         dbContext?.SeedStories();
@@ -100,7 +90,7 @@ public class StoriesControllerTests
         // Act
         var response = await client.GetAsync($"/api/stories?search={search}");
         var responseJson = await response.Content.ReadAsStringAsync();
-        var returnedStories = JsonSerializer.Deserialize<StoryDto[]>(responseJson, jsonSerializerOptions);
+        var returnedStories = JsonSerializer.Deserialize<StoryDto[]>(responseJson, _jsonSerializerOptions);
 
         // Assert
         returnedStories?.Length.Should().Be(5);
@@ -113,11 +103,6 @@ public class StoriesControllerTests
     public async Task Stories_are_ordered_and_filtered(string search)
     {
         // Arrange
-        var jsonSerializerOptions = new JsonSerializerOptions()
-        {
-            PropertyNamingPolicy = JsonNamingPolicy.CamelCase
-        };
-
         var client = _webAppFactory.CreateClient();
         client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Test");
 
@@ -135,10 +120,36 @@ public class StoriesControllerTests
         // Act
         var response = await client.GetAsync($"/api/stories?orderBy={orderBy}&search={search}");
         var responseJson = await response.Content.ReadAsStringAsync();
-        var returnedStories = JsonSerializer.Deserialize<StoryDto[]>(responseJson, jsonSerializerOptions);
+        var returnedStories = JsonSerializer.Deserialize<StoryDto[]>(responseJson, _jsonSerializerOptions);
 
         // Assert
         returnedStories?.Should().BeEquivalentTo(expectedResults);
+    }
+
+    [Theory]
+    [InlineData(2, 2, 2)]
+    [InlineData(2, 1, 1)]
+    [InlineData(4, 1, 1)]
+    [InlineData(5, 0, 0)]
+    [InlineData(5, 1, 1)]
+    [InlineData(1, 5, 5)]
+    [InlineData(3, 2, 1)]
+    public async Task Pagination_Works(int pageNumber, int pageSize, int result)
+    {
+        // Arrange
+        var client = _webAppFactory.CreateClient();
+        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Test");
+        
+        using var scope = _webAppFactory.Services.CreateScope();
+        var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+        dbContext?.SeedStories();
+
+        // Act
+        var response = await client.GetAsync($"/api/stories?pageNumber={pageNumber}&pageSize={pageSize}");
+        var responseJson = await response.Content.ReadAsStringAsync();
+        var returnedStories = JsonSerializer.Deserialize<StoryDto[]>(responseJson, _jsonSerializerOptions);
+        // Assert
+        returnedStories?.Length.Should().Be(result);
     }
 
     private static StoryDto MapToStoryDto(Story story)

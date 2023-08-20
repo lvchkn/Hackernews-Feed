@@ -5,7 +5,7 @@ namespace Infrastructure.Db;
 
 public class StoriesSorter : ISorter<Story>
 {
-    public List<Story> Sort(IQueryable<Story> stories, IEnumerable<SortingParameters> parameters)
+    public IQueryable<Story> Sort(IQueryable<Story> stories, IEnumerable<SortingParameters> parameters)
     {
         var index = 0;
 
@@ -16,7 +16,7 @@ public class StoriesSorter : ISorter<Story>
             stories = UpdateListOrder(stories, field, order, thenable);
         }
 
-        return stories.ToList();
+        return stories;
     }
 
     private static IQueryable<Story> UpdateListOrder(

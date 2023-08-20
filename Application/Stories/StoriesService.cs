@@ -32,10 +32,13 @@ public class StoriesService : IStoriesService
         return _mapper.Map<List<StoryDto>>(stories);
     }
 
-    public List<StoryDto> GetStories(string? orderBy, string? search)
+    public List<StoryDto> GetStories(string? orderBy, string? search, int pageNumber, int pageSize)
     {
         var parsedSortingParameters = _sortingParameteresParser.Parse(orderBy);
-        var sortedStories = _storiesRepository.GetAll(parsedSortingParameters, search);
+        var skip = (pageNumber - 1) * pageSize;
+        var take = pageSize;
+        
+        var sortedStories = _storiesRepository.GetAll(parsedSortingParameters, search, skip, take);
         
         return _mapper.Map<List<StoryDto>>(sortedStories);
     }
