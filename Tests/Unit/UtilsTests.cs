@@ -54,7 +54,7 @@ public class UtilsTests
         };
         
         // Act
-        var sortedStories = new StoriesSorter().Sort(Stories, sortingParameters);
+        var sortedStories = new Sorter().Sort(Stories, sortingParameters);
         
         // Assert
         if (field == SortField.Id)
@@ -84,7 +84,7 @@ public class UtilsTests
         };
         
         // Act
-        var sortedStories = new StoriesSorter().Sort(Stories, sortingParameters);
+        var sortedStories = new Sorter().Sort(Stories, sortingParameters);
         
         // Assert
         if (field == SortField.Id)
@@ -113,7 +113,7 @@ public class UtilsTests
         
         var expected = Stories.OrderByDescending(c => c.Score).ThenBy(c => c.Title).ToList();
 
-        var sorter = new StoriesSorter();
+        var sorter = new Sorter();
         
         // Act
         var sortedStories = sorter.Sort(Stories, sortingParameters);

@@ -1,6 +1,6 @@
 namespace Domain.Entities;
 
-public record Story
+public record Story : ISortable, IFilterable
 {
     public string By { get; init; } = string.Empty;
     public int Descendants { get; init; }

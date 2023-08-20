@@ -1,7 +1,7 @@
 ﻿namespace Application.Sort;
 
-public interface ISorter<T> where T : class
+public interface ISorter
 {
-    IQueryable<T> Sort(IQueryable<T> unsorted, IEnumerable<SortingParameters> parameters);
+    IQueryable<T> Sort<T>(IQueryable<T> unsorted, IEnumerable<SortingParameters> parameters) where T : ISortable;
 }
 
