@@ -1,11 +1,10 @@
 using Application.Sort;
-using Domain.Entities;
 
 namespace Infrastructure.Db;
 
-public class StoriesSorter : ISorter<Story>
+public class Sorter : ISorter
 {
-    public IQueryable<Story> Sort(IQueryable<Story> stories, IEnumerable<SortingParameters> parameters)
+    public IQueryable<T> Sort<T>(IQueryable<T> entities, IEnumerable<SortingParameters> parameters) where T : ISortable
     {
         var index = 0;
 
@@ -13,17 +12,17 @@ public class StoriesSorter : ISorter<Story>
         {
             var thenable = index > 1;
             index++;
-            stories = UpdateListOrder(stories, field, order, thenable);
+            entities = UpdateListOrder(entities, field, order, thenable);
         }
 
-        return stories;
+        return entities;
     }
 
-    private static IQueryable<Story> UpdateListOrder(
-        IQueryable<Story> list, 
+    private static IQueryable<T> UpdateListOrder<T>(
+        IQueryable<T> list, 
         SortField field, 
         SortOrder order, 
-        bool thenable)
+        bool thenable) where T : ISortable
     {
         var listToOrder = list.OrderBy(_ => true);
 

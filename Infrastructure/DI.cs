@@ -4,7 +4,6 @@ using Application.Messaging;
 using Application.Sort;
 using Application.Stories;
 using Application.Users;
-using Domain.Entities;
 using Infrastructure.Db;
 using Infrastructure.Db.Repositories;
 using Infrastructure.RabbitConnections;
@@ -66,8 +65,8 @@ public static class DI
                 .UseSnakeCaseNamingConvention();
         }); 
             
-        services.AddScoped<ISorter<Story>, StoriesSorter>();
-        services.AddScoped<IFilter<Story>, StoriesFilter>();
+        services.AddScoped<ISorter, Sorter>();
+        services.AddScoped<IFilterer, Filterer>();
 
         services.AddScoped<IUsersRepository, UsersRepository>();
         services.AddScoped<IInterestsRepository, InterestsRepository>();

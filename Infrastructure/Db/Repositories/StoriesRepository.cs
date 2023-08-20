@@ -10,17 +10,17 @@ namespace Infrastructure.Db.Repositories;
 public class StoriesRepository : IStoriesRepository
 {
     private readonly AppDbContext _dbContext;
-    private readonly ISorter<Story> _storiesSorter;
-    private readonly IFilter<Story> _storiesFilter;
+    private readonly ISorter _sorter;
+    private readonly IFilterer _filterer;
 
     public StoriesRepository(
         AppDbContext dbContext, 
-        ISorter<Story> storiesSorter, 
-        IFilter<Story> filter)
+        ISorter storiesSorter, 
+        IFilterer filter)
     {
         _dbContext = dbContext;
-        _storiesSorter = storiesSorter;
-        _storiesFilter = filter;
+        _sorter = storiesSorter;
+        _filterer = filter;
     }
 
     public async Task<Story?> GetByIdAsync(int id)
@@ -69,11 +69,11 @@ public class StoriesRepository : IStoriesRepository
             .Include(s => s.FavouritedBy)
             .AsSplitQuery();
 
-        var filteredStories = _storiesFilter.Filter(included, search);
+        var filteredStories = _filterer.Filter(included, search);
 
-        var sortedStories = _storiesSorter
+        var sortedStories = _sorter
             .Sort(filteredStories, sortingParameters)
-            .OrderByDescending(s => s.Time)
+            .OrderByDescending(s => s.Score)
             .Skip(skip)
             .Take(take)
             .ToList();
