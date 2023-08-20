@@ -61,7 +61,7 @@ public class StoriesRepository : IStoriesRepository
         return stories;
     }
 
-    public List<Story> GetAll(IEnumerable<SortingParameters> sortingParameters, string? search, int skip, int top)
+    public List<Story> GetAll(IEnumerable<SortingParameters> sortingParameters, string? search, int skip, int take)
     {
         var included = _dbContext.Stories
             .AsNoTracking()
@@ -75,7 +75,7 @@ public class StoriesRepository : IStoriesRepository
             .Sort(filteredStories, sortingParameters)
             .OrderByDescending(s => s.Time)
             .Skip(skip)
-            .Take(top)
+            .Take(take)
             .ToList();
 
         return sortedStories;
