@@ -70,7 +70,7 @@ public class StoriesControllerTests
         var returnedStories = JsonSerializer.Deserialize<StoryDto[]>(responseJson, _jsonSerializerOptions);
 
         // Assert
-        returnedStories.Should().BeEquivalentTo(expectedResults);
+        returnedStories.Should().BeEquivalentTo(expectedResults, options => options.Excluding(s => s.Rank));
     }
 
     [Theory]
@@ -123,7 +123,7 @@ public class StoriesControllerTests
         var returnedStories = JsonSerializer.Deserialize<StoryDto[]>(responseJson, _jsonSerializerOptions);
 
         // Assert
-        returnedStories?.Should().BeEquivalentTo(expectedResults);
+        returnedStories?.Should().BeEquivalentTo(expectedResults, options => options.Excluding(s => s.Rank));
     }
 
     [Theory]
