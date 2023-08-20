@@ -61,7 +61,7 @@ public class StoriesRepository : IStoriesRepository
         return stories;
     }
 
-    public List<Story> GetAll(IEnumerable<SortingParameters> sortingParameters, string? search)
+    public List<Story> GetAll(IEnumerable<SortingParameters> sortingParameters, string? search, int skip, int take)
     {
         var included = _dbContext.Stories
             .AsNoTracking()
@@ -70,7 +70,13 @@ public class StoriesRepository : IStoriesRepository
             .AsSplitQuery();
 
         var filteredStories = _storiesFilter.Filter(included, search);
-        var sortedStories = _storiesSorter.Sort(filteredStories, sortingParameters);
+
+        var sortedStories = _storiesSorter
+            .Sort(filteredStories, sortingParameters)
+            .OrderByDescending(s => s.Time)
+            .Skip(skip)
+            .Take(take)
+            .ToList();
 
         return sortedStories;
     }
