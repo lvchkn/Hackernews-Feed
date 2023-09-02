@@ -1,0 +1,54 @@
+version: "3"
+services:
+  feed:
+    image: ghcr.io/lvchkn/hnfeed:latest
+    ports:
+      - 5245:5245
+    environment:
+      - ASPNETCORE_ENVIRONMENT=production
+      - RabbitMq:Hostname=rabbitmq
+      - RabbitMq:Username=${RMQ_USER}
+      - RabbitMq:Password=${RMQ_PW}
+      - RabbitMq:Port=5672
+
+      - Postgres:Username=${POSTGRES_USER}
+      - Postgres:Password=${POSTGRES_PW}
+      - Postgres:Database=${POSTGRES_DB}
+      - Postgres:Host=postgres
+      - Postgres:Port=5432
+
+      - GithubAuth:AppName=${GH_APP_NAME}
+      - GithubAuth:ClientId=${GH_CLIENT_ID}
+      - GithubAuth:ClientSecret=${GH_CLIENT_SECRET}
+    restart: on-failure
+    depends_on:
+      - rabbitmq
+      - postgres
+  rabbitmq:
+    image: rabbitmq:management-alpine
+    environment:
+      - RABBITMQ_DEFAULT_USER=${RMQ_USER}
+      - RABBITMQ_DEFAULT_PASS=${RMQ_PW}
+    ports:
+      - "15672:15672"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:15672"]
+      interval: 20s
+      timeout: 10s
+      retries: 5
+  postgres:
+    image: postgres:15.1
+    restart: always
+    environment:
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PW}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+  adminer:
+    image: adminer:latest
+    restart: always
+    ports:
+      - "8083:8080"
+volumes:
+  pgdata:

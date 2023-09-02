@@ -49,8 +49,16 @@ public class CustomWebApplicationFactory<Program> : WebApplicationFactory<Progra
             .AddJsonFile($"appsettings.{Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT")}.json", optional: true)
             .AddInMemoryCollection(new Dictionary<string, string?>()
             {
-                ["ConnectionStrings:Postgres"] = _postgresContainer.GetConnectionString(),
-                ["ConnectionStrings:RabbitMq"] = _rmqContainer.GetConnectionString(),
+                ["RabbitMq:Username"] = "testuser",
+                ["RabbitMq:Password"] = "testpw",
+                ["RabbitMq:Hostname"] = "localhost",
+                ["RabbitMq:Port"] = "5672",
+
+                ["Postgres:Username"] = "testuser",
+                ["Postgres:Password"] = "testpw",
+                ["Postgres:Host"] = "localhost",
+                ["Postgres:Port"] = "5432",
+                ["Postgres:Database"] = "testdb",
             })
             .Build();
         

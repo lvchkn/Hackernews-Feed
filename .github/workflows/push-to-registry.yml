@@ -2,13 +2,13 @@ name: push-to-registry
 
 on:
   workflow_run:
-    workflows: ["build-and-test"]
-    branches: [deployment]
+    workflows: [build-and-test]
+    branches: [main]
     types:
       - completed
 
 jobs:
-  deploy-packages:
+  push-image-to-registry:
     name: Push Docker image to Github registry
     runs-on: ubuntu-latest
     permissions:
