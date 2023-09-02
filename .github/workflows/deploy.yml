@@ -2,7 +2,7 @@ name: deploy
 
 on:
   workflow_run:
-    workflows: ["push-to-registry"]
+    workflows: [push-to-registry]
     branches: [main]
     types:
       - completed
