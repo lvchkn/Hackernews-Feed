@@ -25,23 +25,27 @@ public static class DI
         _configuration = configuration;
             
         services
-            .AddRabbitConnection()
+            .AddRabbitMq()
             .AddRepos()
             .AddHostedService<StoryFetcher>();
 
         return services;
     }
 
-    private static IServiceCollection AddRabbitConnection(this IServiceCollection services)
+    private static IServiceCollection AddRabbitMq(this IServiceCollection services)
     {
-        var connectionString = _configuration?.GetConnectionString("RabbitMq")
-            ?? Environment.GetEnvironmentVariable("RMQ_URI")
-            ?? "";
+        var rmqUsername = _configuration?.GetValue<string>("RabbitMq:Username");
+        var rmqPassword = _configuration?.GetValue<string>("RabbitMq:Password");
+        var rmqHostname = _configuration?.GetValue<string>("RabbitMq:Hostname");
+        var rmqPort = _configuration?.GetValue<string>("RabbitMq:Port");
+
+        var connectionString = $"amqp://{rmqUsername}:{rmqPassword}@{rmqHostname}:{rmqPort}";
 
         services.AddSingleton(_ => new ConnectionFactory()
         {
             Uri = new Uri(connectionString),
             DispatchConsumersAsync = true,
+            VirtualHost = "/",
         });
 
         services.AddSingleton<ChannelWrapper>();
@@ -57,9 +61,16 @@ public static class DI
     {
         services.AddDbContext<AppDbContext>(options =>
         {
-            var connectionString = _configuration?.GetConnectionString("Postgres") 
-                ?? Environment.GetEnvironmentVariable("POSTGRES_CONNSTRING")
-                ?? "";
+            var pgUsername = _configuration?.GetValue<string>("Postgres:Username");
+            var pgPassword = _configuration?.GetValue<string>("Postgres:Password");
+            var pgHost = _configuration?.GetValue<string>("Postgres:Host");
+            var pgPort = _configuration?.GetValue<string>("Postgres:Port");
+            var pgDbName = _configuration?.GetValue<string>("Postgres:Db");
+
+            var connectionString = $"""
+                Username={pgUsername};Password={pgPassword};
+                Host={pgHost};Port={pgPort};Database={pgDbName};Include Error Detail=true
+                """;
 
             options.UseNpgsql(connectionString)
                 .UseSnakeCaseNamingConvention();
