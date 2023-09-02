@@ -59,19 +59,19 @@ public static class DI
 
     private static IServiceCollection AddRepos(this IServiceCollection services)
     {
+        var pgUsername = _configuration?.GetValue<string>("Postgres:Username");
+        var pgPassword = _configuration?.GetValue<string>("Postgres:Password");
+        var pgHost = _configuration?.GetValue<string>("Postgres:Host");
+        var pgPort = _configuration?.GetValue<string>("Postgres:Port");
+        var pgDbName = _configuration?.GetValue<string>("Postgres:Database");
+
+        var connectionString = $"""
+            Username={pgUsername};Password={pgPassword};
+            Host={pgHost};Port={pgPort};Database={pgDbName};Include Error Detail=true
+            """;
+
         services.AddDbContext<AppDbContext>(options =>
         {
-            var pgUsername = _configuration?.GetValue<string>("Postgres:Username");
-            var pgPassword = _configuration?.GetValue<string>("Postgres:Password");
-            var pgHost = _configuration?.GetValue<string>("Postgres:Host");
-            var pgPort = _configuration?.GetValue<string>("Postgres:Port");
-            var pgDbName = _configuration?.GetValue<string>("Postgres:Db");
-
-            var connectionString = $"""
-                Username={pgUsername};Password={pgPassword};
-                Host={pgHost};Port={pgPort};Database={pgDbName};Include Error Detail=true
-                """;
-
             options.UseNpgsql(connectionString)
                 .UseSnakeCaseNamingConvention();
         }); 

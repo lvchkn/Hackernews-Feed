@@ -29,7 +29,7 @@ jobs:
 
           echo GH_APP_NAME: ${{ secrets.GH_AUTH_APP_NAME }} >> .env
           echo GH_CLIENT_ID: ${{ secrets.GH_AUTH_CLIENT_ID }} >> .env
-          echo GH:CLIENT_SECRET: ${{ secrets.GH_AUTH_TEST_CLIENT_SECRET }} >> .env
+          echo GH:CLIENT_SECRET: ${{ secrets.GH_AUTH_CLIENT_SECRET }} >> .env
 
       - name: Copy file via ssh key
         uses: appleboy/scp-action@v0.1.4

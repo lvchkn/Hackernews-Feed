@@ -14,7 +14,7 @@ services:
       - Postgres:Username=${POSTGRES_USER}
       - Postgres:Password=${POSTGRES_PW}
       - Postgres:Database=${POSTGRES_DB}
-      - Posgres:Host=postgres
+      - Postgres:Host=postgres
       - Postgres:Port=5432
 
       - GithubAuth:AppName=${GH_APP_NAME}
@@ -26,9 +26,16 @@ services:
       - postgres
   rabbitmq:
     image: rabbitmq:management-alpine
-    hostname: rabbitmq
+    environment:
+      - RABBITMQ_DEFAULT_USER=${RMQ_USER}
+      - RABBITMQ_DEFAULT_PASS=${RMQ_PW}
     ports:
       - "15672:15672"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:15672"]
+      interval: 20s
+      timeout: 10s
+      retries: 5
   postgres:
     image: postgres:15.1
     restart: always
