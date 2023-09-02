@@ -2,7 +2,9 @@ version: "3"
 services:
   rabbitmq:
     image: rabbitmq:management-alpine
-    hostname: rabbitmq
+    environment:
+      - RABBITMQ_DEFAULT_USER=${RMQ_USER}
+      - RABBITMQ_DEFAULT_PASS=${RMQ_PW}
     ports:
       - "5672:5672"
       - "15672:15672"
