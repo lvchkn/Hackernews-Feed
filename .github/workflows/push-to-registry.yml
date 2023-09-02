@@ -3,7 +3,7 @@ name: push-to-registry
 on:
   workflow_run:
     workflows: ["build-and-test"]
-    branches: [main]
+    branches: [deployment]
     types:
       - completed
 
