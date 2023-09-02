@@ -29,8 +29,6 @@ services:
     environment:
       - RABBITMQ_DEFAULT_USER=${RMQ_USER}
       - RABBITMQ_DEFAULT_PASS=${RMQ_PW}
-    ports:
-      - "15672:15672"
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:15672"]
       interval: 20s
@@ -48,7 +46,5 @@ services:
   adminer:
     image: adminer:latest
     restart: always
-    ports:
-      - "8083:8080"
 volumes:
   pgdata:
