@@ -8,7 +8,7 @@ on:
       - completed
 
 jobs:
-  deploy-packages:
+  push-image-to-registry:
     name: Push Docker image to Github registry
     runs-on: ubuntu-latest
     permissions:
