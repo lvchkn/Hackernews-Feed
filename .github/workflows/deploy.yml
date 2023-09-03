@@ -39,7 +39,7 @@ jobs:
           key: ${{ secrets.SSH_KEY }}
           passphrase: ${{ secrets.SSH_PASSPHRASE }}
           port: ${{ secrets.SSH_PORT }}
-          source: "./docker-compose.production.yml,./.env"
+          source: "nginx.production.conf,./docker-compose.production.yml,./.env"
           target: "~/hnfeed-proj/hnfeed"
 
       - name: Start compose stack
