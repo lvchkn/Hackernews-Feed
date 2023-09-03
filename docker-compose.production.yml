@@ -29,8 +29,10 @@ services:
       - "443:443"
     volumes:
       - ./nginx.production.conf:/etc/nginx/nginx.conf
-      - /etc/letsencrypt/live/myhnfeed.com/fullchain.pem:/etc/nginx/ssl/fullchain.pem
-      - /etc/letsencrypt/live/myhnfeed.com/privkey.pem:/etc/nginx/ssl/privkey.pem
+      - /etc/letsencrypt/live/myhnfeed.com/fullchain.pem:/etc/nginx/ssl/myhnfeed.com/fullchain.pem
+      - /etc/letsencrypt/live/myhnfeed.com/privkey.pem:/etc/nginx/ssl/myhnfeed.com/privkey.pem
+      - /etc/letsencrypt/live/www.myhnfeed.com/fullchain.pem:/etc/nginx/ssl/www.myhnfeed.com/fullchain.pem
+      - /etc/letsencrypt/live/www.myhnfeed.com/privkey.pem:/etc/nginx/ssl/www.myhnfeed.com/privkey.pem
   rabbitmq:
     image: rabbitmq:management-alpine
     environment:
