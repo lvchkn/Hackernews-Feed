@@ -1,3 +1,5 @@
+using Microsoft.AspNetCore.HttpOverrides;
+
 namespace HackerNewsCommentsFeed.Configuration;
 
 public static class Middleware
@@ -10,7 +12,11 @@ public static class Middleware
         // var dbContext = app.ApplicationServices.CreateScope().ServiceProvider.GetRequiredService<AppDbContext>();
         // dbContext.SeedUsers();
 
-        app.UseCors()
+        app.UseForwardedHeaders(new ForwardedHeadersOptions
+            {
+                ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
+            })
+            .UseCors()
             .UseAuthentication()
             .UseAuthorization()
             .UseMiddleware<HttpRequestsInterceptor>()

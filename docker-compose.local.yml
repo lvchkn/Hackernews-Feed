@@ -1,5 +1,11 @@
 version: "3"
 services:
+  nginx:
+    image: nginx:latest
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx.local.conf:/etc/nginx/nginx.conf
   rabbitmq:
     image: rabbitmq:management-alpine
     environment:
