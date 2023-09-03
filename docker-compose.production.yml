@@ -28,7 +28,7 @@ services:
     ports:
       - "443:443"
     volumes:
-      - ./nginx.production.conf:/etc/nginx/nginx.conf
+      - ./nginx.production.conf:/etc/nginx/conf.d/custom.conf
       - /etc/letsencrypt/live/myhnfeed.com/fullchain.pem:/etc/nginx/ssl/fullchain.pem
       - /etc/letsencrypt/live/myhnfeed.com/privkey.pem:/etc/nginx/ssl/privkey.pem
   rabbitmq:
