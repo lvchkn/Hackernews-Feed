@@ -42,7 +42,11 @@ public static class Registrations
             options.DefaultSignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
             options.DefaultChallengeScheme = "Github";
         })
-        .AddCookie()
+        .AddCookie(CookieAuthenticationDefaults.AuthenticationScheme, options => {
+            options.Cookie.SameSite = SameSiteMode.None;
+            options.Cookie.HttpOnly = true;
+            options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+        })
         .AddOAuth("Github", config =>
         {
             config.ClientId = clientId ?? string.Empty;
