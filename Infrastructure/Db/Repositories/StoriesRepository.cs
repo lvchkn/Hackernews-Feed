@@ -73,7 +73,6 @@ public class StoriesRepository : IStoriesRepository
 
         var sortedStories = _sorter
             .Sort(filteredStories, sortingParameters)
-            .OrderByDescending(s => s.Score)
             .Skip(skip)
             .Take(take)
             .ToList();
