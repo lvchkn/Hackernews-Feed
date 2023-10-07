@@ -1,3 +1,4 @@
+using Application.Paging;
 using Application.Sort;
 using AutoMapper;
 using Domain.Entities;
@@ -35,17 +36,19 @@ public class StoriesService : IStoriesService
         return _mapper.Map<List<StoryDto>>(stories);
     }
 
-    public List<StoryDto> GetStories(string? orderBy, string? search, int pageNumber, int pageSize)
+    public PagedStoriesDto GetStories(string? orderBy, string? search, int pageNumber, int pageSize)
     {
         var parsedSortingParameters = _sortingParameteresParser.Parse(orderBy);
         var skip = (pageNumber - 1) * pageSize;
         var take = pageSize;
         
-        var sortedStories = _storiesRepository.GetAll(parsedSortingParameters, search, skip, take);
+        var sortedStories = _storiesRepository.GetAll(parsedSortingParameters, search);
         
         var dtos = _mapper.Map<List<StoryDto>>(sortedStories);
         var rankedStories = _rankingService.Rank(dtos);
 
-        return rankedStories;
+        var pagedStories = rankedStories.Paginate(skip, take);
+
+        return pagedStories;
     }
 }
