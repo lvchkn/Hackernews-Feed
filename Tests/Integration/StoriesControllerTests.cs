@@ -1,3 +1,4 @@
+using System.Net;
 using System.Net.Http.Headers;
 using System.Text.Json;
 using Application.Paging;
@@ -148,6 +149,12 @@ public class StoriesControllerTests
     [InlineData(3, 2, 1, 3)]
     [InlineData(2, 3, 2, 2)]
     [InlineData(1, 3, 3, 2)]
+    [InlineData(0, 2, 2, 3)]
+    [InlineData(-1, 2, 2, 3)]
+    [InlineData(20, 30, 0, 1)]
+    [InlineData(20, 3, 0, 2)]
+    [InlineData(-20, 3, 3, 2)]
+    [InlineData(-20, 30, 5, 1)]
     public async Task Pagination_Works(int pageNumber, int pageSize, int returnedStoriesCount, int totalPagesCount)
     {
         // Arrange
@@ -166,6 +173,28 @@ public class StoriesControllerTests
         // Assert
         pagedData?.Stories.Count.Should().Be(returnedStoriesCount);
         pagedData?.TotalPagesCount.Should().Be(totalPagesCount);
+    }
+
+    [Theory]
+    [InlineData(2, 0)]
+    [InlineData(0, 0)]
+    [InlineData(2, -1)]
+    [InlineData(-1, -1)]
+    public async Task Pagination_Edge_Cases(int pageNumber, int pageSize)
+    {
+        // Arrange
+        var client = _webAppFactory.CreateClient();
+        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Test");
+        
+        using var scope = _webAppFactory.Services.CreateScope();
+        var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+        var storiesCount = dbContext?.SeedStories();
+
+        // Act
+        var response = await client.GetAsync($"/api/stories?pageNumber={pageNumber}&pageSize={pageSize}");
+        
+        // Assert
+        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
     }
 
     private static StoryDto MapToStoryDto(Story story)
