@@ -5,11 +5,12 @@ namespace Tests.Integration;
 
 public static class DataSeeder
 {
-    public static void SeedStories(this AppDbContext dbContext)
+    public static int SeedStories(this AppDbContext dbContext)
     {
         dbContext.Stories.RemoveRange(dbContext.Stories);
-        
-        dbContext.Stories?.AddRange(
+
+        var stories = new []
+        {
             new Story()
             {
                 By = "User1",
@@ -44,10 +45,14 @@ public static class DataSeeder
                 Title = "B Story",
                 Score = 250,
                 Time = 9,
-            }
-        );
+            }, 
+        };
+        
+        dbContext.Stories?.AddRange(stories);
 
         dbContext.SaveChanges();
+
+        return stories.Length;
     }
 
     public static void SeedUsers(this AppDbContext dbContext)

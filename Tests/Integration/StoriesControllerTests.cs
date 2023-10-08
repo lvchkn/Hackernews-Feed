@@ -1,5 +1,7 @@
+using System.Net;
 using System.Net.Http.Headers;
 using System.Text.Json;
+using Application.Paging;
 using Application.Stories;
 using Application.Tags;
 using Domain.Entities;
@@ -28,7 +30,7 @@ public class StoriesControllerTests
     }
 
     [Fact]
-    public async Task All_stories_are_returned_when_no_query_provided()
+    public async Task Up_to_first_10_stories_are_returned_when_no_query_provided()
     {
         // Arrange
         var client = _webAppFactory.CreateClient();
@@ -36,16 +38,20 @@ public class StoriesControllerTests
         
         using var scope = _webAppFactory.Services.CreateScope();
         var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-        dbContext?.SeedStories();
+        var storiesCount = dbContext?.SeedStories();
+
+        var expectedStories = dbContext?.Stories
+            .Select(s => MapToStoryDto(s))
+            .ToList();
 
         // Act
         var response = await client.GetAsync("/api/stories");
         var responseJson = await response.Content.ReadAsStringAsync();
-        var returnedStories = JsonSerializer.Deserialize<StoryDto[]>(responseJson, _jsonSerializerOptions);
+        var pagedData = JsonSerializer.Deserialize<PagedStoriesDto>(responseJson, _jsonSerializerOptions);
 
         // Assert
-        returnedStories.Should().NotBeNull();
-        returnedStories?.Length.Should().Be(5);
+        pagedData?.Stories.Should().BeEquivalentTo(expectedStories, options => options.Excluding(s => s.Rank));
+        pagedData?.Stories.Count.Should().Be(storiesCount);
     }
 
     [Fact]
@@ -57,9 +63,9 @@ public class StoriesControllerTests
         
         using var scope = _webAppFactory.Services.CreateScope();
         var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-        dbContext?.SeedStories();
+        var storiesCount = dbContext?.SeedStories();
 
-        var expectedResults = dbContext?.Stories
+        var expectedStories = dbContext?.Stories
             .OrderByDescending(s => s.Title)
             .Select(s => MapToStoryDto(s))
             .ToList();
@@ -67,10 +73,11 @@ public class StoriesControllerTests
         // Act
         var response = await client.GetAsync("/api/stories?orderBy=title,asc");
         var responseJson = await response.Content.ReadAsStringAsync();
-        var returnedStories = JsonSerializer.Deserialize<StoryDto[]>(responseJson, _jsonSerializerOptions);
+        var pagedData = JsonSerializer.Deserialize<PagedStoriesDto>(responseJson, _jsonSerializerOptions);
 
         // Assert
-        returnedStories.Should().BeEquivalentTo(expectedResults, options => options.Excluding(s => s.Rank));
+        pagedData?.Stories.Should().BeEquivalentTo(expectedStories, options => options.Excluding(s => s.Rank));
+        pagedData?.Stories.Count.Should().Be(storiesCount);
     }
 
     [Theory]
@@ -85,15 +92,21 @@ public class StoriesControllerTests
         
         using var scope = _webAppFactory.Services.CreateScope();
         var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-        dbContext?.SeedStories();
+        var storiesCount = dbContext?.SeedStories();
+
+        var expectedStories = dbContext?.Stories
+            .Where(s => EF.Functions.ILike(s.Title, $"%{search}%"))
+            .Select(s => MapToStoryDto(s))
+            .ToList();
         
         // Act
         var response = await client.GetAsync($"/api/stories?search={search}");
         var responseJson = await response.Content.ReadAsStringAsync();
-        var returnedStories = JsonSerializer.Deserialize<StoryDto[]>(responseJson, _jsonSerializerOptions);
+        var pagedData = JsonSerializer.Deserialize<PagedStoriesDto>(responseJson, _jsonSerializerOptions);
 
         // Assert
-        returnedStories?.Length.Should().Be(5);
+        pagedData?.Stories.Should().BeEquivalentTo(expectedStories, options => options.Excluding(s => s.Rank));
+        pagedData?.Stories.Count.Should().Be(expectedStories?.Count);
     }
 
     [Theory]
@@ -108,10 +121,10 @@ public class StoriesControllerTests
 
         using var scope = _webAppFactory.Services.CreateScope();
         var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-        dbContext?.SeedStories();
+        var storiesCount = dbContext?.SeedStories();
         
         var orderBy = "score asc";
-        var expectedResults = dbContext?.Stories
+        var expectedStories = dbContext?.Stories
             .Where(s => EF.Functions.ILike(s.Title, $"%{search}%"))
             .OrderBy(s => s.Score)
             .Select(s => MapToStoryDto(s))
@@ -120,21 +133,29 @@ public class StoriesControllerTests
         // Act
         var response = await client.GetAsync($"/api/stories?orderBy={orderBy}&search={search}");
         var responseJson = await response.Content.ReadAsStringAsync();
-        var returnedStories = JsonSerializer.Deserialize<StoryDto[]>(responseJson, _jsonSerializerOptions);
+        var pagedData = JsonSerializer.Deserialize<PagedStoriesDto>(responseJson, _jsonSerializerOptions);
 
         // Assert
-        returnedStories?.Should().BeEquivalentTo(expectedResults, options => options.Excluding(s => s.Rank));
+        pagedData?.Stories.Should().BeEquivalentTo(expectedStories, options => options.Excluding(s => s.Rank));
+        pagedData?.Stories.Count.Should().Be(expectedStories?.Count);
     }
 
     [Theory]
-    [InlineData(2, 2, 2)]
-    [InlineData(2, 1, 1)]
-    [InlineData(4, 1, 1)]
-    [InlineData(5, 0, 0)]
-    [InlineData(5, 1, 1)]
-    [InlineData(1, 5, 5)]
-    [InlineData(3, 2, 1)]
-    public async Task Pagination_Works(int pageNumber, int pageSize, int result)
+    [InlineData(2, 2, 2, 3)]
+    [InlineData(2, 1, 1, 5)]
+    [InlineData(4, 2, 0, 3)]
+    [InlineData(5, 1, 1, 5)]
+    [InlineData(1, 5, 5, 1)]
+    [InlineData(3, 2, 1, 3)]
+    [InlineData(2, 3, 2, 2)]
+    [InlineData(1, 3, 3, 2)]
+    [InlineData(0, 2, 2, 3)]
+    [InlineData(-1, 2, 2, 3)]
+    [InlineData(20, 30, 0, 1)]
+    [InlineData(20, 3, 0, 2)]
+    [InlineData(-20, 3, 3, 2)]
+    [InlineData(-20, 30, 5, 1)]
+    public async Task Pagination_Works(int pageNumber, int pageSize, int returnedStoriesCount, int totalPagesCount)
     {
         // Arrange
         var client = _webAppFactory.CreateClient();
@@ -142,14 +163,38 @@ public class StoriesControllerTests
         
         using var scope = _webAppFactory.Services.CreateScope();
         var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-        dbContext?.SeedStories();
+        var storiesCount = dbContext?.SeedStories();
 
         // Act
         var response = await client.GetAsync($"/api/stories?pageNumber={pageNumber}&pageSize={pageSize}");
         var responseJson = await response.Content.ReadAsStringAsync();
-        var returnedStories = JsonSerializer.Deserialize<StoryDto[]>(responseJson, _jsonSerializerOptions);
+        var pagedData = JsonSerializer.Deserialize<PagedStoriesDto>(responseJson, _jsonSerializerOptions);
+        
         // Assert
-        returnedStories?.Length.Should().Be(result);
+        pagedData?.Stories.Count.Should().Be(returnedStoriesCount);
+        pagedData?.TotalPagesCount.Should().Be(totalPagesCount);
+    }
+
+    [Theory]
+    [InlineData(2, 0)]
+    [InlineData(0, 0)]
+    [InlineData(2, -1)]
+    [InlineData(-1, -1)]
+    public async Task Pagination_Edge_Cases(int pageNumber, int pageSize)
+    {
+        // Arrange
+        var client = _webAppFactory.CreateClient();
+        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Test");
+        
+        using var scope = _webAppFactory.Services.CreateScope();
+        var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+        var storiesCount = dbContext?.SeedStories();
+
+        // Act
+        var response = await client.GetAsync($"/api/stories?pageNumber={pageNumber}&pageSize={pageSize}");
+        
+        // Assert
+        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
     }
 
     private static StoryDto MapToStoryDto(Story story)
