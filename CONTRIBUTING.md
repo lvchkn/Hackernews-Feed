@@ -1,0 +1,1 @@
+Thank you for taking interest in this project! If you wanna file a bug, extend the project's functionality or contribute in any other way, please feel free to open a PR, but maybe consider opening an issue at first to make room for some potential discussion.
