@@ -10,17 +10,17 @@ public class StoriesService : IStoriesService
     private readonly IStoriesRepository _storiesRepository;
     private readonly IMapper _mapper;
     private readonly IRankingService _rankingService;
-    private readonly SortingParametersParser _sortingParameteresParser;
+    private readonly SortingParametersParser _sortingParametersParser;
 
     public StoriesService(
         IStoriesRepository storiesRepository,
         IMapper mapper,
-        SortingParametersParser sortingParameteresParser,
+        SortingParametersParser sortingParametersParser,
         IRankingService rankingService)
     {
         _storiesRepository = storiesRepository;
         _mapper = mapper;
-        _sortingParameteresParser = sortingParameteresParser;
+        _sortingParametersParser = sortingParametersParser;
         _rankingService = rankingService;
     }
 
@@ -38,7 +38,7 @@ public class StoriesService : IStoriesService
 
     public PagedStoriesDto GetStories(string? orderBy, string? search, int pageNumber, int pageSize)
     {
-        var parsedSortingParameters = _sortingParameteresParser.Parse(orderBy);
+        var parsedSortingParameters = _sortingParametersParser.Parse(orderBy);
         var skip = (pageNumber - 1) * pageSize;
         var take = pageSize;
         

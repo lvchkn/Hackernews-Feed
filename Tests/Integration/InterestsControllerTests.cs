@@ -50,7 +50,7 @@ public class InterestsControllerTests
     
         var getByIdResponseJson = await getByIdResponse.Content.ReadAsStringAsync();
 
-        var returnedinterest = JsonSerializer.Deserialize<CreateInterestRequest>(getByIdResponseJson, jsonSerializerOptions);
+        var returnedInterest = JsonSerializer.Deserialize<CreateInterestRequest>(getByIdResponseJson, jsonSerializerOptions);
         var actualPostedInterest = new
         {
             Id = postedInterestId,
@@ -58,7 +58,7 @@ public class InterestsControllerTests
         };
 
         // Assert 2 - the interest returned by id is equivalent to the one we just added
-        returnedinterest?.Should().BeEquivalentTo(actualPostedInterest);
+        returnedInterest?.Should().BeEquivalentTo(actualPostedInterest);
 
         // Act 3 - update interest
         var updatedInterest = actualPostedInterest with { Text = "Updated Cloud Native Technologies" };
@@ -92,9 +92,7 @@ public class InterestsControllerTests
 
         // Act 6 - try to get the deleted interest
         var getByIdDeletedResponse = await client.GetAsync($"/api/interests/{returnedUpdatedInterest?.Id}");
-    
-        var getByIdDeletedResponseJson = await getByIdResponse.Content.ReadAsStringAsync();
-
+        
         // Assert 6 - delete interest
         getByIdDeletedResponse.StatusCode.Should().Be(HttpStatusCode.NotFound);
     }

@@ -17,7 +17,6 @@ namespace Tests.Integration;
 public class StoriesControllerTests
 {
     private readonly CustomWebApplicationFactory<Program> _webAppFactory;
-    private record CreateInterestRequest(string Text, int? Id);
 
     private readonly JsonSerializerOptions _jsonSerializerOptions = new ()
     {

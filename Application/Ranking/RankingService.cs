@@ -1,3 +1,5 @@
+namespace Application.Ranking;
+
 public class RankingService : IRankingService
 {
     private const double Gravity = 1.8;
@@ -9,14 +11,16 @@ public class RankingService : IRankingService
         return rank;
     }
 
-    public List<T> Rank<T>(IEnumerable<T> entities) where T : IRankable
+    public List<T> Rank<T>(IEnumerable<T> entities) where T : class, IRankable
     {
-        foreach(var entity in entities)
+        var rankables = entities.ToList();
+        
+        foreach(var entity in rankables)
         {
             entity.Rank = CalculateRank(entity);
         }
 
-        var adjustedEntities = entities
+        var adjustedEntities = rankables
             .OrderByDescending(story => story.Rank)
             .ToList();
         

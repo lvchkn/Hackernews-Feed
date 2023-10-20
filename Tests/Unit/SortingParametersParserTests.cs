@@ -13,8 +13,8 @@ public class SortingParametersParserTests
         var query = "title asc, score desc";
         var expectedResult = new List<SortingParameters>()
         {
-            new SortingParameters(SortOrder.Asc, SortField.Title),
-            new SortingParameters(SortOrder.Desc, SortField.Score),
+            new(SortOrder.Asc, SortField.Title),
+            new(SortOrder.Desc, SortField.Score),
         };
 
         // Act
@@ -31,8 +31,8 @@ public class SortingParametersParserTests
         var query = "score desc, id asc";
         var expectedResult = new List<SortingParameters>()
         {
-            new SortingParameters(SortOrder.Desc, SortField.Score),
-            new SortingParameters(SortOrder.Asc, SortField.Id),
+            new(SortOrder.Desc, SortField.Score),
+            new(SortOrder.Asc, SortField.Id),
         };
 
         // Act
@@ -49,7 +49,7 @@ public class SortingParametersParserTests
         var query = "score";
         var expectedResult = new List<SortingParameters>()
         {
-            new SortingParameters(SortOrder.Asc, SortField.Score),
+            new(SortOrder.Asc, SortField.Score),
         };
 
         // Act
@@ -66,8 +66,8 @@ public class SortingParametersParserTests
         var query = "score, title";
         var expectedResult = new List<SortingParameters>()
         {
-            new SortingParameters(SortOrder.Asc, SortField.Score),
-            new SortingParameters(SortOrder.Asc, SortField.Title),
+            new(SortOrder.Asc, SortField.Score),
+            new(SortOrder.Asc, SortField.Title),
         };
 
         // Act
