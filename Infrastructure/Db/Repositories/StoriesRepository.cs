@@ -3,7 +3,7 @@ using Application.Filter;
 using Application.Sort;
 using Domain.Entities;
 using Microsoft.EntityFrameworkCore;
-using Shared.Utils;
+using Shared.Exceptions;
 
 namespace Infrastructure.Db.Repositories;
 
@@ -84,7 +84,7 @@ public class StoriesRepository : IStoriesRepository
 
         if (story is not null) 
         {
-            throw new AlreadyExistsException("This story already exists!");
+            throw new EntityAlreadyExistsException("This story already exists!");
         }
 
         await _dbContext.Stories.AddAsync(newStory);

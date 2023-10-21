@@ -3,9 +3,9 @@ using System.Security.Claims;
 using System.Text.Json;
 using Application.Users;
 using Microsoft.AspNetCore.Authentication;
-using Shared.Utils;
+using Shared.Exceptions;
 
-namespace HackerNewsCommentsFeed.Configuration;
+namespace HackerNewsCommentsFeed.Middleware;
 
 public class HttpRequestsInterceptor
 {

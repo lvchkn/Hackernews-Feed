@@ -1,14 +1,11 @@
 using Microsoft.AspNetCore.HttpOverrides;
 
-namespace HackerNewsCommentsFeed.Configuration;
+namespace HackerNewsCommentsFeed.Middleware;
 
 public static class Middleware
 {
-    public static IApplicationBuilder UseMiddleware(this IApplicationBuilder app, IConfiguration configuration)
+    public static IApplicationBuilder AddMiddleware(this IApplicationBuilder app)
     {
-        // var dbContext = app.ApplicationServices.CreateScope().ServiceProvider.GetRequiredService<AppDbContext>();
-        // dbContext.SeedUsers();
-
         app.UseForwardedHeaders(new ForwardedHeadersOptions
             {
                 ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
