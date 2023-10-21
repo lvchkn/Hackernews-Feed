@@ -15,7 +15,7 @@ public class UtilsTests
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase
     };
     
-    private IQueryable<Story> Stories => new List<Story>()
+    private IQueryable<Story> Stories => new List<Story>
     {
         new() { Id = 1, Title = "D Story", Score = 24 },
         new() { Id = 2, Title = "C Story", Score = 10 },

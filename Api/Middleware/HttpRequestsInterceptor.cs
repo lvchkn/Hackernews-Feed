@@ -3,9 +3,9 @@ using System.Security.Claims;
 using System.Text.Json;
 using Application.Users;
 using Microsoft.AspNetCore.Authentication;
-using Shared.Utils;
+using Shared.Exceptions;
 
-namespace HackerNewsCommentsFeed.Configuration;
+namespace Api.Middleware;
 
 public class HttpRequestsInterceptor
 {
@@ -22,8 +22,8 @@ public class HttpRequestsInterceptor
 
     public async Task InvokeAsync(HttpContext httpContext, IUsersService usersService)
     {
-        var userInformationEndpoint = _configuration?.GetValue<string>("GithubAuth:UserInformationEndpoint");
-        var appName = _configuration?.GetValue<string>("GithubAuth:AppName");
+        var userInformationEndpoint = _configuration.GetValue<string>("GithubAuth:UserInformationEndpoint");
+        var appName = _configuration.GetValue<string>("GithubAuth:AppName");
 
         var accessToken = await httpContext.GetTokenAsync("access_token");
 

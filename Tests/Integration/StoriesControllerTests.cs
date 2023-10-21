@@ -1,6 +1,7 @@
 using System.Net;
 using System.Net.Http.Headers;
 using System.Text.Json;
+using Api;
 using Application.Paging;
 using Application.Stories;
 using Application.Tags;
@@ -17,7 +18,6 @@ namespace Tests.Integration;
 public class StoriesControllerTests
 {
     private readonly CustomWebApplicationFactory<Program> _webAppFactory;
-    private record CreateInterestRequest(string Text, int? Id);
 
     private readonly JsonSerializerOptions _jsonSerializerOptions = new ()
     {

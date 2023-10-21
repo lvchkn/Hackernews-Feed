@@ -3,7 +3,7 @@ using System.Text.Json;
 using Application.Messaging;
 using RabbitMQ.Client;
 
-namespace Infrastructure.RabbitConnections.Publisher;
+namespace Infrastructure.Rmq.Publisher;
 
 public class Publisher : IPublisher
 {

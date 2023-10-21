@@ -5,7 +5,7 @@ using Microsoft.Extensions.Logging;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 
-namespace Infrastructure.RabbitConnections.Subscriber;
+namespace Infrastructure.Rmq.Subscriber;
 
 public class Subscriber : ISubscriber
 {

@@ -1,7 +1,7 @@
 using Application.Interests;
 using Domain.Entities;
 using Microsoft.EntityFrameworkCore;
-using Shared.Utils;
+using Shared.Exceptions;
 
 namespace Infrastructure.Db.Repositories;
 
@@ -49,7 +49,7 @@ public class InterestsRepository : IInterestsRepository
 
         if (interest is not null) 
         {
-            throw new AlreadyExistsException("This interest already exists!");
+            throw new EntityAlreadyExistsException("This interest already exists!");
         }
 
         await _dbContext.Interests.AddAsync(newInterest);

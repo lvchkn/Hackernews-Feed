@@ -18,6 +18,8 @@ services:
       - GithubAuth:AppName=${GH_APP_NAME}
       - GithubAuth:ClientId=${GH_CLIENT_ID}
       - GithubAuth:ClientSecret=${GH_CLIENT_SECRET}
+      
+      - ClientUrl=${CLIENT_URL}
     restart: on-failure
     depends_on:
       - rabbitmq

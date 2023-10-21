@@ -2,39 +2,38 @@ using System.Net;
 using System.Net.Http.Headers;
 using System.Security.Claims;
 using System.Text.Json;
-using Application;
-using Infrastructure;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OAuth;
+using Shared.Exceptions;
 
-namespace HackerNewsCommentsFeed.Configuration;
+namespace Api.ServiceCollectionExtensions;
 
-public static class Registrations
+public static class GithubAuth
 {
-    private static IConfiguration? _configuration;
-    public static void AddDependencies(this IServiceCollection services, IConfiguration configuration)
+    private static bool SomeValueIsNull(params string?[] values)
     {
-        _configuration = configuration;
-
-        services
-            .AddApplication(_configuration)
-            .AddInfrastructure(_configuration)
-            .AddGithubAuth()
-            .AddAuthorization()
-            .AddCorsPolicies()
-            .AddEndpointsApiExplorer()
-            .AddSwaggerGen();
+        return values.Any(v => v is null);
     }
     
-    private static IServiceCollection AddGithubAuth(this IServiceCollection services)
+    public static IServiceCollection AddGithubAuth(this IServiceCollection services, IConfiguration configuration)
     {
-        var clientId = _configuration?.GetValue<string>("GithubAuth:ClientId");
-        var clientSecret = _configuration?.GetValue<string>("GithubAuth:ClientSecret");
-        var callbackPath = _configuration?.GetValue<string>("GithubAuth:CallbackPath");
-        var authorizationEndpoint = _configuration?.GetValue<string>("GithubAuth:AuthorizationEndpoint");
-        var tokenEndpoint = _configuration?.GetValue<string>("GithubAuth:TokenEndpoint");
-        var userInformationEndpoint = _configuration?.GetValue<string>("GithubAuth:UserInformationEndpoint");
+        var clientId = configuration.GetValue<string>("GithubAuth:ClientId");
+        var clientSecret = configuration.GetValue<string>("GithubAuth:ClientSecret");
+        var callbackPath = configuration.GetValue<string>("GithubAuth:CallbackPath");
+        var authorizationEndpoint = configuration.GetValue<string>("GithubAuth:AuthorizationEndpoint");
+        var tokenEndpoint = configuration.GetValue<string>("GithubAuth:TokenEndpoint");
+        var userInformationEndpoint = configuration.GetValue<string>("GithubAuth:UserInformationEndpoint");
+
+        if (SomeValueIsNull(clientId,
+                clientSecret,
+                callbackPath,
+                authorizationEndpoint,
+                tokenEndpoint,
+                userInformationEndpoint))
+        {
+            throw new ConfigurationException("Some app setting is missing!");
+        }
         
         services.AddAuthentication(options =>
         {
@@ -49,12 +48,12 @@ public static class Registrations
         })
         .AddOAuth("Github", config =>
         {
-            config.ClientId = clientId ?? string.Empty;
-            config.ClientSecret = clientSecret ?? string.Empty;
+            config.ClientId = clientId!;
+            config.ClientSecret = clientSecret!;
             config.CallbackPath = new PathString(callbackPath);
-            config.AuthorizationEndpoint = authorizationEndpoint ?? string.Empty;
-            config.TokenEndpoint = tokenEndpoint ?? string.Empty;
-            config.UserInformationEndpoint = userInformationEndpoint ?? string.Empty;
+            config.AuthorizationEndpoint = authorizationEndpoint!;
+            config.TokenEndpoint = tokenEndpoint!;
+            config.UserInformationEndpoint = userInformationEndpoint!;
             config.SaveTokens = true;
             config.ClaimActions.MapJsonKey(ClaimTypes.NameIdentifier, "id");
             config.ClaimActions.MapJsonKey(ClaimTypes.Name, "login");
@@ -92,22 +91,6 @@ public static class Registrations
                     return Task.CompletedTask;
                 },
             };
-        });
-
-        return services;
-    }
-
-    private static IServiceCollection AddCorsPolicies(this IServiceCollection services)
-    {
-        services.AddCors(options =>
-        {
-            options.AddDefaultPolicy(policy  => 
-            {
-                policy.WithOrigins("http://localhost:8080")
-                    .AllowAnyHeader()
-                    .AllowAnyMethod()
-                    .AllowCredentials();
-            });
         });
 
         return services;

@@ -70,21 +70,21 @@ public static class DataSeeder
 
         var interests = new List<Interest>
         {
-            new Interest { Text = ".NET Core" },
-            new Interest { Text = "AWS" },
-            new Interest { Text = "finance" },
+            new() { Text = ".NET Core" },
+            new() { Text = "AWS" },
+            new() { Text = "finance" },
         };
 
         var stories = new List<Story>()
         {
-            new Story()
+            new()
             {
                 By = "someone",
                 Title = "Hello World!",
                 Score = 123,
                 Time = 7000,
             },
-            new Story()
+            new()
             {
                 By = "testing",
                 Title = "how to learn git",

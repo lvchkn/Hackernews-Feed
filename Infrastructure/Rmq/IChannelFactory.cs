@@ -1,6 +1,6 @@
 using RabbitMQ.Client;
 
-namespace Infrastructure.RabbitConnections;
+namespace Infrastructure.Rmq;
 
 public interface IChannelFactory
 {

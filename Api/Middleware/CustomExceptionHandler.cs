@@ -1,8 +1,8 @@
-using Shared.Utils;
 using System.Net;
 using System.Text.Json;
+using Shared.Exceptions;
 
-namespace HackerNewsCommentsFeed.Configuration;
+namespace Api.Middleware;
 
 public class CustomExceptionHandler
 {
@@ -35,7 +35,7 @@ public class CustomExceptionHandler
         httpContext.Response.StatusCode = exception switch
         {
             NotFoundException => (int) HttpStatusCode.NotFound,
-            AlreadyExistsException => (int) HttpStatusCode.BadRequest,
+            EntityAlreadyExistsException => (int) HttpStatusCode.BadRequest,
             ArgumentException => (int) HttpStatusCode.BadRequest,
             _ => (int) HttpStatusCode.InternalServerError
         };

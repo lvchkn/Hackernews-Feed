@@ -23,7 +23,7 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\HackerNewsCommentsFeed\HackerNewsCommentsFeed.csproj" />
+      <ProjectReference Include="..\Api\Api.csproj" />
       <ProjectReference Include="..\Shared\Shared.csproj" />
       <ProjectReference Include="..\Infrastructure\Infrastructure.csproj" />
     </ItemGroup>

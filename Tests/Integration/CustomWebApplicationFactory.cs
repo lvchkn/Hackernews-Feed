@@ -16,29 +16,23 @@ namespace Tests.Integration;
 public class CustomWebApplicationFactory<Program> : WebApplicationFactory<Program>, IAsyncLifetime 
     where Program: class, new()
 {
-    private readonly PostgreSqlContainer _postgresContainer;
-    private readonly RabbitMqContainer _rmqContainer;
-
-    public CustomWebApplicationFactory()
-    {
-        _postgresContainer = new PostgreSqlBuilder()
-            .WithDatabase("feed")
-            .WithUsername("testuser")
-            .WithPassword("testpw")
-            .WithImage("postgres:15.1")
-            .WithExposedPort(5432)
-            .WithPortBinding(5432, true)
-            .WithCleanUp(true)
-            .Build();
-
-         _rmqContainer = new RabbitMqBuilder()
-            .WithUsername("testuser")
-            .WithPassword("testpw")
-            .WithImage("rabbitmq:3.7.28")
-            .WithExposedPort(5672)
-            .WithCleanUp(true)
-            .Build();
-    }
+    private readonly PostgreSqlContainer _postgresContainer = new PostgreSqlBuilder()
+        .WithDatabase("feed")
+        .WithUsername("testuser")
+        .WithPassword("testpw")
+        .WithImage("postgres:15.1")
+        .WithExposedPort(5432)
+        .WithPortBinding(5432, true)
+        .WithCleanUp(true)
+        .Build();
+    
+    private readonly RabbitMqContainer _rmqContainer = new RabbitMqBuilder()
+        .WithUsername("testuser")
+        .WithPassword("testpw")
+        .WithImage("rabbitmq:3.7.28")
+        .WithExposedPort(5672)
+        .WithCleanUp(true)
+        .Build();
 
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {

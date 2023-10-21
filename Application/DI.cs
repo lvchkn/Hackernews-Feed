@@ -4,6 +4,7 @@ using System.Reflection;
 using Application.Sort;
 using Application.Users;
 using Application.Interests;
+using Application.Ranking;
 using Application.Stories;
 
 namespace Application;

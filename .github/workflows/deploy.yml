@@ -27,9 +27,11 @@ jobs:
           echo POSTGRES_USER=${{ secrets.POSTGRES_USER }} >> .env
           echo POSTGRES_PW=${{ secrets.POSTGRES_PW }} >> .env
 
-          echo GH_APP_NAME: ${{ secrets.GH_AUTH_APP_NAME }} >> .env
-          echo GH_CLIENT_ID: ${{ secrets.GH_AUTH_CLIENT_ID }} >> .env
-          echo GH_CLIENT_SECRET: ${{ secrets.GH_AUTH_CLIENT_SECRET }} >> .env
+          echo GH_APP_NAME=${{ secrets.GH_AUTH_APP_NAME }} >> .env
+          echo GH_CLIENT_ID=${{ secrets.GH_AUTH_CLIENT_ID }} >> .env
+          echo GH_CLIENT_SECRET=${{ secrets.GH_AUTH_CLIENT_SECRET }} >> .env
+          
+          echo CLIENT_URL=${{ secrets.CLIENT_URL }} >> .env
 
       - name: Copy file via ssh key
         uses: appleboy/scp-action@v0.1.4

@@ -8,8 +8,13 @@ public static class PagingExtension
     {
         if (take <= 0) throw new ArgumentOutOfRangeException();
 
-        var pagedStories = stories.Skip(skip).Take(take).ToList();
-        var totalPagesCount = (int)Math.Ceiling((double)stories.Count() / take);
+        var storyDtos = stories.ToList();
+        
+        var pagedStories = storyDtos.Skip(skip)
+            .Take(take)
+            .ToList();
+        
+        var totalPagesCount = (int)Math.Ceiling((double)storyDtos.Count / take);
         
         return new ()
         {

@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.29920.165
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HackerNewsCommentsFeed", "HackerNewsCommentsFeed\HackerNewsCommentsFeed.csproj", "{F63A08F7-6596-4BDF-A07F-D7ACB60EAECB}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Api", "Api\Api.csproj", "{F63A08F7-6596-4BDF-A07F-D7ACB60EAECB}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Application", "Application\Application.csproj", "{2F53F793-B973-4D2D-992B-7C1549259048}"
 EndProject

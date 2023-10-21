@@ -1,7 +1,7 @@
 using Application.Users;
 using Domain.Entities;
 using Microsoft.EntityFrameworkCore;
-using Shared.Utils;
+using Shared.Exceptions;
 
 namespace Infrastructure.Db.Repositories;
 
@@ -53,7 +53,7 @@ public class UsersRepository : IUsersRepository
 
         if (user is not null)
         {
-            throw new AlreadyExistsException("Id is already in use.");
+            throw new EntityAlreadyExistsException("Id is already in use.");
         }
 
         await _dbContext.Users.AddAsync(newUser);

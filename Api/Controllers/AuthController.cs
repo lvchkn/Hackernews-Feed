@@ -2,7 +2,7 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Mvc;
 using Shared.Utils;
 
-namespace HackerNewsCommentsFeed.Controllers;
+namespace Api.Controllers;
 
 public static class AuthController
 {
@@ -46,9 +46,9 @@ public static class AuthController
         {
             userInfo = userInfo with
             {
-                Name = authenticatedUser?.Name ?? string.Empty,
-                AuthenticationType = authenticatedUser?.AuthenticationType ?? string.Empty,
-                IsAuthenticated = authenticatedUser?.IsAuthenticated ?? false,
+                Name = authenticatedUser.Name ?? string.Empty,
+                AuthenticationType = authenticatedUser.AuthenticationType ?? string.Empty,
+                IsAuthenticated = authenticatedUser.IsAuthenticated,
             };
         }
 
