@@ -1,10 +1,10 @@
 name: build-and-test
 on: push
+
 jobs:
   build: 
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
+    
     steps:
     - name: Check out the repo
       uses: actions/checkout@v4
@@ -20,42 +20,11 @@ jobs:
     - name: Build
       run: dotnet build --no-restore
       
-    - name: Upload artifacts
-      uses: actions/upload-artifact@v3
-      with:
-        name: artifacts
-        path: |
-          HackerNewsCommentsFeed/
-          Application/
-          Domain/
-          Infrastructure/
-          Shared/
-          Tests/
-        
-  test:
-    runs-on: ubuntu-latest
-    needs: build
-    steps:
-    - name: Check out the repo
-      uses: actions/checkout@v4
-
-    - name: Setup .NET
-      uses: actions/setup-dotnet@v3
-      with:
-        dotnet-version: 7.0.x
-    
-    - name: Download artifacts
-      uses: actions/download-artifact@v3
-      with:
-        name: artifacts
-        path: artifacts/
-      
     - name: Test
-      working-directory: artifacts/Tests/
       env:
-        GithubAuth:AppName: ${{ secrets.GH_AUTH_APP_NAME }}
-        GithubAuth:ClientId: ${{ secrets.GH_AUTH_CLIENT_ID }}
+        GithubAuth:AppName: ${{ secrets.GH_AUTH_TEST_APP_NAME }}
+        GithubAuth:ClientId: ${{ secrets.GH_AUTH_TEST_CLIENT_ID }}
         GithubAuth:ClientSecret: ${{ secrets.GH_AUTH_TEST_CLIENT_SECRET }}
+        ClientUrl: ${{ secrets.CLIENT_URL }}
       run: |
-        dotnet restore
         dotnet test --no-build --verbosity normal
