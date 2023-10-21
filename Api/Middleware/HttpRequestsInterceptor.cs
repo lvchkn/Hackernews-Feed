@@ -5,7 +5,7 @@ using Application.Users;
 using Microsoft.AspNetCore.Authentication;
 using Shared.Exceptions;
 
-namespace HackerNewsCommentsFeed.Middleware;
+namespace Api.Middleware;
 
 public class HttpRequestsInterceptor
 {

@@ -1,6 +1,6 @@
 using Shared.Exceptions;
 
-namespace HackerNewsCommentsFeed.ServiceCollectionExtensions;
+namespace Api.ServiceCollectionExtensions;
 
 public static class CorsPolicy
 {

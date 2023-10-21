@@ -2,7 +2,7 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Mvc;
 using Shared.Utils;
 
-namespace HackerNewsCommentsFeed.Controllers;
+namespace Api.Controllers;
 
 public static class AuthController
 {

@@ -1,7 +1,7 @@
 using Application;
 using Infrastructure;
 
-namespace HackerNewsCommentsFeed.ServiceCollectionExtensions;
+namespace Api.ServiceCollectionExtensions;
 
 public static class ServiceCollectionExtension
 {

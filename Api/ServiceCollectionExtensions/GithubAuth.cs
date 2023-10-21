@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OAuth;
 using Shared.Exceptions;
 
-namespace HackerNewsCommentsFeed.ServiceCollectionExtensions;
+namespace Api.ServiceCollectionExtensions;
 
 public static class GithubAuth
 {

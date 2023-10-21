@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.HttpOverrides;
 
-namespace HackerNewsCommentsFeed.Middleware;
+namespace Api.Middleware;
 
 public static class Middleware
 {

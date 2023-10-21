@@ -2,7 +2,7 @@ using Application.Interests;
 using Microsoft.AspNetCore.Mvc;
 using Shared.Utils;
 
-namespace HackerNewsCommentsFeed.Controllers;
+namespace Api.Controllers;
 
 public static class InterestsController
 {

@@ -1,3 +1,4 @@
+using Api;
 using Xunit;
 
 namespace Tests.Integration;

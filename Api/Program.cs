@@ -1,6 +1,6 @@
-using HackerNewsCommentsFeed.Controllers;
-using HackerNewsCommentsFeed.Middleware;
-using HackerNewsCommentsFeed.ServiceCollectionExtensions;
+using Api.Controllers;
+using Api.Middleware;
+using Api.ServiceCollectionExtensions;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Configuration.AddEnvironmentVariables();
@@ -17,4 +17,7 @@ app.MapItemsEndpoints()
     .MapInterestsEndpoints();
 
 app.Run();
-public partial class Program {}
+namespace Api
+{
+    public partial class Program {}
+}

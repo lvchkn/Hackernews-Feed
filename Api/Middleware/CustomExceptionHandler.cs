@@ -2,7 +2,7 @@ using System.Net;
 using System.Text.Json;
 using Shared.Exceptions;
 
-namespace HackerNewsCommentsFeed.Middleware;
+namespace Api.Middleware;
 
 public class CustomExceptionHandler
 {
