@@ -4,6 +4,8 @@ services:
     image: ghcr.io/lvchkn/hnfeed:latest
     environment:
       - ASPNETCORE_ENVIRONMENT=production
+      - ASPNETCORE_FORWARDEDHEADERS_ENABLED=true
+      
       - RabbitMq:Hostname=rabbitmq
       - RabbitMq:Username=${RMQ_USER}
       - RabbitMq:Password=${RMQ_PW}
