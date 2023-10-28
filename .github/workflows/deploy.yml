@@ -20,9 +20,13 @@ jobs:
       - name: Create .env file
         run: |
           touch .env
+          echo RMQ_HOST=${{ secrets.RMQ_HOST }} >> .env
+          echo RMQ_PORT=${{ secrets.RMQ_PORT }} >> .env
           echo RMQ_USER=${{ secrets.RMQ_USER }} >> .env
           echo RMQ_PW=${{ secrets.RMQ_PW }} >> .env
 
+          echo POSTGRES_HOST=${{ secrets.POSTGRES_HOST }} >> .env
+          echo POSTGRES_PORT=${{ secrets.POSTGRES_PORT }} >> .env
           echo POSTGRES_DB=${{ secrets.POSTGRES_DB }} >> .env
           echo POSTGRES_USER=${{ secrets.POSTGRES_USER }} >> .env
           echo POSTGRES_PW=${{ secrets.POSTGRES_PW }} >> .env
