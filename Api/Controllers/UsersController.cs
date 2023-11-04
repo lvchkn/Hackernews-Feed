@@ -9,14 +9,6 @@ public static class UsersController
 {
     public static IEndpointRouteBuilder MapUsersEndpoints(this IEndpointRouteBuilder app)
     {
-        app.MapGet("/api/users", async ([FromServices] IUsersService usersService) =>
-        {
-            var users = await usersService.GetAllAsync();
-
-            return Results.Ok(users);
-            
-        }).RequireAuthorization().WithTags(EndpointGroupTags.Users);
-        
         app.MapGet("/api/user/{id}/interests", async (
             [FromRoute] int id, 
             [FromServices] IUsersService usersService) =>

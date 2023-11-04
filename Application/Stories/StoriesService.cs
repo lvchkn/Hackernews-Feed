@@ -45,10 +45,17 @@ public class StoriesService : IStoriesService
         var sortedStories = _storiesRepository.GetAll(parsedSortingParameters, search);
         
         var dtos = _mapper.Map<List<StoryDto>>(sortedStories);
+        PagedStoriesDto pagedStories;
+        
+        if (parsedSortingParameters.Count > 0 || !string.IsNullOrEmpty(search))
+        {
+            pagedStories = dtos.Paginate(skip, take);
+            return pagedStories;
+        }
+
         var rankedStories = _rankingService.Rank(dtos);
-
-        var pagedStories = rankedStories.Paginate(skip, take);
-
+        pagedStories = rankedStories.Paginate(skip, take);
+        
         return pagedStories;
     }
 }
