@@ -19,7 +19,7 @@ public static class StoriesController
 
             return Results.Ok(stories);
             
-        }).RequireAuthorization().WithTags(EndpointGroupTags.Stories);
+        }).WithTags(EndpointGroupTags.Stories);
 
         return app;
     }
