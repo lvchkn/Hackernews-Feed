@@ -61,7 +61,7 @@ public class StoriesRepository : IStoriesRepository
         return stories;
     }
 
-    public List<Story> GetAll(IEnumerable<SortingParameters> sortingParameters, string? search)
+    public (List<Story> stories, int totalPagesCount) GetAll(IEnumerable<SortingParameters> sortingParameters, string? search, int skip, int take)
     {
         var included = _dbContext.Stories
             .AsNoTracking()
@@ -71,11 +71,15 @@ public class StoriesRepository : IStoriesRepository
 
         var filteredStories = _filterer.Filter(included, search);
 
+        var totalPagesCount = (int)Math.Ceiling((double)filteredStories.Count() / take);
+
         var sortedStories = _sorter
             .Sort(filteredStories, sortingParameters)
+            .Skip(skip)
+            .Take(take)
             .ToList();
 
-        return sortedStories;
+        return (sortedStories, totalPagesCount);
     }
 
     public async Task AddAsync(Story newStory)
