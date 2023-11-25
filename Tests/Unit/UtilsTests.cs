@@ -3,18 +3,12 @@ using Application.Sort;
 using Domain.Entities;
 using FluentAssertions;
 using Infrastructure.Db;
-using Shared.Utils;
 using Xunit;
 
 namespace Tests.Unit;
 
 public class UtilsTests
 {
-    private readonly JsonSerializerOptions _jsonSerializerOptions = new()
-    {
-        PropertyNamingPolicy = JsonNamingPolicy.CamelCase
-    };
-    
     private IQueryable<Story> Stories => new List<Story>
     {
         new() { Id = 1, Title = "D Story", Score = 24 },
@@ -22,24 +16,6 @@ public class UtilsTests
         new() { Id = 3, Title = "B Story", Score = 5 },
         new() { Id = 4, Title = "A Story", Score = 42 },
     }.AsQueryable();
-    
-    [Fact]
-    public void Item_type_is_inferred_correctly()
-    {
-        // Arrange
-        var story = new Story
-        {
-            Title = "Something",
-            Type = "story"
-        };
-        var item = JsonSerializer.Serialize(story, _jsonSerializerOptions);
-
-        // Act
-        var type = ItemUtils.GetItemType(item);
-
-        // Assert
-        type.Should().Be("story");
-    }
 
     [Theory]
     [InlineData(SortField.Id)]

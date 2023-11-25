@@ -209,7 +209,7 @@ public class StoriesControllerTests
             Time = story.Time,
             Title = story.Title,
             Url = story.Url,
-            Type = story.Type,
+            Text = story.Text,
             Tags = story.Tags
                 .Select(t => new TagDto
                 {

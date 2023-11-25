@@ -10,7 +10,7 @@ public record Story : ISortable, IFilterable
     public int Time { get; init; }
     public string Title { get; init; } = string.Empty;
     public string Url { get; init; } = string.Empty;
-    public string Type { get; init; } = string.Empty;
+    public string Text { get; init; } = string.Empty;
     public List<Tag> Tags { get; init; } = new ();
     public List<User> FavouritedBy { get; init; } = new ();
 }

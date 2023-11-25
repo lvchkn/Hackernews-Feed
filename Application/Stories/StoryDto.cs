@@ -14,6 +14,6 @@ public record StoryDto : IMessage, IRankable
     public int Time { get; init; }
     public string Title { get; init; } = string.Empty;
     public string Url { get; init; } = string.Empty;
-    public string Type { get; init; } = string.Empty;
+    public string Text { get; init; } = string.Empty;
     public List<TagDto> Tags { get; init; } = new ();
 }
