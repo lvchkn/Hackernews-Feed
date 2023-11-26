@@ -36,7 +36,7 @@ public class CustomExceptionHandler
         {
             NotFoundException => (int) HttpStatusCode.NotFound,
             EntityAlreadyExistsException => (int) HttpStatusCode.BadRequest,
-            ArgumentException => (int) HttpStatusCode.BadRequest,
+            QueryParameterException => (int) HttpStatusCode.BadRequest,
             _ => (int) HttpStatusCode.InternalServerError
         };
 

@@ -8,7 +8,10 @@ public class SortingParametersParser
     {
         if (string.IsNullOrEmpty(sortQuery)) 
         {
-            return new List<SortingParameters>(0);
+            return new List<SortingParameters>()
+            {
+                new (SortOrder.Desc, SortField.Score),
+            };
         }
 
         var sortingParams = new List<SortingParameters>();
@@ -17,8 +20,8 @@ public class SortingParametersParser
         foreach (var subSortQuery in splitQuery)
         {
             var splitSubSortQuery = subSortQuery.Trim().Split(" ");
-            var sortOrder = SortOrder.Asc;
-            var sortField = SortField.None;
+            var sortOrder = SortOrder.Desc;
+            var sortField = SortField.Score;
 
             if (splitSubSortQuery.Length > 0)
             {

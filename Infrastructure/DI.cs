@@ -73,7 +73,9 @@ public static class DI
         services.AddDbContext<AppDbContext>(options =>
         {
             options.UseNpgsql(connectionString)
-                .UseSnakeCaseNamingConvention();
+                .UseSnakeCaseNamingConvention()
+                .ConfigureWarnings(w =>
+                    w.Default(WarningBehavior.Throw));
         }); 
             
         services.AddScoped<ISorter, Sorter>();

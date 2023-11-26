@@ -61,25 +61,26 @@ public class StoriesRepository : IStoriesRepository
         return stories;
     }
 
-    public (List<Story> stories, int totalPagesCount) GetAll(IEnumerable<SortingParameters> sortingParameters, string? search, int skip, int take)
+    public (List<Story> paginatedStories, int totalPagesCount) GetAll(IEnumerable<SortingParameters> sortingParameters, string? search, int skip, int take)
     {
-        var included = _dbContext.Stories
+        var stories = _dbContext.Stories
+            .TagWith("Sort and paginate")
             .AsNoTracking()
             .Include(s => s.Tags)
             .Include(s => s.FavouritedBy)
             .AsSplitQuery();
 
-        var filteredStories = _filterer.Filter(included, search);
+        var filteredStories = _filterer.Filter(stories, search);
 
         var totalPagesCount = (int)Math.Ceiling((double)filteredStories.Count() / take);
 
-        var sortedStories = _sorter
-            .Sort(filteredStories, sortingParameters)
-            .Skip(skip)
+        var sortedStories = _sorter.Sort(filteredStories, sortingParameters);
+            
+        var paginatedStories = sortedStories.Skip(skip)
             .Take(take)
             .ToList();
 
-        return (sortedStories, totalPagesCount);
+        return (paginatedStories, totalPagesCount);
     }
 
     public async Task AddAsync(Story newStory)

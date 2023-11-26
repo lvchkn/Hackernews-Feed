@@ -3,6 +3,7 @@ using Application.Sort;
 using Application.Tags;
 using AutoMapper;
 using Domain.Entities;
+using Shared.Exceptions;
 
 namespace Application.Stories;
 
@@ -49,8 +50,13 @@ public class StoriesService : IStoriesService
 
     public PagedStoriesDto GetStories(string? orderBy, string? search, int pageNumber, int pageSize)
     {
+        if (pageSize <= 0)
+        {
+            throw new QueryParameterException("page size cannot be less than 1");
+        }
+        
         var parsedSortingParameters = _sortingParametersParser.Parse(orderBy);
-        var skip = (pageNumber - 1) * pageSize;
+        var skip = Math.Max((pageNumber - 1) * pageSize, 0);
         var take = pageSize;
         
         var (sortedStories, totalPagesCount) = _storiesRepository.GetAll(parsedSortingParameters, search, skip, take);
