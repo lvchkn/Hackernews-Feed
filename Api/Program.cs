@@ -17,6 +17,7 @@ app.MapItemsEndpoints()
     .MapInterestsEndpoints();
 
 app.Run();
+
 namespace Api
 {
     public partial class Program {}

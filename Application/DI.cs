@@ -6,6 +6,7 @@ using Application.Users;
 using Application.Interests;
 using Application.Ranking;
 using Application.Stories;
+using Application.Tags;
 
 namespace Application;
 
@@ -26,6 +27,9 @@ public static class DI
         services.AddScoped<IUsersService, UsersService>();
         services.AddScoped<IInterestsService, InterestsService>();
         services.AddScoped<IStoriesService, StoriesService>();
+
+        services.AddSingleton<TagsCache>();
+        services.AddScoped<ITagsService, TagsService>();
 
         return services;
     }

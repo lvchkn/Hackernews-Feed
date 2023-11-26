@@ -8,7 +8,10 @@ public interface IStoriesRepository
     Task<Story?> GetByIdAsync(int id);
     Task<List<Story>> GetByAuthorAsync(string author);
     Task<List<Story>> GetAllAsync();
-    List<Story> GetAll(IEnumerable<SortingParameters> sortingParameters, string? search);
+    (List<Story> paginatedStories, int totalPagesCount) GetAll(IEnumerable<SortingParameters> sortingParameters, 
+        string? search, 
+        int skip, 
+        int take);
     Task AddAsync(Story story);
     Task UpdateAsync(int id, Story updatedStory);
     Task DeleteAsync(int id);

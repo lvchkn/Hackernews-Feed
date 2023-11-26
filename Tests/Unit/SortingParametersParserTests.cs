@@ -49,7 +49,7 @@ public class SortingParametersParserTests
         var query = "score";
         var expectedResult = new List<SortingParameters>()
         {
-            new(SortOrder.Asc, SortField.Score),
+            new(SortOrder.Desc, SortField.Score),
         };
 
         // Act
@@ -66,8 +66,8 @@ public class SortingParametersParserTests
         var query = "score, title";
         var expectedResult = new List<SortingParameters>()
         {
-            new(SortOrder.Asc, SortField.Score),
-            new(SortOrder.Asc, SortField.Title),
+            new(SortOrder.Desc, SortField.Score),
+            new(SortOrder.Desc, SortField.Title),
         };
 
         // Act
@@ -83,7 +83,10 @@ public class SortingParametersParserTests
     public void Empty_sorting_params_should_be_discarded(string? query)
     {
         // Arrange
-        var expectedResult = new List<SortingParameters>(0);
+        var expectedResult = new List<SortingParameters>()
+        {
+            new(SortOrder.Desc, SortField.Score)
+        };
 
         // Act
         var sortingParamsAct = new SortingParametersParser().Parse(query);
@@ -96,11 +99,11 @@ public class SortingParametersParserTests
     public void Incorrectly_formatted_sorting_params_should_be_discarded()
     {
         // Arrange
-        var sortingParameters = "author,title descending";
+        var sortingParameters = "author,title ascending";
         var expectedResult = new List<SortingParameters>()
         {
-            new(SortOrder.Asc, SortField.None),
-            new(SortOrder.Asc, SortField.Title),
+            new(SortOrder.Desc, SortField.Score),
+            new(SortOrder.Desc, SortField.Title),
         };
 
         // Act
@@ -117,7 +120,7 @@ public class SortingParametersParserTests
         var sortingParameters = "author";
         var expectedResult = new List<SortingParameters>()
         {
-            new(SortOrder.Asc, SortField.None),
+            new(SortOrder.Desc, SortField.Score),
         };
 
         // Act

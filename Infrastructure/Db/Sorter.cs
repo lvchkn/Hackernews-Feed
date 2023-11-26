@@ -4,7 +4,7 @@ namespace Infrastructure.Db;
 
 public class Sorter : ISorter
 {
-    public IQueryable<T> Sort<T>(IQueryable<T> entities, IEnumerable<SortingParameters> parameters) where T : ISortable
+    public IOrderedQueryable<T> Sort<T>(IQueryable<T> entities, IEnumerable<SortingParameters> parameters) where T : ISortable
     {
         var index = 0;
 
@@ -15,10 +15,10 @@ public class Sorter : ISorter
             entities = UpdateListOrder(entities, field, order, thenable);
         }
 
-        return entities;
+        return entities as IOrderedQueryable<T> ?? throw new InvalidCastException();
     }
 
-    private static IQueryable<T> UpdateListOrder<T>(
+    private static IOrderedQueryable<T> UpdateListOrder<T>(
         IQueryable<T> list, 
         SortField field, 
         SortOrder order, 
@@ -76,9 +76,6 @@ public class Sorter : ISorter
 
             case SortField.Title when order == SortOrder.Desc:
                 listToOrder = listToOrder.OrderByDescending(c => c.Title);
-                break;
-
-            case SortField.None:
                 break;
 
             default: throw new ArgumentOutOfRangeException(nameof(field), field, null);
