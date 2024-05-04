@@ -36,7 +36,11 @@ jobs:
           echo GH_CLIENT_SECRET=${{ secrets.GH_AUTH_CLIENT_SECRET }} >> .env
           
           echo CLIENT_URL=${{ secrets.CLIENT_URL }} >> .env
+          echo DOMAIN=${{ secrets.DOMAIN }} >> .env
 
+      - name: Prepare config file
+        run: chmod +x ./prepareConfig.sh && ./prepareConfig.sh domain ${{ secrets.DOMAIN }} nginx.production.conf
+        
       - name: Copy file via ssh key
         uses: appleboy/scp-action@v0.1.4
         with:

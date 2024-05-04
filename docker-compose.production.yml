@@ -30,16 +30,15 @@ services:
     image: nginx:latest
     ports:
       - "443:443"
+      - "80:80"
     volumes:
       - ./nginx.production.conf:/etc/nginx/nginx.conf
-      - /etc/letsencrypt/live/myhnfeed.com/fullchain.pem:/etc/nginx/ssl/myhnfeed.com/fullchain.pem
-      - /etc/letsencrypt/live/myhnfeed.com/privkey.pem:/etc/nginx/ssl/myhnfeed.com/privkey.pem
-      - /etc/letsencrypt/live/www.myhnfeed.com/fullchain.pem:/etc/nginx/ssl/www.myhnfeed.com/fullchain.pem
-      - /etc/letsencrypt/live/www.myhnfeed.com/privkey.pem:/etc/nginx/ssl/www.myhnfeed.com/privkey.pem
+      - /etc/letsencrypt/live/${DOMAIN}/fullchain.pem:/etc/nginx/ssl/${DOMAIN}/fullchain.pem
+      - /etc/letsencrypt/live/${DOMAIN}/privkey.pem:/etc/nginx/ssl/${DOMAIN}/privkey.pem
+      - /etc/letsencrypt/live/www.${DOMAIN}/fullchain.pem:/etc/nginx/ssl/www.${DOMAIN}/fullchain.pem
+      - /etc/letsencrypt/live/www.${DOMAIN}/privkey.pem:/etc/nginx/ssl/www.${DOMAIN}/privkey.pem
   postgres:
     image: postgres:15.1
-    ports:
-      - "5432:5432"
     restart: always
     environment:
       - POSTGRES_DB=${POSTGRES_DB}
