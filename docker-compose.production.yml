@@ -29,8 +29,8 @@ services:
   nginx:
     image: nginx:latest
     ports:
-      - "443:443"
-      - "80:80"
+      - "444"
+      - "82"
     volumes:
       - ./nginx.production.conf:/etc/nginx/nginx.conf
       - /etc/letsencrypt/live/${DOMAIN}/fullchain.pem:/etc/nginx/ssl/${DOMAIN}/fullchain.pem
