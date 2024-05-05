@@ -35,8 +35,6 @@ services:
       - ./nginx.production.conf:/etc/nginx/nginx.conf
       - /etc/letsencrypt/live/${DOMAIN}/fullchain.pem:/etc/nginx/ssl/${DOMAIN}/fullchain.pem
       - /etc/letsencrypt/live/${DOMAIN}/privkey.pem:/etc/nginx/ssl/${DOMAIN}/privkey.pem
-      - /etc/letsencrypt/live/www.${DOMAIN}/fullchain.pem:/etc/nginx/ssl/www.${DOMAIN}/fullchain.pem
-      - /etc/letsencrypt/live/www.${DOMAIN}/privkey.pem:/etc/nginx/ssl/www.${DOMAIN}/privkey.pem
   postgres:
     image: postgres:15.1
     restart: always
