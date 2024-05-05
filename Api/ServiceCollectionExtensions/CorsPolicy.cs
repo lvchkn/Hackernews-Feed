@@ -14,7 +14,7 @@ public static class CorsPolicy
         {
             options.AddDefaultPolicy(policy => 
             {
-                policy.WithOrigins(clientUrl)
+                policy.WithOrigins($"https://{clientUrl}", $"https://www.{clientUrl}")
                     .AllowAnyHeader()
                     .AllowAnyMethod()
                     .AllowCredentials();
