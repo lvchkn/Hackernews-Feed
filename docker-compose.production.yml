@@ -5,7 +5,7 @@ services:
     environment:
       - ASPNETCORE_ENVIRONMENT=production
       - ASPNETCORE_FORWARDEDHEADERS_ENABLED=true
-      
+
       - RabbitMq:Hostname=${RMQ_HOST}
       - RabbitMq:Username=${RMQ_USER}
       - RabbitMq:Password=${RMQ_PW}
@@ -20,7 +20,7 @@ services:
       - GithubAuth:AppName=${GH_APP_NAME}
       - GithubAuth:ClientId=${GH_CLIENT_ID}
       - GithubAuth:ClientSecret=${GH_CLIENT_SECRET}
-      
+
       - ClientUrl=${CLIENT_URL}
     restart: on-failure
     depends_on:
@@ -40,9 +40,9 @@ services:
     volumes:
       - ./certbot/conf:/etc/letsencrypt:rw
       - ./certbot/www:/var/www/certbot:rw
-    command: certonly --webroot -w /var/www/certbot --dry-run -d ${DOMAIN} --agree-tos --register-unsafely-without-email 
+    command: renew --webroot -w /var/www/certbot --dry-run --cert-name ${DOMAIN} --agree-tos --register-unsafely-without-email
   postgres:
-    image: postgres:16.4
+    image: postgres:15.1
     restart: always
     environment:
       - POSTGRES_DB=${POSTGRES_DB}

@@ -42,7 +42,7 @@ jobs:
         run: chmod +x ./prepareConfig.sh && ./prepareConfig.sh domain ${{ secrets.DOMAIN }} nginx.production.conf
         
       - name: Copy file via ssh key
-        uses: appleboy/scp-action@v0.1.4
+        uses: appleboy/scp-action@v0.1.7
         with:
           host: ${{ secrets.HOST }}
           username: ${{ secrets.SSH_USERNAME }}
@@ -53,7 +53,7 @@ jobs:
           target: "~/hnfeed-proj/hnfeed"
 
       - name: Start compose stack
-        uses: appleboy/ssh-action@v1.0.0
+        uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.HOST }}
           username: ${{ secrets.SSH_USERNAME }}
