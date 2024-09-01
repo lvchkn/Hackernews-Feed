@@ -27,16 +27,22 @@ services:
       - postgres
       - nginx-be
   nginx-be:
-    image: nginx:latest
+    image: nginx:alpine3.20-slim
     ports:
-      - "444:444"
-      - "82:82"
+      - "443:443"
+      - "80:80"
     volumes:
-      - ./nginx.production.conf:/etc/nginx/nginx.conf
-      - /etc/letsencrypt/live/${DOMAIN}/fullchain.pem:/etc/nginx/ssl/${DOMAIN}/fullchain.pem
-      - /etc/letsencrypt/live/${DOMAIN}/privkey.pem:/etc/nginx/ssl/${DOMAIN}/privkey.pem
+      - ./nginx.production.conf:/etc/nginx/nginx.conf:ro
+      - ./certbot/conf:/etc/nginx/ssl:ro
+      - ./certbot/www:/var/www/certbot:ro
+  certbot:
+    image: certbot/certbot:v2.11.0
+    volumes:
+      - ./certbot/conf:/etc/letsencrypt:rw
+      - ./certbot/www:/var/www/certbot:rw
+    command: certonly --webroot -w /var/www/certbot --dry-run -d ${DOMAIN} --agree-tos --register-unsafely-without-email 
   postgres:
-    image: postgres:15.1
+    image: postgres:16.4
     restart: always
     environment:
       - POSTGRES_DB=${POSTGRES_DB}
@@ -44,8 +50,5 @@ services:
       - POSTGRES_PASSWORD=${POSTGRES_PW}
     volumes:
       - pgdata:/var/lib/postgresql/data
-  adminer:
-    image: adminer:latest
-    restart: always
 volumes:
   pgdata:

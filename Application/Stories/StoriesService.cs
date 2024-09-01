@@ -47,15 +47,21 @@ public class StoriesService : IStoriesService
         var stories = await _storiesRepository.GetAllAsync();
         return _mapper.Map<List<StoryDto>>(stories);
     }
+    
+    public async Task<StoryDto> GetByIdAsync(int id)
+    {
+        var story = await _storiesRepository.GetByIdAsync(id);
+        return _mapper.Map<StoryDto>(story);
+    }
 
-    public PagedStoriesDto GetStories(string? orderBy, string? search, int pageNumber, int pageSize)
+    public PagedStoriesDto Get(string? orderBy, string? search, int pageNumber, int pageSize)
     {
         if (pageSize <= 0)
         {
             throw new QueryParameterException("page size cannot be less than 1");
         }
         
-        var parsedSortingParameters = _sortingParametersParser.Parse(orderBy);
+        var parsedSortingParameters = SortingParametersParser.Parse(orderBy);
         var skip = Math.Max((pageNumber - 1) * pageSize, 0);
         var take = pageSize;
         

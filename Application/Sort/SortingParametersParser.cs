@@ -4,14 +4,14 @@ public record SortingParameters(SortOrder Order, SortField FieldToSort);
 
 public class SortingParametersParser
 {
-    public List<SortingParameters> Parse(string? sortQuery)
+    public static List<SortingParameters> Parse(string? sortQuery)
     {
         if (string.IsNullOrEmpty(sortQuery)) 
         {
-            return new List<SortingParameters>()
-            {
-                new (SortOrder.Desc, SortField.Score),
-            };
+            return
+            [
+                new SortingParameters(SortOrder.Desc, SortField.Score)
+            ];
         }
 
         var sortingParams = new List<SortingParameters>();

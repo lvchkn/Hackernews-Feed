@@ -15,11 +15,11 @@ public static class StoriesController
             [FromQuery] int? pageSize,
             [FromServices] IStoriesService storiesService) =>
         {
-            var stories = storiesService.GetStories(orderBy, search, pageNumber ?? 1, pageSize ?? 10);
+            var stories = storiesService.Get(orderBy, search, pageNumber ?? 1, pageSize ?? 10);
 
             return Results.Ok(stories);
             
-        }).RequireAuthorization().WithTags(EndpointGroupTags.Stories);
+        }).WithTags(EndpointGroupTags.Stories);
 
         return app;
     }
