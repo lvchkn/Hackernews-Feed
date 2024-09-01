@@ -33,6 +33,8 @@ services:
       - "80:80"
     volumes:
       - ./nginx.production.conf:/etc/nginx/nginx.conf:ro
+      - /etc/nginx/ssl/nginx.crt:/etc/nginx/ssl/nginx.crt:ro
+      - /etc/nginx/ssl/nginx.key:/etc/nginx/ssl/nginx.key:ro
       - ./certbot/conf:/etc/nginx/ssl:ro
       - ./certbot/www:/var/www/certbot:ro
   certbot:
@@ -40,7 +42,7 @@ services:
     volumes:
       - ./certbot/conf:/etc/letsencrypt:rw
       - ./certbot/www:/var/www/certbot:rw
-    command: renew --webroot -w /var/www/certbot --dry-run --cert-name ${DOMAIN} --agree-tos --register-unsafely-without-email
+    command: certonly --webroot -w /var/www/certbot --dry-run -d www.${DOMAIN} -d {DOMAIN} --agree-tos --register-unsafely-without-email
   postgres:
     image: postgres:15.1
     restart: always
