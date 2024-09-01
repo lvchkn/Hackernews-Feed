@@ -18,7 +18,7 @@ public class SortingParametersParserTests
         };
 
         // Act
-        var sortingParams = new SortingParametersParser().Parse(query);
+        var sortingParams = SortingParametersParser.Parse(query);
 
         // Assert
         sortingParams.Should().BeEquivalentTo(expectedResult);
@@ -36,7 +36,7 @@ public class SortingParametersParserTests
         };
 
         // Act
-        var sortingParams = new SortingParametersParser().Parse(query);
+        var sortingParams = SortingParametersParser.Parse(query);
 
         // Assert
         sortingParams.Should().BeEquivalentTo(expectedResult);
@@ -53,7 +53,7 @@ public class SortingParametersParserTests
         };
 
         // Act
-        var sortingParams = new SortingParametersParser().Parse(query);
+        var sortingParams = SortingParametersParser.Parse(query);
 
         // Assert
         sortingParams.Should().BeEquivalentTo(expectedResult);
@@ -71,7 +71,7 @@ public class SortingParametersParserTests
         };
 
         // Act
-        var sortingParams = new SortingParametersParser().Parse(query);
+        var sortingParams = SortingParametersParser.Parse(query);
 
         // Assert
         sortingParams.Should().BeEquivalentTo(expectedResult);
@@ -89,7 +89,7 @@ public class SortingParametersParserTests
         };
 
         // Act
-        var sortingParamsAct = new SortingParametersParser().Parse(query);
+        var sortingParamsAct = SortingParametersParser.Parse(query);
 
         // Assert
         sortingParamsAct.Should().BeEquivalentTo(expectedResult);
@@ -107,7 +107,7 @@ public class SortingParametersParserTests
         };
 
         // Act
-        var sortingParamsAct = new SortingParametersParser().Parse(sortingParameters);
+        var sortingParamsAct = SortingParametersParser.Parse(sortingParameters);
 
         // Assert
         sortingParamsAct.Should().BeEquivalentTo(expectedResult);
@@ -124,7 +124,7 @@ public class SortingParametersParserTests
         };
 
         // Act
-        var sortingParamsAct = new SortingParametersParser().Parse(sortingParameters);
+        var sortingParamsAct = SortingParametersParser.Parse(sortingParameters);
 
         // Assert
         sortingParamsAct.Should().BeEquivalentTo(expectedResult);
