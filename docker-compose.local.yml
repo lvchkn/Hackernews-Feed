@@ -1,7 +1,7 @@
 version: "3"
 services:
   nginx:
-    image: nginx:alpine3.20-slim
+    image: nginx:1.29-alpine
     ports:
       - "80:80"
     volumes:
@@ -17,7 +17,7 @@ services:
     profiles:
       - self-sufficient
   postgres:
-    image: postgres:15.10-alpine3.20
+    image: postgres:15.15-alpine
     restart: always
     ports:
       - "5432:5432"
@@ -28,7 +28,7 @@ services:
     volumes:
       - pgdata:/var/lib/postgresql/data
   adminer:
-    image: adminer:4.8.1
+    image: adminer:5.4.1
     restart: always
     ports:
       - "8083:8080"
