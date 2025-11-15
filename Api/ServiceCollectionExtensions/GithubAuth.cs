@@ -11,30 +11,17 @@ namespace Api.ServiceCollectionExtensions;
 
 public static class GithubAuth
 {
-    private static bool SomeValueIsNull(params string?[] values)
-    {
-        return values.Any(v => v is null);
-    }
-    
+    private const string ClientId = nameof(ClientId);
+    private const string ClientSecret = nameof(ClientSecret);
+    private const string CallbackPath = nameof(CallbackPath);
+    private const string AuthorizationEndpoint = nameof(AuthorizationEndpoint);
+    private const string TokenEndpoint = nameof(TokenEndpoint);
+    private const string UserInformationEndpoint = nameof(UserInformationEndpoint);
+
     public static IServiceCollection AddGithubAuth(this IServiceCollection services, IConfiguration configuration)
     {
-        var clientId = configuration.GetValue<string>("GithubAuth:ClientId");
-        var clientSecret = configuration.GetValue<string>("GithubAuth:ClientSecret");
-        var callbackPath = configuration.GetValue<string>("GithubAuth:CallbackPath");
-        var authorizationEndpoint = configuration.GetValue<string>("GithubAuth:AuthorizationEndpoint");
-        var tokenEndpoint = configuration.GetValue<string>("GithubAuth:TokenEndpoint");
-        var userInformationEndpoint = configuration.GetValue<string>("GithubAuth:UserInformationEndpoint");
+        var githubAuth = GetAppSettings(configuration);
 
-        if (SomeValueIsNull(clientId,
-                clientSecret,
-                callbackPath,
-                authorizationEndpoint,
-                tokenEndpoint,
-                userInformationEndpoint))
-        {
-            throw new ConfigurationException("Some app setting is missing!");
-        }
-        
         services.AddAuthentication(options =>
         {
             options.DefaultAuthenticateScheme = CookieAuthenticationDefaults.AuthenticationScheme;
@@ -48,13 +35,13 @@ public static class GithubAuth
         })
         .AddOAuth("Github", config =>
         {
-            config.ClientId = clientId!;
-            config.ClientSecret = clientSecret!;
-            config.CallbackPath = new PathString(callbackPath);
-            config.AuthorizationEndpoint = authorizationEndpoint!;
-            config.TokenEndpoint = tokenEndpoint!;
-            config.UserInformationEndpoint = userInformationEndpoint!;
-            config.SaveTokens = true;
+            config.ClientId = githubAuth[ClientId]!;
+            config.ClientSecret = githubAuth[ClientSecret]!;
+            config.CallbackPath = new PathString(githubAuth[CallbackPath]);
+            config.AuthorizationEndpoint = githubAuth[AuthorizationEndpoint]!;
+            config.TokenEndpoint = githubAuth[TokenEndpoint]!;
+            config.UserInformationEndpoint = githubAuth[UserInformationEndpoint]!;
+            config.SaveTokens = false;
             config.ClaimActions.MapJsonKey(ClaimTypes.NameIdentifier, "id");
             config.ClaimActions.MapJsonKey(ClaimTypes.Name, "login");
             config.ClaimActions.MapJsonKey(ClaimTypes.Email, "email");
@@ -94,5 +81,28 @@ public static class GithubAuth
         });
 
         return services;
+    }
+
+    private static Dictionary<string, string?> GetAppSettings(IConfiguration configuration)
+    {
+        var githubAuthSettings = new Dictionary<string, string?>
+        {
+            [ClientId] = configuration.GetValue<string>("GithubAuth:ClientId"),
+            [ClientSecret] = configuration.GetValue<string>("GithubAuth:ClientSecret"),
+            [CallbackPath] = configuration.GetValue<string>("GithubAuth:CallbackPath"),
+            [AuthorizationEndpoint] = configuration.GetValue<string>("GithubAuth:AuthorizationEndpoint"),
+            [TokenEndpoint] = configuration.GetValue<string>("GithubAuth:TokenEndpoint"),
+            [UserInformationEndpoint] = configuration.GetValue<string>("GithubAuth:UserInformationEndpoint")
+        };
+
+        foreach (var (key, value) in githubAuthSettings)
+        {
+            if (value is null)
+            {
+                throw new ConfigurationException($"{key} app setting is missing!");
+            }
+        }
+
+        return githubAuthSettings;
     }
 }

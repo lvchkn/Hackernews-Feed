@@ -1,3 +1,5 @@
+namespace Domain.Processing;
+
 public interface ISortable
 {
     public int Id { get; init; }

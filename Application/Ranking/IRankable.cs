@@ -1,3 +1,5 @@
+namespace Application.Ranking;
+
 public interface IRankable
 {
     int Time { get; }

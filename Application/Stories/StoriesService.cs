@@ -1,4 +1,5 @@
 using Application.Paging;
+using Application.Ranking;
 using Application.Sort;
 using Application.Tags;
 using AutoMapper;

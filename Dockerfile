@@ -1,4 +1,4 @@
-﻿FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS base
+﻿FROM mcr.microsoft.com/dotnet/aspnet:8.0-noble-chiseled AS base
 WORKDIR /app
 ENV ASPNETCORE_URLS=http://+:5245
 ENV ASPNETCORE_ENVIRONMENT="Development"

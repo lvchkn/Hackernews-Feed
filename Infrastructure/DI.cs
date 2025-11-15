@@ -1,14 +1,10 @@
 ﻿using Application.Filter;
 using Application.Interests;
-using Application.Messaging;
 using Application.Sort;
 using Application.Stories;
 using Application.Users;
 using Infrastructure.Db;
 using Infrastructure.Db.Repositories;
-using Infrastructure.Rmq;
-using Infrastructure.Rmq.Publisher;
-using Infrastructure.Rmq.Subscriber;
 using Infrastructure.Workers;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -40,19 +36,11 @@ public static class DI
         var rmqPort = _configuration?.GetValue<string>("RabbitMq:Port");
 
         var connectionString = $"amqp://{rmqUsername}:{rmqPassword}@{rmqHostname}:{rmqPort}";
-
-        services.AddSingleton(_ => new ConnectionFactory()
+        services.AddSingleton<IConnectionFactory>(new ConnectionFactory
         {
             Uri = new Uri(connectionString),
-            DispatchConsumersAsync = true,
             VirtualHost = "/",
         });
-
-        services.AddSingleton<ChannelWrapper>();
-        services.AddSingleton<IChannelFactory, ChannelFactory>();
-
-        services.AddSingleton<IPublisher, Publisher>();
-        services.AddSingleton<ISubscriber, Subscriber>();
 
         return services;
     }

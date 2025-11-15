@@ -42,7 +42,7 @@ services:
       - ./certbot/www:/var/www/certbot:rw
     command: renew --webroot -w /var/www/certbot --dry-run --agree-tos --register-unsafely-without-email
   postgres:
-    image: postgres:15.1
+    image: postgres:15.10-alpine3.20
     restart: always
     environment:
       - POSTGRES_DB=${POSTGRES_DB}

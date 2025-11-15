@@ -1,13 +1,13 @@
 version: "3"
 services:
   nginx:
-    image: nginx:latest
+    image: nginx:alpine3.20-slim
     ports:
       - "80:80"
     volumes:
       - ./nginx.local.conf:/etc/nginx/nginx.conf
   rabbitmq:
-    image: rabbitmq:management-alpine
+    image: rabbitmq:3.13-management-alpine
     environment:
       - RABBITMQ_DEFAULT_USER=${RMQ_USER}
       - RABBITMQ_DEFAULT_PASS=${RMQ_PW}
@@ -17,7 +17,7 @@ services:
     profiles:
       - self-sufficient
   postgres:
-    image: postgres:15.1
+    image: postgres:15.10-alpine3.20
     restart: always
     ports:
       - "5432:5432"
@@ -28,7 +28,7 @@ services:
     volumes:
       - pgdata:/var/lib/postgresql/data
   adminer:
-    image: adminer:latest
+    image: adminer:4.8.1
     restart: always
     ports:
       - "8083:8080"

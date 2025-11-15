@@ -21,7 +21,7 @@ public class TestServerFixture<T> : WebApplicationFactory<T>, IAsyncLifetime whe
         .WithDatabase("feed")
         .WithUsername("testuser")
         .WithPassword("testpw")
-        .WithImage("postgres:15.1")
+        .WithImage("postgres:15.10-alpine3.20")
         .WithExposedPort(5432)
         .WithPortBinding(5432, true)
         .WithCleanUp(true)
@@ -30,7 +30,7 @@ public class TestServerFixture<T> : WebApplicationFactory<T>, IAsyncLifetime whe
     private readonly RabbitMqContainer _rmqContainer = new RabbitMqBuilder()
         .WithUsername("testuser")
         .WithPassword("testpw")
-        .WithImage("rabbitmq:3.7.28")
+        .WithImage("rabbitmq:3.13-alpine")
         .WithExposedPort(5672)
         .WithCleanUp(true)
         .Build();

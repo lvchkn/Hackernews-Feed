@@ -1,4 +1,5 @@
 using Application.Filter;
+using Domain.Processing;
 using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Db;

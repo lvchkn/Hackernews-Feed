@@ -13,7 +13,7 @@ public static class AuthController
             return Results.Challenge(new AuthenticationProperties
             {
                 RedirectUri = returnUrl ?? "/",
-            }, new [] { "Github" });
+            }, ["Github"]);
             
         }).WithTags(EndpointGroupTags.Authentication);
 
@@ -38,20 +38,17 @@ public static class AuthController
     }
 
     private record UserInfo(string Name, string AuthenticationType, bool IsAuthenticated);
+    
     private static UserInfo GetCurrentUserInfo(HttpContext httpContext)
     {
-        var userInfo = new UserInfo(string.Empty, string.Empty, false);
-
         if (httpContext.User.Identity is { IsAuthenticated: true } authenticatedUser)
         {
-            userInfo = userInfo with
-            {
-                Name = authenticatedUser.Name ?? string.Empty,
-                AuthenticationType = authenticatedUser.AuthenticationType ?? string.Empty,
-                IsAuthenticated = authenticatedUser.IsAuthenticated,
-            };
+            return new UserInfo(authenticatedUser.Name ?? string.Empty,
+                authenticatedUser.AuthenticationType ?? string.Empty,
+                authenticatedUser.IsAuthenticated
+            );
         }
 
-        return userInfo;
+        return new UserInfo(string.Empty, string.Empty, false);
     }
 }
