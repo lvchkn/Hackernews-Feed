@@ -1,5 +1,6 @@
 using Infrastructure.Db;
 using Infrastructure.Workers;
+using JetBrains.Annotations;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
@@ -13,8 +14,8 @@ using Xunit;
 
 namespace Tests.Integration;
 
-public class CustomWebApplicationFactory<Program> : WebApplicationFactory<Program>, IAsyncLifetime 
-    where Program: class, new()
+[UsedImplicitly]
+public class TestServerFixture<T> : WebApplicationFactory<T>, IAsyncLifetime where T : class, new()
 {
     private readonly PostgreSqlContainer _postgresContainer = new PostgreSqlBuilder()
         .WithDatabase("feed")
@@ -66,7 +67,7 @@ public class CustomWebApplicationFactory<Program> : WebApplicationFactory<Progra
                 authOptions.DefaultChallengeScheme = "Test";
             })
             .AddScheme<AuthenticationSchemeOptions, TestAuthHandler>(
-                "Test", options => {});
+                "Test", _ => {});
 
             var workerDescriptor = services.SingleOrDefault(s => s.ImplementationType == typeof(StoryFetcher));
             
@@ -87,15 +88,16 @@ public class CustomWebApplicationFactory<Program> : WebApplicationFactory<Progra
         });
     }
 
-    public async Task InitializeAsync()
+    public async ValueTask  InitializeAsync()
     {
         await _postgresContainer.StartAsync();
         await _rmqContainer.StartAsync();
     }
 
-    async Task IAsyncLifetime.DisposeAsync()
+    public new async ValueTask DisposeAsync()
     {
         await _postgresContainer.DisposeAsync();
         await _rmqContainer.DisposeAsync();
+        await base.DisposeAsync();
     }
 }

@@ -6,7 +6,6 @@ using Application.Paging;
 using Application.Stories;
 using Application.Tags;
 using Domain.Entities;
-using FluentAssertions;
 using Infrastructure.Db;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -14,17 +13,17 @@ using Xunit;
 
 namespace Tests.Integration;
 
-[Collection("Custom WAF collection")]
+[Collection("Test server collection")]
 public class StoriesControllerTests
 {
-    private readonly CustomWebApplicationFactory<Program> _webAppFactory;
+    private readonly TestServerFixture<Program> _webAppFactory;
 
     private readonly JsonSerializerOptions _jsonSerializerOptions = new ()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase
     };
 
-    public StoriesControllerTests(CustomWebApplicationFactory<Program> webAppFactory)
+    public StoriesControllerTests(TestServerFixture<Program> webAppFactory)
     {
         _webAppFactory = webAppFactory;
     }
@@ -38,20 +37,22 @@ public class StoriesControllerTests
         
         using var scope = _webAppFactory.Services.CreateScope();
         var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-        var storiesCount = dbContext?.SeedStories();
+        var storiesCount = dbContext.SeedStories();
 
-        var expectedStories = dbContext?.Stories
+        var expectedStories = dbContext.Stories
             .Select(s => MapToStoryDto(s))
             .ToList();
 
         // Act
-        var response = await client.GetAsync("/api/stories");
-        var responseJson = await response.Content.ReadAsStringAsync();
+        var response = await client.GetAsync("/api/stories", TestContext.Current.CancellationToken);
+        var responseJson = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
         var pagedData = JsonSerializer.Deserialize<PagedStoriesDto>(responseJson, _jsonSerializerOptions);
 
         // Assert
-        pagedData?.Stories.Should().BeEquivalentTo(expectedStories, options => options.Excluding(s => s.Rank));
-        pagedData?.Stories.Count.Should().Be(storiesCount);
+        Assert.Equivalent(expectedStories, pagedData?.Stories);
+        Assert.Equal(storiesCount, pagedData?.Stories.Count);
+        // pagedData?.Stories.Should().BeEquivalentTo(expectedStories, options => options.Excluding(s => s.Rank));
+        // pagedData?.Stories.Count.Should().Be(storiesCount);
     }
 
     [Fact]
@@ -63,21 +64,21 @@ public class StoriesControllerTests
         
         using var scope = _webAppFactory.Services.CreateScope();
         var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-        var storiesCount = dbContext?.SeedStories();
+        var storiesCount = dbContext.SeedStories();
 
-        var expectedStories = dbContext?.Stories
+        var expectedStories = dbContext.Stories
             .OrderByDescending(s => s.Title)
             .Select(s => MapToStoryDto(s))
             .ToList();
         
         // Act
-        var response = await client.GetAsync("/api/stories?orderBy=title,asc");
-        var responseJson = await response.Content.ReadAsStringAsync();
+        var response = await client.GetAsync("/api/stories?orderBy=title,asc", TestContext.Current.CancellationToken);
+        var responseJson = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
         var pagedData = JsonSerializer.Deserialize<PagedStoriesDto>(responseJson, _jsonSerializerOptions);
 
         // Assert
-        pagedData?.Stories.Should().BeEquivalentTo(expectedStories, options => options.Excluding(s => s.Rank));
-        pagedData?.Stories.Count.Should().Be(storiesCount);
+        Assert.Equivalent(expectedStories, pagedData?.Stories);
+        Assert.Equal(storiesCount, pagedData?.Stories.Count);
     }
 
     [Theory]
@@ -92,21 +93,21 @@ public class StoriesControllerTests
         
         using var scope = _webAppFactory.Services.CreateScope();
         var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-        var storiesCount = dbContext?.SeedStories();
+        dbContext.SeedStories();
 
-        var expectedStories = dbContext?.Stories
+        var expectedStories = dbContext.Stories
             .Where(s => EF.Functions.ILike(s.Title, $"%{search}%"))
             .Select(s => MapToStoryDto(s))
             .ToList();
         
         // Act
-        var response = await client.GetAsync($"/api/stories?search={search}");
-        var responseJson = await response.Content.ReadAsStringAsync();
+        var response = await client.GetAsync($"/api/stories?search={search}", TestContext.Current.CancellationToken);
+        var responseJson = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
         var pagedData = JsonSerializer.Deserialize<PagedStoriesDto>(responseJson, _jsonSerializerOptions);
 
         // Assert
-        pagedData?.Stories.Should().BeEquivalentTo(expectedStories, options => options.Excluding(s => s.Rank));
-        pagedData?.Stories.Count.Should().Be(expectedStories?.Count);
+        Assert.Equivalent(expectedStories, pagedData?.Stories);
+        Assert.Equal(expectedStories.Count, pagedData?.Stories.Count);
     }
 
     [Theory]
@@ -121,23 +122,23 @@ public class StoriesControllerTests
 
         using var scope = _webAppFactory.Services.CreateScope();
         var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-        var storiesCount = dbContext?.SeedStories();
+        dbContext.SeedStories();
         
         var orderBy = "score asc";
-        var expectedStories = dbContext?.Stories
+        var expectedStories = dbContext.Stories
             .Where(s => EF.Functions.ILike(s.Title, $"%{search}%"))
             .OrderBy(s => s.Score)
             .Select(s => MapToStoryDto(s))
             .ToList();
         
         // Act
-        var response = await client.GetAsync($"/api/stories?orderBy={orderBy}&search={search}");
-        var responseJson = await response.Content.ReadAsStringAsync();
+        var response = await client.GetAsync($"/api/stories?orderBy={orderBy}&search={search}", TestContext.Current.CancellationToken);
+        var responseJson = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
         var pagedData = JsonSerializer.Deserialize<PagedStoriesDto>(responseJson, _jsonSerializerOptions);
 
         // Assert
-        pagedData?.Stories.Should().BeEquivalentTo(expectedStories, options => options.Excluding(s => s.Rank));
-        pagedData?.Stories.Count.Should().Be(expectedStories?.Count);
+        Assert.Equivalent(expectedStories, pagedData?.Stories);
+        Assert.Equal(expectedStories.Count, pagedData?.Stories.Count);
     }
 
     [Theory]
@@ -163,16 +164,16 @@ public class StoriesControllerTests
         
         using var scope = _webAppFactory.Services.CreateScope();
         var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-        var storiesCount = dbContext?.SeedStories();
+        dbContext.SeedStories();
 
         // Act
-        var response = await client.GetAsync($"/api/stories?pageNumber={pageNumber}&pageSize={pageSize}");
-        var responseJson = await response.Content.ReadAsStringAsync();
+        var response = await client.GetAsync($"/api/stories?pageNumber={pageNumber}&pageSize={pageSize}", TestContext.Current.CancellationToken);
+        var responseJson = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
         var pagedData = JsonSerializer.Deserialize<PagedStoriesDto>(responseJson, _jsonSerializerOptions);
         
         // Assert
-        pagedData?.Stories.Count.Should().Be(returnedStoriesCount);
-        pagedData?.TotalPagesCount.Should().Be(totalPagesCount);
+        Assert.Equivalent(returnedStoriesCount, pagedData?.Stories.Count);
+        Assert.Equal(totalPagesCount, pagedData?.TotalPagesCount);
     }
 
     [Theory]
@@ -188,13 +189,13 @@ public class StoriesControllerTests
         
         using var scope = _webAppFactory.Services.CreateScope();
         var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-        var storiesCount = dbContext?.SeedStories();
+        dbContext.SeedStories();
 
         // Act
-        var response = await client.GetAsync($"/api/stories?pageNumber={pageNumber}&pageSize={pageSize}");
+        var response = await client.GetAsync($"/api/stories?pageNumber={pageNumber}&pageSize={pageSize}", TestContext.Current.CancellationToken);
         
         // Assert
-        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
     }
 
     private static StoryDto MapToStoryDto(Story story)
