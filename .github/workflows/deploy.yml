@@ -62,6 +62,4 @@ jobs:
           port: ${{ secrets.SSH_PORT }}
           script: |
             cd ~/hnfeed-proj/hnfeed
-            docker compose -f docker-compose.production.yml down
-            docker compose -f docker-compose.production.yml pull
-            docker compose -f docker-compose.production.yml up -d
+            docker compose -f docker-compose.production.yml up -d --pull --remove-orphans

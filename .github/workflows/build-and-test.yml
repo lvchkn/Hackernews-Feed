@@ -18,7 +18,7 @@ jobs:
       run: dotnet restore
       
     - name: Build
-      run: dotnet build --no-restore
+      run: dotnet build --no-restore --configuration Release
       
     - name: Test
       env:
@@ -26,5 +26,10 @@ jobs:
         GithubAuth:ClientId: ${{ secrets.GH_AUTH_TEST_CLIENT_ID }}
         GithubAuth:ClientSecret: ${{ secrets.GH_AUTH_TEST_CLIENT_SECRET }}
         ClientUrl: ${{ secrets.CLIENT_URL }}
-      run: |
-        dotnet test --no-build --verbosity normal
+      run: dotnet test --no-build --configuration Release --verbosity normal
+        
+#        env:
+#          GITHUBAUTH__APPNAME: ${{ secrets.GH_AUTH_TEST_APP_NAME }}
+#          GITHUBAUTH__CLIENTID: ${{ secrets.GH_AUTH_TEST_CLIENT_ID }}
+#          GITHUBAUTH__CLIENTSECRET: ${{ secrets.GH_AUTH_TEST_CLIENT_SECRET }}
+#          CLIENTURL: ${{ secrets.CLIENT_URL }}
