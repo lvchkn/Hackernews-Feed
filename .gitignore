@@ -40,3 +40,4 @@ appsettings.Development.json
 appsettings.Production.json
 .vscode/
 .env*
+*dump*.sql
