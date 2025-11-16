@@ -1,8 +1,5 @@
-using System.Net.Http.Headers;
 using System.Security.Claims;
-using System.Text.Json;
 using Application.Users;
-using Microsoft.AspNetCore.Authentication;
 using Shared.Exceptions;
 
 namespace Api.Middleware;
@@ -10,14 +7,12 @@ namespace Api.Middleware;
 public class HttpRequestsInterceptor
 {
     private readonly RequestDelegate _next;
-    private readonly IConfiguration _configuration;
+    private readonly ILogger<HttpRequestsInterceptor> _logger;
 
-    public HttpRequestsInterceptor(
-        IConfiguration configuration,
-        RequestDelegate next)
+    public HttpRequestsInterceptor(RequestDelegate next, ILogger<HttpRequestsInterceptor> logger)
     {
-        _configuration = configuration;
         _next = next;
+        _logger = logger;
     }
 
     public async Task InvokeAsync(HttpContext httpContext, IUsersService usersService)
@@ -27,46 +22,37 @@ public class HttpRequestsInterceptor
             await _next(httpContext);
             return;
         }
+
+        var userIdString = httpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? string.Empty;
+        var userName = httpContext.User.FindFirst(ClaimTypes.Name)?.Value ?? string.Empty;
+        var userEmail = httpContext.User.FindFirst(ClaimTypes.Email)?.Value ?? string.Empty;
         
-        var userInformationEndpoint = _configuration.GetValue<string>("GithubAuth:UserInformationEndpoint");
-        var appName = _configuration.GetValue<string>("GithubAuth:AppName");
-        var accessToken = await httpContext.GetTokenAsync("access_token");
-            
-        using var request = new HttpRequestMessage(HttpMethod.Get, userInformationEndpoint);
-        using var client = new HttpClient();
-
-        client.DefaultRequestHeaders.UserAgent.Add(new ProductInfoHeaderValue(appName ?? string.Empty, "1.0"));
-        client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Token", accessToken);
-
-        using var response = await client.SendAsync(request, HttpCompletionOption.ResponseHeadersRead);
-        using var payload = JsonDocument.Parse(await response.Content.ReadAsStringAsync());
-        var root = payload.RootElement;
-                
-        var keyExists = root.TryGetProperty("login", out var res);
-        var name = string.Empty;
-
-        if (keyExists)
-        {
-            name = res.GetString();
-        }
-            
-        const string email = "example@example.com";
-        //var email = httpContext.User.Claims.FirstOrDefault(c => c.Type == "emails");
-        var claim = httpContext.User.FindFirst(ClaimTypes.NameIdentifier);
-        int.TryParse(claim?.Value ?? string.Empty, out var userId);
-
+        var userId = 0;
         try
         {
-            await usersService.UpdateLastActiveAsync(userId);
+            userId = int.Parse(userIdString);
+        }
+        catch (Exception)
+        {
+            _logger.LogWarning("User's id {UserId} is not a valid integer.", userIdString);
+        }        
+        
+        try
+        {
+            var user = await usersService.GetByIdAsync(userId);
+            
+            if (userId != 0 && (DateTime.UtcNow - user.LastActive).TotalMinutes > 30)
+            {
+                await usersService.UpdateLastActiveAsync(userId);
+            }
         }
         catch (NotFoundException)
         {
             var newUser = new UserDto
             {
                 Id = userId,
-                Name = name ?? string.Empty,
-                Email = email,
+                Name = userName,
+                Email = "example@example.com",
                 LastActive = DateTime.UtcNow,
             };
 
