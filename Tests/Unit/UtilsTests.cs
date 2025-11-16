@@ -1,15 +1,15 @@
-﻿using System.Text.Json;
-using Application.Sort;
+﻿using Application.Sort;
 using Domain.Entities;
-using FluentAssertions;
 using Infrastructure.Db;
+using JetBrains.Annotations;
 using Xunit;
 
 namespace Tests.Unit;
 
+[UsedImplicitly(ImplicitUseTargetFlags.WithMembers)]
 public class UtilsTests
 {
-    private IQueryable<Story> Stories => new List<Story>
+    private static IQueryable<Story> Stories => new List<Story>
     {
         new() { Id = 1, Title = "D Story", Score = 24 },
         new() { Id = 2, Title = "C Story", Score = 10 },
@@ -35,15 +35,15 @@ public class UtilsTests
         // Assert
         if (field == SortField.Id)
         {
-            sortedStories.Should().BeInAscendingOrder(c => c.Id);
+            Assert.Equivalent(Stories.OrderBy(s => s.Id), sortedStories);
         }
         else if (field == SortField.Title)
         {
-            sortedStories.Should().BeInAscendingOrder(c => c.Title);
+            Assert.Equivalent(Stories.OrderBy(s => s.Title), sortedStories);
         }
         else 
         {
-            sortedStories.Should().BeInAscendingOrder(c => c.Score);
+            Assert.Equivalent(Stories.OrderBy(s => s.Score), sortedStories);
         }
     }
     
@@ -65,15 +65,15 @@ public class UtilsTests
         // Assert
         if (field == SortField.Id)
         {
-            sortedStories.Should().BeInDescendingOrder(c => c.By);
+            Assert.Equivalent(Stories.OrderByDescending(s => s.Id), sortedStories);
         }
         else if (field == SortField.Title)
         {
-            sortedStories.Should().BeInDescendingOrder(c => c.Title);
+            Assert.Equivalent(Stories.OrderByDescending(s => s.Title), sortedStories);
         }
         else 
         {
-            sortedStories.Should().BeInDescendingOrder(c => c.Score);
+            Assert.Equivalent(Stories.OrderByDescending(s => s.Score), sortedStories);
         }   
     }
     
@@ -95,6 +95,6 @@ public class UtilsTests
         var sortedStories = sorter.Sort(Stories, sortingParameters);
         
         // Assert
-        sortedStories.Should().BeEquivalentTo(expected);
+        Assert.Equivalent(expected, sortedStories);
     }
 }

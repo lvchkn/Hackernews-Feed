@@ -1,5 +1,6 @@
 using Application;
 using Infrastructure;
+using Microsoft.OpenApi;
 
 namespace Api.ServiceCollectionExtensions;
 
@@ -13,7 +14,7 @@ public static class ServiceCollectionExtension
             .AddAuthorization()
             .AddCorsPolicy(configuration)
             .AddEndpointsApiExplorer()
-            .AddSwaggerGen();
+            .AddSwaggerGen(options => options.SwaggerDoc("v1", new OpenApiInfo { Title = "HN Feed API", Version = "1.0"}));
 
         return services;
     }

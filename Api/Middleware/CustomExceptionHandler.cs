@@ -23,12 +23,12 @@ public class CustomExceptionHandler
         }
         catch (Exception exception)
         {
-            _logger.LogError(exception.Message);
+            _logger.LogError(exception.ToString());
             await HandleExceptionAsync(httpContext, exception);
         }
     }
 
-    private static Task HandleExceptionAsync(HttpContext httpContext, Exception exception)
+    private static async Task HandleExceptionAsync(HttpContext httpContext, Exception exception)
     {
         httpContext.Response.ContentType = "application/json";
 
@@ -40,21 +40,12 @@ public class CustomExceptionHandler
             _ => (int) HttpStatusCode.InternalServerError
         };
 
-        return httpContext.Response.WriteAsync(new ExceptionData
+        var exceptionData = new
         {
             StatusCode = httpContext.Response.StatusCode,
-            Message = exception.Message
-        }.ToString());
-    }
-    
-    private record ExceptionData
-    {
-        public int StatusCode { get; init; }
-        public string Message { get; init; } = default!;
-
-        public override string ToString()
-        {
-            return JsonSerializer.Serialize(this);
-        }
+            Message = "Error occurred while processing the request",
+        };
+        
+        await httpContext.Response.WriteAsync(JsonSerializer.Serialize(exceptionData));
     }
 }

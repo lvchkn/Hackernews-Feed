@@ -1,4 +1,6 @@
-﻿namespace Application.Sort;
+﻿using Domain.Processing;
+
+namespace Application.Sort;
 
 public interface ISorter
 {

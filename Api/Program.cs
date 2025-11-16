@@ -9,7 +9,7 @@ builder.Services.AddDependencies(builder.Configuration);
 
 var app = builder.Build();
 
-app.AddMiddleware();
+app.AddMiddleware(builder.Environment);
 
 app.MapItemsEndpoints()
     .MapAuthEndpoints()

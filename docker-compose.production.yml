@@ -24,10 +24,12 @@ services:
       - ClientUrl=${CLIENT_URL}
     restart: on-failure
     depends_on:
-      - postgres
-      - nginx-be
+      postgres:
+        condition: service_healthy
+      nginx-be:
+        condition: service_started
   nginx-be:
-    image: nginx:alpine3.20-slim
+    image: nginx:1.27-alpine
     ports:
       - "443:443"
       - "80:80"
@@ -35,20 +37,26 @@ services:
       - ./nginx.production.conf:/etc/nginx/nginx.conf:ro
       - ./certbot/conf:/etc/nginx/ssl:ro
       - ./certbot/www:/var/www/certbot:ro
+    restart: unless-stopped
   certbot:
-    image: certbot/certbot:v2.11.0
+    image: certbot/certbot:v5.1.0
     volumes:
       - ./certbot/conf:/etc/letsencrypt:rw
       - ./certbot/www:/var/www/certbot:rw
-    command: renew --webroot -w /var/www/certbot --dry-run --agree-tos --register-unsafely-without-email
+    command: renew --webroot -w /var/www/certbot --agree-tos --register-unsafely-without-email
   postgres:
-    image: postgres:15.1
-    restart: always
+    image: postgres:15.10-alpine3.20
     environment:
       - POSTGRES_DB=${POSTGRES_DB}
       - POSTGRES_USER=${POSTGRES_USER}
       - POSTGRES_PASSWORD=${POSTGRES_PW}
     volumes:
       - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U $POSTGRES_USER -d $POSTGRES_DB" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
 volumes:
   pgdata:

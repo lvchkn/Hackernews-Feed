@@ -11,30 +11,18 @@ namespace Api.ServiceCollectionExtensions;
 
 public static class GithubAuth
 {
-    private static bool SomeValueIsNull(params string?[] values)
+    private record GithubAuthSettings
     {
-        return values.Any(v => v is null);
+        public required string ClientId { get; init; }
+        public required string ClientSecret { get; init; }
+        public required string CallbackPath { get; init; }
+        public required string AuthorizationEndpoint { get; init; }
+        public required string TokenEndpoint { get; init; }
+        public required string UserInformationEndpoint { get; init; }
     }
-    
+
     public static IServiceCollection AddGithubAuth(this IServiceCollection services, IConfiguration configuration)
     {
-        var clientId = configuration.GetValue<string>("GithubAuth:ClientId");
-        var clientSecret = configuration.GetValue<string>("GithubAuth:ClientSecret");
-        var callbackPath = configuration.GetValue<string>("GithubAuth:CallbackPath");
-        var authorizationEndpoint = configuration.GetValue<string>("GithubAuth:AuthorizationEndpoint");
-        var tokenEndpoint = configuration.GetValue<string>("GithubAuth:TokenEndpoint");
-        var userInformationEndpoint = configuration.GetValue<string>("GithubAuth:UserInformationEndpoint");
-
-        if (SomeValueIsNull(clientId,
-                clientSecret,
-                callbackPath,
-                authorizationEndpoint,
-                tokenEndpoint,
-                userInformationEndpoint))
-        {
-            throw new ConfigurationException("Some app setting is missing!");
-        }
-        
         services.AddAuthentication(options =>
         {
             options.DefaultAuthenticateScheme = CookieAuthenticationDefaults.AuthenticationScheme;
@@ -48,13 +36,16 @@ public static class GithubAuth
         })
         .AddOAuth("Github", config =>
         {
-            config.ClientId = clientId!;
-            config.ClientSecret = clientSecret!;
-            config.CallbackPath = new PathString(callbackPath);
-            config.AuthorizationEndpoint = authorizationEndpoint!;
-            config.TokenEndpoint = tokenEndpoint!;
-            config.UserInformationEndpoint = userInformationEndpoint!;
-            config.SaveTokens = true;
+            var githubAuth = configuration.GetSection("GithubAuth").Get<GithubAuthSettings>() 
+                             ?? throw new ConfigurationException("GithubAuth section is missing");
+
+            config.ClientId = githubAuth.ClientId;
+            config.ClientSecret = githubAuth.ClientSecret;
+            config.CallbackPath = new PathString(githubAuth.CallbackPath);
+            config.AuthorizationEndpoint = githubAuth.AuthorizationEndpoint;
+            config.TokenEndpoint = githubAuth.TokenEndpoint;
+            config.UserInformationEndpoint = githubAuth.UserInformationEndpoint;
+            config.SaveTokens = false;
             config.ClaimActions.MapJsonKey(ClaimTypes.NameIdentifier, "id");
             config.ClaimActions.MapJsonKey(ClaimTypes.Name, "login");
             config.ClaimActions.MapJsonKey(ClaimTypes.Email, "email");
@@ -73,13 +64,12 @@ public static class GithubAuth
                     response.EnsureSuccessStatusCode();
                     
                     using var payload = JsonDocument.Parse(await response.Content.ReadAsStringAsync(context.HttpContext.RequestAborted));
-                    var root = payload.RootElement;
-                    context.RunClaimActions(root);
+                    context.RunClaimActions(payload.RootElement);
                 },
 
                 OnRedirectToAuthorizationEndpoint = context => 
                 {
-                    if (context.Request.Path.ToString().Contains("api"))
+                    if (context.Request.Path.StartsWithSegments("api"))
                     {
                         context.Response.StatusCode = (int) HttpStatusCode.Unauthorized;
                     }
@@ -90,6 +80,12 @@ public static class GithubAuth
 
                     return Task.CompletedTask;
                 },
+                
+                // OnRemoteFailure = context =>
+                // {
+                //     logger.LogError(context.Failure?.ToString() ?? "Error occurred during authentication");
+                //     return Task.CompletedTask;
+                // }
             };
         });
 

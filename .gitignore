@@ -40,5 +40,4 @@ appsettings.Development.json
 appsettings.Production.json
 .vscode/
 .env*
-startLocalStack.sh
-global.json
+*dump*.sql

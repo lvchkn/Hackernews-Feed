@@ -48,7 +48,7 @@ public static class DataSeeder
             }, 
         };
         
-        dbContext.Stories?.AddRange(stories);
+        dbContext.Stories.AddRange(stories);
 
         dbContext.SaveChanges();
 

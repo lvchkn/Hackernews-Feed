@@ -1,4 +1,5 @@
 using Application.Sort;
+using Domain.Processing;
 
 namespace Infrastructure.Db;
 

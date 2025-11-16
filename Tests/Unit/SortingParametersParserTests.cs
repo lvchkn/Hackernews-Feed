@@ -1,9 +1,10 @@
 using Application.Sort;
-using FluentAssertions;
+using JetBrains.Annotations;
 using Xunit;
 
 namespace Tests.Unit;
 
+[UsedImplicitly(ImplicitUseTargetFlags.WithMembers)]
 public class SortingParametersParserTests
 {
     [Fact]
@@ -21,7 +22,7 @@ public class SortingParametersParserTests
         var sortingParams = SortingParametersParser.Parse(query);
 
         // Assert
-        sortingParams.Should().BeEquivalentTo(expectedResult);
+        Assert.Equivalent(expectedResult, sortingParams);
     }
 
     [Fact]
@@ -39,7 +40,7 @@ public class SortingParametersParserTests
         var sortingParams = SortingParametersParser.Parse(query);
 
         // Assert
-        sortingParams.Should().BeEquivalentTo(expectedResult);
+        Assert.Equivalent(expectedResult, sortingParams);
     }
 
     [Fact]
@@ -56,7 +57,7 @@ public class SortingParametersParserTests
         var sortingParams = SortingParametersParser.Parse(query);
 
         // Assert
-        sortingParams.Should().BeEquivalentTo(expectedResult);
+        Assert.Equivalent(expectedResult, sortingParams);
     }
 
     [Fact]
@@ -74,7 +75,7 @@ public class SortingParametersParserTests
         var sortingParams = SortingParametersParser.Parse(query);
 
         // Assert
-        sortingParams.Should().BeEquivalentTo(expectedResult);
+        Assert.Equivalent(expectedResult, sortingParams);
     }
 
     [Theory]
@@ -89,10 +90,10 @@ public class SortingParametersParserTests
         };
 
         // Act
-        var sortingParamsAct = SortingParametersParser.Parse(query);
+        var sortingParams = SortingParametersParser.Parse(query);
 
         // Assert
-        sortingParamsAct.Should().BeEquivalentTo(expectedResult);
+        Assert.Equivalent(expectedResult, sortingParams);
     }
 
     [Fact]
@@ -107,10 +108,10 @@ public class SortingParametersParserTests
         };
 
         // Act
-        var sortingParamsAct = SortingParametersParser.Parse(sortingParameters);
+        var sortingParams = SortingParametersParser.Parse(sortingParameters);
 
         // Assert
-        sortingParamsAct.Should().BeEquivalentTo(expectedResult);
+        Assert.Equivalent(expectedResult, sortingParams);
     }
 
     [Fact]
@@ -124,9 +125,9 @@ public class SortingParametersParserTests
         };
 
         // Act
-        var sortingParamsAct = SortingParametersParser.Parse(sortingParameters);
+        var sortingParams = SortingParametersParser.Parse(sortingParameters);
 
         // Assert
-        sortingParamsAct.Should().BeEquivalentTo(expectedResult);
+        Assert.Equivalent(expectedResult, sortingParams);
     }
 }

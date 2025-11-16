@@ -1,3 +1,5 @@
+using Domain.Processing;
+
 namespace Application.Filter;
 
 public interface IFilterer
