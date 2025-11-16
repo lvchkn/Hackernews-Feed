@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -euo pipefail
+
 variable="$1"
 value="$2"
 filename="$3"
