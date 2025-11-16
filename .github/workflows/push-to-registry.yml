@@ -29,8 +29,8 @@ jobs:
 
       - name: Build a Docker image
         run: |
-          docker build -t ghcr.io/lvchkn/hnfeed:latest .
+          docker build -t ghcr.io/lvchkn/hnfeed:2.0.0 .
 
       - name: Push the image to ghcr
         run: |
-          docker push ghcr.io/lvchkn/hnfeed:latest
+          docker push ghcr.io/lvchkn/hnfeed:2.0.0
