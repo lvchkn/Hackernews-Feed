@@ -19,11 +19,12 @@ jobs:
     steps:
       - name: Check out the repo
         uses: actions/checkout@v6
-        
+
       - name: Get version
         id: get_version
         run: |
           VERSION=$(cat .version)
+          echo $VERSION
           echo "version=$VERSION" >> $GITHUB_OUTPUT
 
       - name: Log in to the Github Container registry
@@ -35,13 +36,14 @@ jobs:
 
       - name: Build a Docker image
         run: |
+          echo {{ steps.get_version.outputs.version }}
           docker build -t ghcr.io/lvchkn/hnfeed:{{ steps.get_version.outputs.version }} -t ghcr.io/lvchkn/hnfeed:latest .
 
       - name: Push the image to ghcr
         run: |
           docker push ghcr.io/lvchkn/hnfeed:{{ steps.get_version.outputs.version }}
           docker push ghcr.io/lvchkn/hnfeed:latest
-          
+
       - name: Push git tags
         run: |
           git tag v{{ steps.get_version.outputs.version }}
