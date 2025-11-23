@@ -42,8 +42,3 @@ jobs:
         run: |
           docker push ghcr.io/lvchkn/hnfeed:${{ steps.get_version.outputs.version }}
           docker push ghcr.io/lvchkn/hnfeed:latest
-
-      - name: Push git tags
-        run: |
-          git tag v${{ steps.get_version.outputs.version }}
-          git push origin v${{ steps.get_version.outputs.version }}
