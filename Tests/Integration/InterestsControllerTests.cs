@@ -26,7 +26,7 @@ public class InterestsControllerTests
             PropertyNamingPolicy = JsonNamingPolicy.CamelCase
         };
 
-        var interest = new CreateInterestRequest("Cloud Native Technologies", null);
+        var interest = new CreateInterestRequest("Cloud Native Technologies", -1);
         var serializedInterest = JsonSerializer.Serialize(interest);
         
         var interestString = new StringContent(serializedInterest);

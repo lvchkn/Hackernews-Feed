@@ -1,6 +1,6 @@
 namespace Domain.Entities;
 
-public record Tag
+public class Tag
 {
     public int Id { get; init; }
     public string Name { get; init; } = string.Empty;

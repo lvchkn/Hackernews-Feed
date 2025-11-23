@@ -1,10 +1,9 @@
 using Application.Messaging;
-using Application.Ranking;
 using Application.Tags;
 
 namespace Application.Stories;
 
-public record StoryDto : IMessage, IRankable
+public record StoryDto : IMessage
 {
     public string By { get; init; } = string.Empty;
     public int Descendants { get; init; }
@@ -17,4 +16,5 @@ public record StoryDto : IMessage, IRankable
     public string Url { get; init; } = string.Empty;
     public string Text { get; init; } = string.Empty;
     public List<TagDto> Tags { get; init; } = [];
+    public List<int> FavouritedBy { get; init; } = [];
 }

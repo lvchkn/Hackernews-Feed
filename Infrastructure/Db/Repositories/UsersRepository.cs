@@ -1,7 +1,6 @@
 using Application.Users;
 using Domain.Entities;
 using Microsoft.EntityFrameworkCore;
-using Shared.Exceptions;
 
 namespace Infrastructure.Db.Repositories;
 
@@ -25,110 +24,107 @@ public class UsersRepository : IUsersRepository
 
         return users;
     }
-
-    public async Task<User> GetByIdAsync(int id)
+    
+    public async Task<User?> GetByIdAsync(int id)
     {
         var user = await _dbContext.Users
             .AsNoTracking()
             .Include(u => u.Interests)
             .Include(u => u.FavouriteStories)
             .AsSplitQuery()
-            .Where(u => u.Id == id)
-            .SingleOrDefaultAsync();
+            .SingleOrDefaultAsync(u => u.Id == id);
 
-        if (user is null)
-        {
-            throw new NotFoundException("No user found with this id.");
-        }
+        return user;
+    }
+    
+    private async Task<User?> GetByIdWithTrackingAsync(int id)
+    {
+        var user = await _dbContext.Users
+            .Include(u => u.Interests)
+            .Include(u => u.FavouriteStories)
+            .AsSplitQuery()
+            .SingleOrDefaultAsync(u => u.Id == id);
 
         return user;
     }
 
     public async Task AddAsync(User newUser)
     {
-        var user = await _dbContext.Users
-            .AsNoTracking()
-            .Where(u => u.Id == newUser.Id)
-            .SingleOrDefaultAsync();
-
-        if (user is not null)
-        {
-            throw new EntityAlreadyExistsException("Id is already in use.");
-        }
-
         await _dbContext.Users.AddAsync(newUser);
-
         await _dbContext.SaveChangesAsync();
     }
 
-    public async Task UpdateLastActiveAsync(int id)
+    public async Task<bool> UpdateLastActiveAsync(int id)
     {
-        var user = await GetByIdAsync(id);
+        var user = await GetByIdWithTrackingAsync(id);
         
         if (user is null)
         {
-            throw new NotFoundException("No user found with this id.");
+            return false;
         }
 
-        user = user with { LastActive = DateTime.UtcNow };
+        user.LastActive = DateTime.UtcNow;
         _dbContext.Update(user);
 
         await _dbContext.SaveChangesAsync();
+
+        return true;
     }
 
-    public async Task AddInterestAsync(int id, int interestId)
+    public async Task<bool> AddInterestAsync(int id, int interestId)
     {
-        var user = await GetByIdAsync(id);
+        var user = await GetByIdWithTrackingAsync(id);
         
         if (user is null)
         {
-            throw new NotFoundException("No user found with this email.");
+            return false;
         }
 
         var interest = await _dbContext.Interests
-            .Where(i => i.Id == interestId)
-            .SingleOrDefaultAsync();
+            .SingleOrDefaultAsync(i => i.Id == interestId);
         
         if (interest is null)
         {
-            throw new NotFoundException("No interest found with this id.");
+            return false;
         }
 
         user.Interests.Add(interest);
         
         await _dbContext.SaveChangesAsync();
+
+        return true;
     }
 
-    public async Task DeleteInterestAsync(int id, int interestId)
+    public async Task<bool> DeleteInterestAsync(int id, int interestId)
     {
-        var user = await GetByIdAsync(id);
+        var user = await GetByIdWithTrackingAsync(id);
         
         if (user is null)
         {
-            throw new NotFoundException("No user found with this id.");
+            return false;
         }
 
-        var interest = await _dbContext.Interests
-            .Where(i => i.Id == interestId)
-            .SingleOrDefaultAsync();
+        var interest = await _dbContext.Interests.FindAsync(interestId);
         
         if (interest is null)
         {
-            throw new NotFoundException("No interest found with this id.");
+            return false;
         }
 
         user.Interests.Remove(interest);
         
         await _dbContext.SaveChangesAsync();
+
+        return true;
     }
 
-    public async Task<List<Interest>> GetInterestsAsync(int id)
+    public async Task<List<Interest>?> GetInterestsAsync(int id)
     {
         var user = await GetByIdAsync(id);
         
         if (user is null)
         {
-            throw new NotFoundException("No user found with this id.");
+            return null;
         }   
         
         return user.Interests.ToList();

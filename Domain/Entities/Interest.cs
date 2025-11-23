@@ -1,8 +1,8 @@
 namespace Domain.Entities;
 
-public record Interest
+public class Interest
 {
-    public int Id { get; init; }
+    public int Id { get; set; }
     public string Text { get; init; } = string.Empty;
     public List<User> InterestedUsers { get; init; } = [];
 }

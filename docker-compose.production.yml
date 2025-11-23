@@ -1,7 +1,7 @@
 version: "3"
 services:
   feed:
-    image: ghcr.io/lvchkn/hnfeed:2.0.0
+    image: ghcr.io/lvchkn/hnfeed:2.1.0
     environment:
       - ASPNETCORE_ENVIRONMENT=production
       - ASPNETCORE_FORWARDEDHEADERS_ENABLED=true

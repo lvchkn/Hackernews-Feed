@@ -1,9 +1,8 @@
+using Application.Filter;
+using Application.Mappers;
 using Application.Paging;
-using Application.Ranking;
 using Application.Sort;
 using Application.Tags;
-using AutoMapper;
-using Domain.Entities;
 using Shared.Exceptions;
 
 namespace Application.Stories;
@@ -11,81 +10,79 @@ namespace Application.Stories;
 public class StoriesService : IStoriesService
 {
     private readonly IStoriesRepository _storiesRepository;
-    private readonly IMapper _mapper;
-    private readonly IRankingService _rankingService;
-    private readonly SortingParametersParser _sortingParametersParser;
     private readonly ITagsService _tagsService;
-    
-    public StoriesService(
-        IStoriesRepository storiesRepository,
-        IMapper mapper,
-        SortingParametersParser sortingParametersParser,
-        IRankingService rankingService,
-        ITagsService tagsService)
+
+    public StoriesService(IStoriesRepository storiesRepository, ITagsService tagsService)
     {
         _storiesRepository = storiesRepository;
-        _mapper = mapper;
-        _sortingParametersParser = sortingParametersParser;
-        _rankingService = rankingService;
         _tagsService = tagsService;
     }
 
     public async Task AddAsync(StoryDto storyDto)
     {
         var tags = _tagsService.GetAll(storyDto);
-        
+
         var storyWithTags = storyDto with
         {
             Tags = tags,
         };
-        
-        var story = _mapper.Map<Story>(storyWithTags);
-        await _storiesRepository.AddAsync(story);
+
+        var story = storyWithTags.ToStory();
+        bool operationResult = await _storiesRepository.AddAsync(story);
+
+        if (operationResult is false)
+        {
+            throw new StoryAlreadyExistsException(story.Id.ToString());
+        }
     }
 
     public async Task<List<StoryDto>> GetAllAsync()
     {
         var stories = await _storiesRepository.GetAllAsync();
-        return _mapper.Map<List<StoryDto>>(stories);
+        return stories.Select(s => s.ToStoryDto()).ToList();
     }
-    
+
     public async Task<StoryDto> GetByIdAsync(int id)
     {
         var story = await _storiesRepository.GetByIdAsync(id);
-        return _mapper.Map<StoryDto>(story);
+
+        if (story is null)
+        {
+            throw new StoryNotFoundException(id.ToString());
+        }
+
+        return story.ToStoryDto();
     }
 
-    public PagedStoriesDto Get(string? orderBy, string? search, int pageNumber, int pageSize)
+    public async Task<PagedStoriesDto> GetPagedAsync(string? orderBy, string? search, int pageNumber, int pageSize)
     {
         if (pageSize <= 0)
         {
             throw new QueryParameterException("page size cannot be less than 1");
         }
-        
-        var parsedSortingParameters = SortingParametersParser.Parse(orderBy);
-        var skip = Math.Max((pageNumber - 1) * pageSize, 0);
-        var take = pageSize;
-        
-        var (sortedStories, totalPagesCount) = _storiesRepository.GetAll(parsedSortingParameters, search, skip, take);
-        
-        var dtos = _mapper.Map<List<StoryDto>>(sortedStories);
-        var pagedStories = new PagedStoriesDto()
-        {
-            Stories = dtos,
-            TotalPagesCount = totalPagesCount,
-        };
-        
-        if (parsedSortingParameters.Count > 0 || !string.IsNullOrEmpty(search)) //TODO
-        {
-            return pagedStories;
-        }
 
-        var rankedStories = _rankingService.Rank(pagedStories.Stories);
-        pagedStories = pagedStories with
+        var parsedSortingParameters = SortingParametersParser.Parse(orderBy);
+        int skip = Math.Max((pageNumber - 1) * pageSize, 0);
+        int take = pageSize;
+        var searchCriteria = new SearchCriteria(search, 0);
+
+        var pagedObject = await _storiesRepository.GetPagedAsync(parsedSortingParameters, searchCriteria, skip, take);
+
+        var stories = pagedObject.Stories.Select(s => s.ToStoryDto()).ToList();
+
+        var pagedStories = new PagedStoriesDto
         {
-            Stories = rankedStories,
+            Stories = stories,
+            TotalPagesCount = pagedObject.TotalPagesCount,
+            PageSize = pageSize,
+            PageNumber = pageNumber,
         };
-        
+
+        // if (parsedSortingParameters.Count > 0 || !string.IsNullOrEmpty(search)) //TODO
+        // {
+        //     return pagedStories;
+        // }
+
         return pagedStories;
     }
 }
