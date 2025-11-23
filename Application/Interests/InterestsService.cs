@@ -1,53 +1,69 @@
-﻿using AutoMapper;
-using Domain.Entities;
+﻿using Application.Mappers;
+using Shared.Exceptions;
 
 namespace Application.Interests;
 
 public class InterestsService : IInterestsService
 {
-    private readonly IMapper _mapper;
     private readonly IInterestsRepository _interestsRepository;
 
-    public InterestsService(IMapper mapper, IInterestsRepository interestsRepository)
+    public InterestsService(IInterestsRepository interestsRepository)
     {
-        _mapper = mapper;
         _interestsRepository = interestsRepository;
     }
 
     public async Task<int> AddAsync(InterestDto interestDto)
     {
-        var interest = _mapper.Map<Interest>(interestDto);
+        var interest = interestDto.ToInterest();
         var id = await _interestsRepository.AddAsync(interest);
 
-        return id;
+        if (id is null)
+        {
+            throw new InterestAlreadyExistsException(interestDto.Text);
+        }
+
+        return id.Value;
     }
 
     public async Task DeleteAsync(int id)
     {
-        await _interestsRepository.DeleteAsync(id);
+        bool result = await _interestsRepository.DeleteAsync(id);
+
+        if (result == false)
+        {
+            throw new InterestNotFoundException(id.ToString());
+        }
     }
 
     public async Task<List<InterestDto>> GetAllAsync()
     {
         var interests = await _interestsRepository.GetAllAsync();
-        return _mapper.Map<List<InterestDto>>(interests);
+        return interests.Select<Domain.Entities.Interest, InterestDto>(i => i.ToInterestDto()).ToList();
     }
 
     public async Task<InterestDto> GetByNameAsync(string name)
     {
         var interest = await _interestsRepository.GetByNameAsync(name);
-        return _mapper.Map<InterestDto>(interest);
+        return interest?.ToInterestDto()
+            ?? throw new InterestNotFoundException(name);
     }
 
     public async Task<InterestDto> GetByIdAsync(int id)
     {
         var interest = await _interestsRepository.GetByIdAsync(id);
-        return _mapper.Map<InterestDto>(interest);
+        return interest?.ToInterestDto()
+            ?? throw new InterestNotFoundException(id.ToString());
     }
 
-    public async Task UpdateAsync(int id, InterestDto updatedInterest)
+    public async Task UpdateAsync(int id, InterestDto updatedInterestDto)
     {
-        var interest = _mapper.Map<Interest>(updatedInterest);
+        var interest = updatedInterestDto.ToInterest();
+
+        if (interest is null)
+        {
+            throw new InterestNotFoundException(updatedInterestDto.Text);
+        }
+        
         await _interestsRepository.UpdateAsync(id, interest);
     }
 }

@@ -24,13 +24,13 @@ public class UtilsTests
     public void Sorting_by_fields_in_ascending_order_works(SortField field)
     {
         // Arrange
-        var sortingParameters = new List<SortingParameters>()
+        var sortingParameters = new List<SortParameters>()
         {
             new(SortOrder.Asc, field),
         };
         
         // Act
-        var sortedStories = new Sorter().Sort(Stories, sortingParameters);
+        var sortedStories = new StorySort().Sort(Stories, sortingParameters);
         
         // Assert
         if (field == SortField.Id)
@@ -54,13 +54,13 @@ public class UtilsTests
     public void Sorting_by_fields_in_descending_order_works(SortField field)
     {
         // Arrange
-        var sortingParameters = new List<SortingParameters>
+        var sortingParameters = new List<SortParameters>
         {
             new(SortOrder.Desc, field),
         };
         
         // Act
-        var sortedStories = new Sorter().Sort(Stories, sortingParameters);
+        var sortedStories = new StorySort().Sort(Stories, sortingParameters);
         
         // Assert
         if (field == SortField.Id)
@@ -81,7 +81,7 @@ public class UtilsTests
     public void Chained_sort_works()
     {
         // Arrange
-        var sortingParameters = new List<SortingParameters>()
+        var sortingParameters = new List<SortParameters>()
         {
             new(SortOrder.Desc, SortField.Score),
             new(SortOrder.Asc, SortField.Title),
@@ -89,7 +89,7 @@ public class UtilsTests
         
         var expected = Stories.OrderByDescending(c => c.Score).ThenBy(c => c.Title).ToList();
 
-        var sorter = new Sorter();
+        var sorter = new StorySort();
         
         // Act
         var sortedStories = sorter.Sort(Stories, sortingParameters);

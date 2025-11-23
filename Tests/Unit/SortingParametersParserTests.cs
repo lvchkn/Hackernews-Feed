@@ -12,7 +12,7 @@ public class SortingParametersParserTests
     {
         // Arrange
         var query = "title asc, score desc";
-        var expectedResult = new List<SortingParameters>()
+        var expectedResult = new List<SortParameters>()
         {
             new(SortOrder.Asc, SortField.Title),
             new(SortOrder.Desc, SortField.Score),
@@ -30,7 +30,7 @@ public class SortingParametersParserTests
     {
         // Arrange
         var query = "score desc, id asc";
-        var expectedResult = new List<SortingParameters>()
+        var expectedResult = new List<SortParameters>()
         {
             new(SortOrder.Desc, SortField.Score),
             new(SortOrder.Asc, SortField.Id),
@@ -48,7 +48,7 @@ public class SortingParametersParserTests
     {
         // Arrange
         var query = "score";
-        var expectedResult = new List<SortingParameters>()
+        var expectedResult = new List<SortParameters>()
         {
             new(SortOrder.Desc, SortField.Score),
         };
@@ -65,7 +65,7 @@ public class SortingParametersParserTests
     {
         // Arrange
         var query = "score, title";
-        var expectedResult = new List<SortingParameters>()
+        var expectedResult = new List<SortParameters>()
         {
             new(SortOrder.Desc, SortField.Score),
             new(SortOrder.Desc, SortField.Title),
@@ -84,7 +84,7 @@ public class SortingParametersParserTests
     public void Empty_sorting_params_should_be_discarded(string? query)
     {
         // Arrange
-        var expectedResult = new List<SortingParameters>()
+        var expectedResult = new List<SortParameters>()
         {
             new(SortOrder.Desc, SortField.Score)
         };
@@ -101,7 +101,7 @@ public class SortingParametersParserTests
     {
         // Arrange
         var sortingParameters = "author,title ascending";
-        var expectedResult = new List<SortingParameters>()
+        var expectedResult = new List<SortParameters>()
         {
             new(SortOrder.Desc, SortField.Score),
             new(SortOrder.Desc, SortField.Title),
@@ -119,7 +119,7 @@ public class SortingParametersParserTests
     {
         // Arrange
         var sortingParameters = "author";
-        var expectedResult = new List<SortingParameters>()
+        var expectedResult = new List<SortParameters>()
         {
             new(SortOrder.Desc, SortField.Score),
         };

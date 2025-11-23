@@ -26,7 +26,7 @@ public static class UsersController
         {
             await usersService.AddInterestAsync(id, interest);
 
-            return Results.Ok();
+            return Results.Created();
 
         }).RequireAuthorization().WithTags(EndpointGroupTags.UsersInterests);
 

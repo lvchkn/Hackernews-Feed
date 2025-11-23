@@ -25,7 +25,7 @@ public class HttpRequestsInterceptor
 
         var userIdString = httpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? string.Empty;
         var userName = httpContext.User.FindFirst(ClaimTypes.Name)?.Value ?? string.Empty;
-        var userEmail = httpContext.User.FindFirst(ClaimTypes.Email)?.Value ?? string.Empty;
+        //var userEmail = httpContext.User.FindFirst(ClaimTypes.Email)?.Value ?? string.Empty;
         
         var userId = 0;
         try
@@ -46,7 +46,7 @@ public class HttpRequestsInterceptor
                 await usersService.UpdateLastActiveAsync(userId);
             }
         }
-        catch (NotFoundException)
+        catch (UserNotFoundException)
         {
             var newUser = new UserDto
             {

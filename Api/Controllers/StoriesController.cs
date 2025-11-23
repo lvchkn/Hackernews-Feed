@@ -8,14 +8,14 @@ public static class StoriesController
 {
     public static IEndpointRouteBuilder MapItemsEndpoints(this IEndpointRouteBuilder app)
     {   
-        app.MapGet("/api/stories", (
+        app.MapGet("/api/stories", async (
             [FromQuery] string? orderBy,
             [FromQuery] string? search,
             [FromQuery] int? pageNumber,
             [FromQuery] int? pageSize,
             [FromServices] IStoriesService storiesService) =>
         {
-            var stories = storiesService.Get(orderBy, search, pageNumber ?? 1, pageSize ?? 10);
+            var stories = await storiesService.GetPagedAsync(orderBy, search, pageNumber ?? 1, pageSize ?? 10);
 
             return Results.Ok(stories);
             

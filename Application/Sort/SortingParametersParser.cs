@@ -1,20 +1,18 @@
 namespace Application.Sort;
 
-public record SortingParameters(SortOrder Order, SortField FieldToSort);
-
-public class SortingParametersParser
+public static class SortingParametersParser
 {
-    public static List<SortingParameters> Parse(string? sortQuery)
+    public static List<SortParameters> Parse(string? sortQuery)
     {
         if (string.IsNullOrEmpty(sortQuery)) 
         {
             return
             [
-                new SortingParameters(SortOrder.Desc, SortField.Score)
+                new SortParameters(SortOrder.Desc, SortField.Score)
             ];
         }
 
-        var sortingParams = new List<SortingParameters>();
+        var sortingParams = new List<SortParameters>();
         var splitQuery = sortQuery.Trim().Split(',');
 
         foreach (var subSortQuery in splitQuery)
@@ -39,7 +37,7 @@ public class SortingParametersParser
                 }
             }
 
-            sortingParams.Add(new SortingParameters(sortOrder, sortField));
+            sortingParams.Add(new SortParameters(sortOrder, sortField));
         }
         
         return sortingParams;

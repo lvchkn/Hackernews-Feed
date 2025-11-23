@@ -1,3 +1,5 @@
+using Application.Filter;
+using Application.Paging;
 using Application.Sort;
 using Domain.Entities;
 
@@ -8,11 +10,11 @@ public interface IStoriesRepository
     Task<Story?> GetByIdAsync(int id);
     Task<List<Story>> GetByAuthorAsync(string author);
     Task<List<Story>> GetAllAsync();
-    (List<Story> paginatedStories, int totalPagesCount) GetAll(IEnumerable<SortingParameters> sortingParameters, 
-        string? search, 
+    Task<PagedStories> GetPagedAsync(IEnumerable<SortParameters> sortingParameters, 
+        SearchCriteria search, 
         int skip, 
         int take);
-    Task AddAsync(Story story);
-    Task UpdateAsync(int id, Story updatedStory);
-    Task DeleteAsync(int id);
+    Task<bool> AddAsync(Story story);
+    Task<bool> UpdateAsync(int id, Story updatedStory);
+    Task<bool> DeleteAsync(int id);
 }

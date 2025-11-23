@@ -18,10 +18,10 @@ namespace Tests.Integration;
 public class TestServerFixture<T> : WebApplicationFactory<T>, IAsyncLifetime where T : class, new()
 {
     private readonly PostgreSqlContainer _postgresContainer = new PostgreSqlBuilder()
-        .WithDatabase("feed")
+        .WithDatabase("testdb")
         .WithUsername("testuser")
         .WithPassword("testpw")
-        .WithImage("postgres:15.10-alpine3.20")
+        .WithImage("postgres:15.15-alpine")
         .WithExposedPort(5432)
         .WithPortBinding(5432, true)
         .WithCleanUp(true)
@@ -47,18 +47,18 @@ public class TestServerFixture<T> : WebApplicationFactory<T>, IAsyncLifetime whe
                 ["RabbitMq:Username"] = "testuser",
                 ["RabbitMq:Password"] = "testpw",
                 ["RabbitMq:Hostname"] = "localhost",
-                ["RabbitMq:Port"] = "5672",
+                ["RabbitMq:Port"] = _rmqContainer.GetMappedPublicPort(5672).ToString(),
 
                 ["Postgres:Username"] = "testuser",
                 ["Postgres:Password"] = "testpw",
                 ["Postgres:Host"] = "localhost",
-                ["Postgres:Port"] = "5432",
-                ["Postgres:Database"] = "testdb",
+                ["Postgres:Port"] = _postgresContainer.GetMappedPublicPort(5432).ToString(),
+                ["Postgres:Database"] = "testdb"
             })
             .Build();
         
         builder.UseConfiguration(config);
-
+        
         builder.ConfigureTestServices(services =>
         {
             services.AddAuthentication(authOptions => 
@@ -69,11 +69,18 @@ public class TestServerFixture<T> : WebApplicationFactory<T>, IAsyncLifetime whe
             .AddScheme<AuthenticationSchemeOptions, TestAuthHandler>(
                 "Test", _ => {});
 
-            var workerDescriptor = services.SingleOrDefault(s => s.ImplementationType == typeof(StoryFetcher));
+            var storyFetcherDescriptor = services.SingleOrDefault(s => s.ImplementationType == typeof(StoryFetcher));
             
-            if (workerDescriptor is not null) 
+            if (storyFetcherDescriptor is not null) 
             {
-                services.Remove(workerDescriptor);
+                services.Remove(storyFetcherDescriptor);
+            }
+            
+            var rankUpdaterDescriptor = services.SingleOrDefault(s => s.ImplementationType == typeof(RankUpdater));
+            
+            if (rankUpdaterDescriptor is not null) 
+            {
+                services.Remove(rankUpdaterDescriptor);
             }
 
             var dbContextDescriptor = services.SingleOrDefault(d => d.ServiceType == typeof(DbContextOptions<AppDbContext>));
@@ -92,6 +99,10 @@ public class TestServerFixture<T> : WebApplicationFactory<T>, IAsyncLifetime whe
     {
         await _postgresContainer.StartAsync();
         await _rmqContainer.StartAsync();
+        
+        await using var scope = Services.CreateAsyncScope();
+        var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+        await dbContext.Database.MigrateAsync();
     }
 
     public new async ValueTask DisposeAsync()

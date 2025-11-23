@@ -34,9 +34,18 @@ public class CustomExceptionHandler
 
         httpContext.Response.StatusCode = exception switch
         {
-            NotFoundException => (int) HttpStatusCode.NotFound,
+            EntityNotFoundException => (int) HttpStatusCode.NotFound,
+            UserNotFoundException => (int) HttpStatusCode.NotFound,
+            InterestNotFoundException => (int) HttpStatusCode.NotFound,
+            StoryNotFoundException => (int) HttpStatusCode.NotFound,
+            
             EntityAlreadyExistsException => (int) HttpStatusCode.BadRequest,
+            UserAlreadyExistsException => (int) HttpStatusCode.BadRequest,
+            InterestAlreadyExistsException => (int) HttpStatusCode.BadRequest,
+            StoryAlreadyExistsException => (int) HttpStatusCode.BadRequest,
+            
             QueryParameterException => (int) HttpStatusCode.BadRequest,
+            
             _ => (int) HttpStatusCode.InternalServerError
         };
 

@@ -1,8 +1,10 @@
 ﻿using Application.Filter;
 using Application.Interests;
+using Application.Ranking;
 using Application.Sort;
 using Application.Stories;
 using Application.Users;
+using Domain.Entities;
 using Infrastructure.Db;
 using Infrastructure.Db.Repositories;
 using Infrastructure.Workers;
@@ -13,6 +15,7 @@ using RabbitMQ.Client;
 
 namespace Infrastructure;
 
+// ReSharper disable once InconsistentNaming
 public static class DI
 {
     private static IConfiguration? _configuration;
@@ -23,7 +26,8 @@ public static class DI
         services
             .AddRabbitMq()
             .AddRepos()
-            .AddHostedService<StoryFetcher>();
+            .AddHostedService<StoryFetcher>()
+            .AddHostedService<RankUpdater>();
 
         return services;
     }
@@ -64,10 +68,11 @@ public static class DI
                 .UseSnakeCaseNamingConvention()
                 .ConfigureWarnings(w =>
                     w.Default(WarningBehavior.Throw));
-        }); 
+        });
             
-        services.AddScoped<ISorter, Sorter>();
-        services.AddScoped<IFilterer, Filterer>();
+        services.AddScoped<IQuerySort<Story>, StorySort>();
+        services.AddScoped<IQueryFilter<Story>, StoryFilter>();
+        services.AddScoped<IQueryRank<Story>, StoryRank>();
 
         services.AddScoped<IUsersRepository, UsersRepository>();
         services.AddScoped<IInterestsRepository, InterestsRepository>();

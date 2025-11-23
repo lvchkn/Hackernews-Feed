@@ -1,15 +1,13 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using Application.Interests;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using System.Reflection;
-using Application.Sort;
 using Application.Users;
-using Application.Interests;
-using Application.Ranking;
 using Application.Stories;
 using Application.Tags;
 
 namespace Application;
 
+// ReSharper disable once InconsistentNaming
 public static class DI
 {
     public static IServiceCollection AddApplication(this IServiceCollection services, IConfiguration configuration)
@@ -18,11 +16,6 @@ public static class DI
 
         services.AddHttpClient("ApiV0", options =>
             options.BaseAddress = new Uri(hackernewsApiUrl ?? string.Empty));
-
-        services.AddAutoMapper(Assembly.GetExecutingAssembly());
-
-        services.AddScoped<SortingParametersParser>();
-        services.AddScoped<IRankingService, RankingService>();
 
         services.AddScoped<IUsersService, UsersService>();
         services.AddScoped<IInterestsService, InterestsService>();

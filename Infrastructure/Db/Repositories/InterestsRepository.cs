@@ -1,7 +1,6 @@
 using Application.Interests;
 using Domain.Entities;
 using Microsoft.EntityFrameworkCore;
-using Shared.Exceptions;
 
 namespace Infrastructure.Db.Repositories;
 
@@ -18,8 +17,14 @@ public class InterestsRepository : IInterestsRepository
     {
         var interest = await _dbContext.Interests
             .AsNoTracking()
-            .Where(i => i.Id == id)
-            .SingleOrDefaultAsync();
+            .SingleOrDefaultAsync(i => i.Id == id);
+
+        return interest;
+    }
+    
+    private async Task<Interest?> GetByIdAsyncWithTracking(int id)
+    {
+        var interest = await _dbContext.Interests.FindAsync(id);
 
         return interest;
     }
@@ -28,8 +33,7 @@ public class InterestsRepository : IInterestsRepository
     {
         var interest = await _dbContext.Interests
             .AsNoTracking()
-            .Where(i => i.Text == name)
-            .SingleOrDefaultAsync();
+            .SingleOrDefaultAsync(i => i.Text == name);
 
         return interest;
     }
@@ -43,48 +47,53 @@ public class InterestsRepository : IInterestsRepository
         return interests;
     }
 
-    public async Task<int> AddAsync(Interest newInterest)
+    public async Task<int?> AddAsync(Interest newInterest)
     {
-        var interest = await GetByNameAsync(newInterest.Text);
+        var interest = await _dbContext.Interests
+            .SingleOrDefaultAsync(i => i.Text == newInterest.Text);
 
         if (interest is not null) 
         {
-            throw new EntityAlreadyExistsException("This interest already exists!");
+            return null;
         }
 
-        await _dbContext.Interests.AddAsync(newInterest);
+        var result = await _dbContext.Interests.AddAsync(newInterest);
         
         await _dbContext.SaveChangesAsync();
 
-        return newInterest.Id;
+        return result.Entity.Id;
     }
 
-    public async Task UpdateAsync(int id, Interest updatedInterest)
+    public async Task<bool> UpdateAsync(int id, Interest updatedInterest)
     {
         var interest = await GetByIdAsync(id);
 
         if (interest is null) 
         {
-            throw new NotFoundException("This interest doesn't exist!");
+            return false;
         }
-        
-        updatedInterest = updatedInterest with { Id = id };
+
+        updatedInterest.Id = id;
         _dbContext.Update(updatedInterest);
 
         await _dbContext.SaveChangesAsync();
+        
+        return true;
     }
 
-    public async Task DeleteAsync(int id)
+    public async Task<bool> DeleteAsync(int id)
     {
-        var interest = await GetByIdAsync(id);
+        var interest = await GetByIdAsyncWithTracking(id);
 
         if (interest is null) 
         {
-            throw new NotFoundException("This interest doesn't exist!");
+            return false;
         }
 
         _dbContext.Interests.Remove(interest);
         
         await _dbContext.SaveChangesAsync();
+        
+        return true;
     }
 }
