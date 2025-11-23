@@ -36,15 +36,14 @@ jobs:
 
       - name: Build a Docker image
         run: |
-          echo {{ steps.get_version.outputs.version }}
-          docker build -t ghcr.io/lvchkn/hnfeed:{{ steps.get_version.outputs.version }} -t ghcr.io/lvchkn/hnfeed:latest .
+          docker build -t ghcr.io/lvchkn/hnfeed:${{ steps.get_version.outputs.version }} -t ghcr.io/lvchkn/hnfeed:latest .
 
       - name: Push the image to ghcr
         run: |
-          docker push ghcr.io/lvchkn/hnfeed:{{ steps.get_version.outputs.version }}
+          docker push ghcr.io/lvchkn/hnfeed:${{ steps.get_version.outputs.version }}
           docker push ghcr.io/lvchkn/hnfeed:latest
 
       - name: Push git tags
         run: |
-          git tag v{{ steps.get_version.outputs.version }}
-          git push origin v{{ steps.get_version.outputs.version }}
+          git tag v${{ steps.get_version.outputs.version }}
+          git push origin v${{ steps.get_version.outputs.version }}
