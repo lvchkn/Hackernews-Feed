@@ -17,7 +17,7 @@ namespace Tests.Integration;
 [UsedImplicitly]
 public class TestServerFixture<T> : WebApplicationFactory<T>, IAsyncLifetime where T : class, new()
 {
-    private readonly PostgreSqlContainer _postgresContainer = new PostgreSqlBuilder()
+    private readonly PostgreSqlContainer _postgresContainer = new PostgreSqlBuilder("postgres:15.15-alpine")
         .WithDatabase("testdb")
         .WithUsername("testuser")
         .WithPassword("testpw")
@@ -26,8 +26,8 @@ public class TestServerFixture<T> : WebApplicationFactory<T>, IAsyncLifetime whe
         .WithPortBinding(5432, true)
         .WithCleanUp(true)
         .Build();
-    
-    private readonly RabbitMqContainer _rmqContainer = new RabbitMqBuilder()
+
+    private readonly RabbitMqContainer _rmqContainer = new RabbitMqBuilder("rabbitmq:3.13-alpine")
         .WithUsername("testuser")
         .WithPassword("testpw")
         .WithImage("rabbitmq:3.13-alpine")
@@ -56,12 +56,12 @@ public class TestServerFixture<T> : WebApplicationFactory<T>, IAsyncLifetime whe
                 ["Postgres:Database"] = "testdb"
             })
             .Build();
-        
+
         builder.UseConfiguration(config);
-        
+
         builder.ConfigureTestServices(services =>
         {
-            services.AddAuthentication(authOptions => 
+            services.AddAuthentication(authOptions =>
             {
                 authOptions.DefaultAuthenticateScheme = "Test";
                 authOptions.DefaultChallengeScheme = "Test";
@@ -70,27 +70,27 @@ public class TestServerFixture<T> : WebApplicationFactory<T>, IAsyncLifetime whe
                 "Test", _ => {});
 
             var storyFetcherDescriptor = services.SingleOrDefault(s => s.ImplementationType == typeof(StoryFetcher));
-            
-            if (storyFetcherDescriptor is not null) 
+
+            if (storyFetcherDescriptor is not null)
             {
                 services.Remove(storyFetcherDescriptor);
             }
-            
+
             var rankUpdaterDescriptor = services.SingleOrDefault(s => s.ImplementationType == typeof(RankUpdater));
-            
-            if (rankUpdaterDescriptor is not null) 
+
+            if (rankUpdaterDescriptor is not null)
             {
                 services.Remove(rankUpdaterDescriptor);
             }
 
             var dbContextDescriptor = services.SingleOrDefault(d => d.ServiceType == typeof(DbContextOptions<AppDbContext>));
 
-            if (dbContextDescriptor is not null) 
+            if (dbContextDescriptor is not null)
             {
                 services.Remove(dbContextDescriptor);
             }
 
-            services.AddDbContext<AppDbContext>(options => 
+            services.AddDbContext<AppDbContext>(options =>
                 options.UseNpgsql(_postgresContainer.GetConnectionString()));
         });
     }
@@ -99,7 +99,7 @@ public class TestServerFixture<T> : WebApplicationFactory<T>, IAsyncLifetime whe
     {
         await _postgresContainer.StartAsync();
         await _rmqContainer.StartAsync();
-        
+
         await using var scope = Services.CreateAsyncScope();
         var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
         await dbContext.Database.MigrateAsync();

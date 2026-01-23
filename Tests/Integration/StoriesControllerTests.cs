@@ -1,7 +1,6 @@
 using System.Net;
 using System.Net.Http.Headers;
 using System.Text.Json;
-using Api;
 using Application.Paging;
 using Application.Stories;
 using Application.Tags;
@@ -72,7 +71,7 @@ public class StoriesControllerTests
             .ToList();
         
         // Act
-        var response = await client.GetAsync("/api/stories?orderBy=title,asc", TestContext.Current.CancellationToken);
+        var response = await client.GetAsync("/api/stories?orderBy=title,desc", TestContext.Current.CancellationToken);
         var responseJson = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
         var pagedData = JsonSerializer.Deserialize<PagedStoriesDto>(responseJson, _jsonSerializerOptions);
 
@@ -196,6 +195,14 @@ public class StoriesControllerTests
         
         // Assert
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+
+        Assert.Equal("application/problem+json", response.Content.Headers.ContentType?.MediaType);
+        var json = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
+        using var doc = JsonDocument.Parse(json);
+        var root = doc.RootElement;
+        Assert.Equal((int)response.StatusCode, root.GetProperty("status").GetInt32());
+        Assert.True(root.GetProperty("title").GetString() is not null);
+        Assert.True(root.GetProperty("detail").GetString() is not null);
     }
 
     private static StoryDto MapToStoryDto(Story story)
@@ -219,5 +226,77 @@ public class StoriesControllerTests
                 })
                 .ToList(),
         };
+    }
+
+    [Fact]
+    public async Task GetStories_EmptyDb()
+    {
+        // Arrange
+        var client = _webAppFactory.CreateClient();
+        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Test");
+
+        using var scope = _webAppFactory.Services.CreateScope();
+        var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+
+        dbContext.Stories.RemoveRange(dbContext.Stories);
+        dbContext.SaveChanges();
+
+        // Act
+        var response = await client.GetAsync("/api/stories", TestContext.Current.CancellationToken);
+        var responseJson = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
+        var paged = JsonSerializer.Deserialize<PagedStoriesDto>(responseJson, _jsonSerializerOptions);
+
+        // Assert
+        Assert.NotNull(paged);
+        Assert.Empty(paged!.Stories);
+        Assert.Equal(0, paged.TotalPagesCount);
+    }
+
+    [Fact]
+    public async Task GetStories_SearchSpecialCharacters()
+    {
+        // Arrange
+        var client = _webAppFactory.CreateClient();
+        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Test");
+
+        using var scope = _webAppFactory.Services.CreateScope();
+        var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+        dbContext.Stories.RemoveRange(dbContext.Stories);
+
+        var storyWithSpecialCharacters = new Story { By = "Test_User", Title = "C++ & .NET: What's new?", Score = 1, Time = 1 };
+        dbContext.Stories.Add(storyWithSpecialCharacters);
+        dbContext.SaveChanges();
+
+        // Act
+        var response = await client.GetAsync($"/api/stories?search={WebUtility.UrlEncode("C++")}", TestContext.Current.CancellationToken);
+        var responseJson = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
+        var paged = JsonSerializer.Deserialize<PagedStoriesDto>(responseJson, _jsonSerializerOptions);
+
+        // Assert
+        Assert.NotNull(paged);
+        Assert.Single(paged!.Stories);
+        Assert.Equal(storyWithSpecialCharacters.Title, paged.Stories[0].Title);
+    }
+
+    [Fact]
+    public async Task GetStories_LargePageSize_ReturnsAll()
+    {
+        // Arrange
+        var client = _webAppFactory.CreateClient();
+        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Test");
+
+        using var scope = _webAppFactory.Services.CreateScope();
+        var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+        var count = dbContext.SeedStories();
+
+        // Act
+        var response = await client.GetAsync($"/api/stories?pageSize=100", TestContext.Current.CancellationToken);
+        var responseJson = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
+        var paged = JsonSerializer.Deserialize<PagedStoriesDto>(responseJson, _jsonSerializerOptions);
+
+        // Assert
+        Assert.NotNull(paged);
+        Assert.Equal(count, paged!.Stories.Count);
+        Assert.Equal(1, paged.TotalPagesCount);
     }
 }

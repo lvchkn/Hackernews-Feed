@@ -1,5 +1,7 @@
 using System.Net;
 using System.Text.Json;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Shared.Exceptions;
 
 namespace Api.Middleware;
@@ -8,6 +10,12 @@ public class CustomExceptionHandler
 {
     private readonly ILogger<CustomExceptionHandler> _logger;
     private readonly RequestDelegate _next;
+    private readonly JsonSerializerOptions _jsonSerializerOptions = new() 
+    { 
+        PropertyNamingPolicy = JsonNamingPolicy.CamelCase 
+    };
+    
+    private const string GenericErrorMessage = "Unhandled exception occurred while processing the request";
 
     public CustomExceptionHandler(ILogger<CustomExceptionHandler> logger, RequestDelegate next)
     {
@@ -23,38 +31,69 @@ public class CustomExceptionHandler
         }
         catch (Exception exception)
         {
-            _logger.LogError(exception.ToString());
+            _logger.LogError(exception, GenericErrorMessage);
             await HandleExceptionAsync(httpContext, exception);
         }
     }
 
-    private static async Task HandleExceptionAsync(HttpContext httpContext, Exception exception)
+    private async Task HandleExceptionAsync(HttpContext httpContext, Exception exception)
     {
-        httpContext.Response.ContentType = "application/json";
-
-        httpContext.Response.StatusCode = exception switch
+        var statusCode = exception switch
         {
             EntityNotFoundException => (int) HttpStatusCode.NotFound,
             UserNotFoundException => (int) HttpStatusCode.NotFound,
             InterestNotFoundException => (int) HttpStatusCode.NotFound,
             StoryNotFoundException => (int) HttpStatusCode.NotFound,
-            
+
+            BadHttpRequestException => (int) HttpStatusCode.BadRequest,
+            JsonException => (int) HttpStatusCode.BadRequest,
             EntityAlreadyExistsException => (int) HttpStatusCode.BadRequest,
             UserAlreadyExistsException => (int) HttpStatusCode.BadRequest,
             InterestAlreadyExistsException => (int) HttpStatusCode.BadRequest,
             StoryAlreadyExistsException => (int) HttpStatusCode.BadRequest,
-            
             QueryParameterException => (int) HttpStatusCode.BadRequest,
-            
+
             _ => (int) HttpStatusCode.InternalServerError
         };
 
-        var exceptionData = new
+        var problemDetailsFactory = httpContext.RequestServices.GetService<ProblemDetailsFactory>();
+
+        string? instance = httpContext.Request.Path.Value ?? null;
+
+        string? detail = statusCode switch
         {
-            StatusCode = httpContext.Response.StatusCode,
-            Message = "Error occurred while processing the request",
+            500 => GenericErrorMessage,
+            _ => exception.Message
         };
+
+        string title = statusCode switch
+        {
+            400 => nameof(HttpStatusCode.BadRequest),
+            404 => nameof(HttpStatusCode.NotFound),
+            500 => nameof(HttpStatusCode.InternalServerError),
+            _ => "Error"
+        };
+
+        ProblemDetails problemDetails;
         
-        await httpContext.Response.WriteAsync(JsonSerializer.Serialize(exceptionData));
+        if (problemDetailsFactory is null)
+        {
+            problemDetails = new ProblemDetails
+            {
+                Status = statusCode,
+                Title = title,
+                Detail = detail,
+                Instance = instance
+            };
+        }
+        else
+        {
+            problemDetails = problemDetailsFactory.CreateProblemDetails(httpContext, statusCode, null, title, detail, instance);
+        }
+
+        httpContext.Response.ContentType = "application/problem+json";
+        httpContext.Response.StatusCode = statusCode;
+
+        await httpContext.Response.WriteAsync(JsonSerializer.Serialize(problemDetails, _jsonSerializerOptions));
     }
 }

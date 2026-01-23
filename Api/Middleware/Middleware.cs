@@ -11,6 +11,7 @@ public static class Middleware
                 ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
             })
             .UseMiddleware<CustomExceptionHandler>()
+            .UseRateLimiter()
             .UseCors()
             .UseAuthentication()
             .UseAuthorization()
