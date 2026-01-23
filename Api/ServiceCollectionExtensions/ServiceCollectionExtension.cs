@@ -10,11 +10,13 @@ public static class ServiceCollectionExtension
     { 
         services.AddApplication(configuration)
             .AddInfrastructure(configuration)
+            .AddRateLimiter()
             .AddGithubAuth(configuration)
             .AddAuthorization()
             .AddCorsPolicy(configuration)
             .AddEndpointsApiExplorer()
-            .AddSwaggerGen(options => options.SwaggerDoc("v1", new OpenApiInfo { Title = "HN Feed API", Version = "1.0"}));
+            .AddSwaggerGen(options => options.SwaggerDoc("v1", new OpenApiInfo { Title = "HN Feed API", Version = "1.0"}))
+            .AddControllers();
 
         return services;
     }

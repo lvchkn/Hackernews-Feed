@@ -57,6 +57,9 @@ public class InterestsRepository : IInterestsRepository
             return null;
         }
 
+        // Ensure we don't try to insert a client-provided primary key
+        newInterest.Id = 0;
+
         var result = await _dbContext.Interests.AddAsync(newInterest);
         
         await _dbContext.SaveChangesAsync();

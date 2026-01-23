@@ -69,7 +69,7 @@ public static class GithubAuth
 
                 OnRedirectToAuthorizationEndpoint = context => 
                 {
-                    if (context.Request.Path.StartsWithSegments("api"))
+                    if (context.Request.Path.StartsWithSegments("/api"))
                     {
                         context.Response.StatusCode = (int) HttpStatusCode.Unauthorized;
                     }

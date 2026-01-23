@@ -1,6 +1,7 @@
 using Application.Interests;
 using Microsoft.AspNetCore.Mvc;
 using Shared.Utils;
+using Shared.Exceptions;
 
 namespace Api.Controllers;
 
@@ -30,8 +31,13 @@ public static class InterestsController
             [FromBody] InterestDto interest, 
             [FromServices] IInterestsService interestsService) =>
         {
+            if (interest is null || string.IsNullOrWhiteSpace(interest.Text))
+            {
+                throw new QueryParameterException("Interest text is required");
+            }
+
             var id = await interestsService.AddAsync(interest);
-            
+
             return Results.Ok(id);
  
         }).RequireAuthorization().WithTags(EndpointGroupTags.Interests);
@@ -41,6 +47,11 @@ public static class InterestsController
             [FromBody] InterestDto interest, 
             [FromServices] IInterestsService interestsService) =>
         {
+            if (interest is null || string.IsNullOrWhiteSpace(interest.Text))
+            {
+                throw new QueryParameterException("Interest text is required");
+            }
+
             await interestsService.UpdateAsync(id, interest);
 
             return Results.NoContent();
