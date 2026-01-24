@@ -10,11 +10,11 @@ public class CustomExceptionHandler
 {
     private readonly ILogger<CustomExceptionHandler> _logger;
     private readonly RequestDelegate _next;
-    private readonly JsonSerializerOptions _jsonSerializerOptions = new() 
-    { 
-        PropertyNamingPolicy = JsonNamingPolicy.CamelCase 
+    private readonly JsonSerializerOptions _jsonSerializerOptions = new()
+    {
+        PropertyNamingPolicy = JsonNamingPolicy.CamelCase
     };
-    
+
     private const string GenericErrorMessage = "Unhandled exception occurred while processing the request";
 
     public CustomExceptionHandler(ILogger<CustomExceptionHandler> logger, RequestDelegate next)
@@ -60,7 +60,7 @@ public class CustomExceptionHandler
 
         string? instance = httpContext.Request.Path.Value ?? null;
 
-        string? detail = statusCode switch
+        string detail = statusCode switch
         {
             500 => GenericErrorMessage,
             _ => exception.Message
@@ -71,11 +71,12 @@ public class CustomExceptionHandler
             400 => nameof(HttpStatusCode.BadRequest),
             404 => nameof(HttpStatusCode.NotFound),
             500 => nameof(HttpStatusCode.InternalServerError),
+            // ReSharper disable once UnreachableSwitchArmDueToIntegerAnalysis
             _ => "Error"
         };
 
         ProblemDetails problemDetails;
-        
+
         if (problemDetailsFactory is null)
         {
             problemDetails = new ProblemDetails
@@ -88,7 +89,12 @@ public class CustomExceptionHandler
         }
         else
         {
-            problemDetails = problemDetailsFactory.CreateProblemDetails(httpContext, statusCode, null, title, detail, instance);
+            problemDetails = problemDetailsFactory.CreateProblemDetails(httpContext: httpContext,
+                statusCode: statusCode,
+                title: title,
+                type: null,
+                detail: detail,
+                instance: instance);
         }
 
         httpContext.Response.ContentType = "application/problem+json";
