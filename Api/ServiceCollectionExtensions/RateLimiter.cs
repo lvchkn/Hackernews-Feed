@@ -32,7 +32,6 @@ public static class RateLimiter
             {
                 context.HttpContext.Response.StatusCode = StatusCodes.Status429TooManyRequests;
                 context.HttpContext.Response.ContentType = "application/problem+json";
-                context.HttpContext.Response.Headers.RetryAfter = "60";
 
                 var problem = new Microsoft.AspNetCore.Mvc.ProblemDetails
                 {
