@@ -129,4 +129,67 @@ public class UsersRepository : IUsersRepository
         
         return user.Interests.ToList();
     }
+
+    public async Task<bool> AddFavouriteStoryAsync(int id, int storyId)
+    {
+        var user = await GetByIdWithTrackingAsync(id);
+        
+        if (user is null)
+        {
+            return false;
+        }
+
+        if (user.FavouriteStories.Any(s => s.Id == storyId))
+        {
+            return true;
+        }
+
+        var story = await _dbContext.Stories.FindAsync(storyId);
+        
+        if (story is null)
+        {
+            return false;
+        }
+
+        user.FavouriteStories.Add(story);
+        
+        await _dbContext.SaveChangesAsync();
+
+        return true;
+    }
+
+    public async Task<bool> RemoveFavouriteStoryAsync(int id, int storyId)
+    {
+        var user = await GetByIdWithTrackingAsync(id);
+        
+        if (user is null)
+        {
+            return false;
+        }
+
+        var story = user.FavouriteStories.FirstOrDefault(s => s.Id == storyId);
+        
+        if (story is null)
+        {
+            return false;
+        }
+
+        user.FavouriteStories.Remove(story);
+        
+        await _dbContext.SaveChangesAsync();
+
+        return true;
+    }
+
+    public async Task<List<Story>?> GetFavouriteStoriesAsync(int id)
+    {
+        var user = await GetByIdAsync(id);
+        
+        if (user is null)
+        {
+            return null;
+        }
+
+        return user.FavouriteStories;
+    }
 }

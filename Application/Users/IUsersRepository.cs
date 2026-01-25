@@ -11,4 +11,7 @@ public interface IUsersRepository
     Task AddAsync(User user);
     Task<bool> DeleteInterestAsync(int id, int interestId);
     Task<List<Interest>?> GetInterestsAsync(int id);
+    Task<bool> AddFavouriteStoryAsync(int id, int storyId);
+    Task<bool> RemoveFavouriteStoryAsync(int id, int storyId);
+    Task<List<Story>?> GetFavouriteStoriesAsync(int id);
 }

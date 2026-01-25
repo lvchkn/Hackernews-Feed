@@ -41,6 +41,38 @@ public static class UsersController
 
         }).RequireAuthorization().WithTags(EndpointGroupTags.UsersInterests);
 
+        app.MapGet("/api/user/{id}/favourites", async (
+            [FromRoute] int id,
+            [FromServices] IUsersService usersService) =>
+        {
+            var stories = await usersService.GetFavouriteStoriesAsync(id);
+
+            return Results.Ok(stories);
+
+        }).RequireAuthorization().WithTags(EndpointGroupTags.UsersFavourites);
+
+        app.MapPost("/api/user/{id}/favourites/{storyId}", async (
+            [FromRoute] int id, 
+            [FromRoute] int storyId,
+            [FromServices] IUsersService usersService) => 
+        {
+            await usersService.AddFavouriteStoryAsync(id, storyId);
+
+            return Results.Created();
+
+        }).RequireAuthorization().WithTags(EndpointGroupTags.UsersFavourites);
+
+        app.MapDelete("/api/user/{id}/favourites/{storyId}", async (
+            [FromRoute] int id,
+            [FromRoute] int storyId,
+            [FromServices] IUsersService usersService) =>
+        {
+            await usersService.RemoveFavouriteStoryAsync(id, storyId);
+
+            return Results.NoContent();
+
+        }).RequireAuthorization().WithTags(EndpointGroupTags.UsersFavourites);
+
         return app;
     }
 }

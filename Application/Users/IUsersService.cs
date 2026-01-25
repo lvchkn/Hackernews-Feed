@@ -1,4 +1,5 @@
 ﻿using Application.Interests;
+using Application.Stories;
 
 namespace Application.Users;
 
@@ -11,4 +12,7 @@ public interface IUsersService
     Task AddAsync(UserDto user);
     Task DeleteInterestAsync(int id, int interestId);
     Task<List<InterestDto>> GetInterestsAsync(int id);
+    Task AddFavouriteStoryAsync(int id, int storyId);
+    Task RemoveFavouriteStoryAsync(int id, int storyId);
+    Task<List<StoryDto>> GetFavouriteStoriesAsync(int id);
 }
