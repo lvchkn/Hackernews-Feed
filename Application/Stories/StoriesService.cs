@@ -9,14 +9,27 @@ namespace Application.Stories;
 public class StoriesService : IStoriesService
 {
     private readonly IStoriesRepository _storiesRepository;
-    public StoriesService(IStoriesRepository storiesRepository)
+    private readonly ITagsService _tagsService;
+
+    public StoriesService(IStoriesRepository storiesRepository, ITagsService tagsService)
     {
         _storiesRepository = storiesRepository;
+        _tagsService = tagsService;
     }
 
     public async Task AddAsync(StoryDto storyDto)
     {
         var story = storyDto.ToStory();
+
+        var textToAnalyze = $"{story.Title} {story.Text}";
+        var tagDtos = await _tagsService.GetTagsForTextAsync(textToAnalyze);
+        var tags = tagDtos.Select(dto => dto.ToTag()).ToList();
+
+        if (tags.Count != 0)
+        {
+            story.Tags.AddRange(tags);
+        }
+
         bool operationResult = await _storiesRepository.AddAsync(story);
 
         if (operationResult is false)

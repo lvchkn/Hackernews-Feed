@@ -1,3 +1,4 @@
+using System.Text.RegularExpressions;
 using Application.Paging;
 using Domain.Entities;
 using Microsoft.Extensions.Logging;
@@ -20,6 +21,44 @@ public class TagsService : ITagsService
     {
         var tags = await _tagsRepository.GetAllAsync();
         return tags.Select(t => t.ToTagDto()).ToList();
+    }
+
+    public async Task<List<TagDto>> GetTagsForTextAsync(string text)
+    {
+        if (string.IsNullOrWhiteSpace(text))
+        {
+            return [];
+        }
+
+        var allTags = await _tagsRepository.GetAllAsync();
+        var matchedTags = new HashSet<Tag>();
+
+        foreach (var tag in allTags)
+        {
+            if (IsWordMatch(text, tag.Name))
+            {
+                matchedTags.Add(tag);
+                continue;
+            }
+
+            foreach (var alias in tag.Aliases)
+            {
+                if (IsWordMatch(text, alias.Name))
+                {
+                    matchedTags.Add(tag);
+                    break;
+                }
+            }
+        }
+
+        return matchedTags.Select(tag => tag.ToTagDto()).ToList();
+    }
+
+    private static bool IsWordMatch(string text, string keyword)
+    {
+        string escapedKeyword = Regex.Escape(keyword);
+        var pattern = $@"(?<!\w){escapedKeyword}(?!\w)";
+        return Regex.IsMatch(text, pattern, RegexOptions.IgnoreCase);
     }
 
     public async Task<PagedTagsDto> GetPagedAsync(int pageNumber, int pageSize)
