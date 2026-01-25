@@ -1,4 +1,5 @@
 ﻿using Application.Interests;
+using Application.Stories;
 using Shared.Exceptions;
 
 namespace Application.Users;
@@ -77,5 +78,37 @@ public class UsersService : IUsersService
         {
             throw new UserNotFoundException(id.ToString());
         }
+    }
+
+    public async Task AddFavouriteStoryAsync(int id, int storyId)
+    {
+        bool result = await _usersRepository.AddFavouriteStoryAsync(id, storyId);
+        
+        if (result == false)
+        {
+            throw new EntityNotFoundException($"User id: {id} Story id: {storyId}");
+        }
+    }
+
+    public async Task RemoveFavouriteStoryAsync(int id, int storyId)
+    {
+        bool result = await _usersRepository.RemoveFavouriteStoryAsync(id, storyId);
+        
+        if (result == false)
+        {
+            throw new EntityNotFoundException($"User id: {id} Story id: {storyId}");
+        }
+    }
+
+    public async Task<List<StoryDto>> GetFavouriteStoriesAsync(int id)
+    {
+        var stories = await _usersRepository.GetFavouriteStoriesAsync(id);
+        
+        if (stories is null)
+        {
+            throw new UserNotFoundException(id.ToString());
+        }
+        
+        return stories.Select(s => s.ToStoryDto()).ToList();
     }
 }
