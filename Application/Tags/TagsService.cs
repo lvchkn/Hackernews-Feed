@@ -1,14 +1,19 @@
 using Application.Paging;
+using Domain.Entities;
+using Microsoft.Extensions.Logging;
 
 namespace Application.Tags;
 
 public class TagsService : ITagsService
 {
     private readonly ITagsRepository _tagsRepository;
+    private readonly ILogger<TagsService> _logger;
 
-    public TagsService(ITagsRepository tagsRepository)
+    public TagsService(ITagsRepository tagsRepository,
+        ILogger<TagsService> logger)
     {
         _tagsRepository = tagsRepository;
+        _logger = logger;
     }
 
     public async Task<List<TagDto>> GetAllAsync()
@@ -19,6 +24,9 @@ public class TagsService : ITagsService
 
     public async Task<PagedTagsDto> GetPagedAsync(int pageNumber, int pageSize)
     {
+        ArgumentOutOfRangeException.ThrowIfLessThan(pageNumber, 1);
+        ArgumentOutOfRangeException.ThrowIfLessThan(pageSize, 1);
+
         int skip = Math.Max((pageNumber - 1) * pageSize, 0);
         int take = pageSize;
         var (tags, totalPagesCount) = await _tagsRepository.GetPagedAsync(skip, take);
@@ -32,10 +40,52 @@ public class TagsService : ITagsService
 
     public async Task SeedAsync()
     {
-        if (!await _tagsRepository.ExistsAsync())
+        _logger.LogInformation("Seeding tags...");
+        var existingTags = await _tagsRepository.GetAllAsync();
+        var existingTagsMap = existingTags
+            .GroupBy(t => t.Name, StringComparer.OrdinalIgnoreCase)
+            .ToDictionary(g => g.Key, g => g.First(), StringComparer.OrdinalIgnoreCase);
+
+        List<Tag> seedTags = TagsSeeder.GetSeedTags();
+        var tagsToAdd = new List<Tag>();
+        var hasChanges = false;
+
+        foreach (var seedTag in seedTags)
         {
-            var seedData = TagsSeeder.GetSeedTags();
-            await _tagsRepository.AddRangeAsync(seedData);
+            if (existingTagsMap.TryGetValue(seedTag.Name, out var existingTag))
+            {
+                var existingAliases = existingTag.Aliases
+                    .Select(a => a.Name)
+                    .ToHashSet(StringComparer.OrdinalIgnoreCase);
+
+                var missingSeedAliases = seedTag.Aliases.Where(seedAlias => !existingAliases.Contains(seedAlias.Name));
+
+                foreach (var seedAlias in missingSeedAliases)
+                {
+                    existingTag.Aliases.Add(new TagAlias { Name = seedAlias.Name });
+                    hasChanges = true;
+                }
+            }
+            else
+            {
+                tagsToAdd.Add(seedTag);
+            }
+        }
+
+        if (tagsToAdd.Count != 0)
+        {
+            await _tagsRepository.AddRangeAsync(tagsToAdd);
+            await _tagsRepository.SaveChangesAsync();
+            _logger.LogInformation("Tags added: {0}.", tagsToAdd.Count);
+        }
+        else if (hasChanges)
+        {
+            int changes = await _tagsRepository.SaveChangesAsync();
+            _logger.LogInformation("Tags updated: {0}.", changes);
+        }
+        else
+        {
+            _logger.LogInformation("No tags added or updated.");
         }
     }
 }

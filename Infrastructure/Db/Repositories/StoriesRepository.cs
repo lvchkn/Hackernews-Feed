@@ -31,6 +31,7 @@ public class StoriesRepository : IStoriesRepository
         var story = await _dbContext.Stories
             .AsNoTracking()
             .Include(s => s.Tags)
+                .ThenInclude(t => t.Aliases)
             .Include(s => s.FavouritedBy)
             .AsSplitQuery()
             .SingleOrDefaultAsync(i => i.Id == id);

@@ -19,8 +19,11 @@ await using (var scope = app.Services.CreateAsyncScope())
     var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
     await db.Database.MigrateAsync();
 
-    var tagsService = scope.ServiceProvider.GetRequiredService<ITagsService>();
-    await tagsService.SeedAsync();
+    if (builder.Configuration.GetValue<bool>("SeedTagsOnStartup"))
+    {
+        var tagsService = scope.ServiceProvider.GetRequiredService<ITagsService>();
+        await tagsService.SeedAsync();
+    }
 }
 
 app.MapItemsEndpoints()

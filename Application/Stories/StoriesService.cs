@@ -33,6 +33,7 @@ public class StoriesService : IStoriesService
 
     public async Task<List<TagDto>> GetTagsAsync(int storyId)
     {
+        _ = await GetByIdAsync(storyId);
         var tags = await _storiesRepository.GetTagsAsync(storyId);
         return tags.Select(s => s.ToTagDto()).ToList();
     }
