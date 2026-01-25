@@ -29,7 +29,6 @@ public class TagsRepository : ITagsRepository
     public async Task<List<Tag>> GetAllAsync()
     {
         var tags = await _dbContext.Tags
-            .AsNoTracking()
             .Include(t => t.Aliases)
             .ToListAsync();
 
