@@ -30,8 +30,7 @@ public class UsersControllerTests
     public async Task GetUserInterests_ReturnsSeededInterests()
     {
         // Arrange
-        var client = _webAppFactory.CreateClient();
-        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Test");
+        var client = _webAppFactory.CreateClient().WithTestAuth(true);
 
         using var scope = _webAppFactory.Services.CreateScope();
         var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
@@ -54,8 +53,7 @@ public class UsersControllerTests
     public async Task AddInterestToUser_WhenInterestExists_ReturnsCreatedAndIsAdded()
     {
         // Arrange
-        var client = _webAppFactory.CreateClient();
-        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Test");
+        var client = _webAppFactory.CreateClient().WithTestAuth(true);
 
         using var scope = _webAppFactory.Services.CreateScope();
         var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
@@ -90,8 +88,7 @@ public class UsersControllerTests
     public async Task AddInterestToUser_WhenInterestDoesNotExist_ReturnsNotFound()
     {
         // Arrange
-        var client = _webAppFactory.CreateClient();
-        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Test");
+        var client = _webAppFactory.CreateClient().WithTestAuth(true);
 
         using var scope = _webAppFactory.Services.CreateScope();
         var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
@@ -125,8 +122,7 @@ public class UsersControllerTests
     public async Task DeleteInterest_RemovesInterestFromUser()
     {
         // Arrange
-        var client = _webAppFactory.CreateClient();
-        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Test");
+        var client = _webAppFactory.CreateClient().WithTestAuth(true);
 
         using var scope = _webAppFactory.Services.CreateScope();
         var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
@@ -152,8 +148,7 @@ public class UsersControllerTests
     public async Task AddFavouriteStory_WhenStoryExists_ReturnsCreatedAndIsAdded()
     {
         // Arrange
-        var client = _webAppFactory.CreateClient();
-        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Test");
+        var client = _webAppFactory.CreateClient().WithTestAuth(true);
 
         using var scope = _webAppFactory.Services.CreateScope();
         var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
@@ -182,8 +177,7 @@ public class UsersControllerTests
     public async Task RemoveFavouriteStory_RemovesStoryFromUser()
     {
         // Arrange
-        var client = _webAppFactory.CreateClient();
-        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Test");
+        var client = _webAppFactory.CreateClient().WithTestAuth(true);
 
         using var scope = _webAppFactory.Services.CreateScope();
         var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
@@ -213,8 +207,7 @@ public class UsersControllerTests
     public async Task GetFavouriteStories_ReturnsAddedStory()
     {
         // Arrange
-        var client = _webAppFactory.CreateClient();
-        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Test");
+        var client = _webAppFactory.CreateClient().WithTestAuth(true);
 
         using var scope = _webAppFactory.Services.CreateScope();
         var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();

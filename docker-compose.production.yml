@@ -20,9 +20,9 @@ services:
       - GithubAuth:AppName=${GH_APP_NAME}
       - GithubAuth:ClientId=${GH_CLIENT_ID}
       - GithubAuth:ClientSecret=${GH_CLIENT_SECRET}
+      - GithubAuth:AdminUsernames=${ADMIN_USERNAMES}
 
       - ClientUrl=${CLIENT_URL}
-      - AdminUsernames=${ADMIN_USERNAMES}
     restart: on-failure
     depends_on:
       postgres:
