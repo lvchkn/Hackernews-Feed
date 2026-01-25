@@ -186,7 +186,6 @@ public static class TagsSeeder
                 new TagName("Java"),
                 new TagName("JavaScript", "Javascript", "JS"),
                 new TagName("Go", "Golang"),
-                new TagName("Rust"),
                 new TagName("C++"),
                 new TagName("C"),
                 new TagName("Python"),
@@ -486,7 +485,6 @@ public static class TagsSeeder
                 new TagName("Databricks"),
                 new TagName("Snowflake"),
                 new TagName("Salesforce"),
-                new TagName("Microsoft"),
                 new TagName("Reddit"),
             ]
         );

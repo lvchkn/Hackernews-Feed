@@ -9,4 +9,5 @@ public interface ITagsRepository
     Task<PagedTags> GetPagedAsync(int skip, int take);
     Task<bool> ExistsAsync();
     Task AddRangeAsync(IEnumerable<Tag> tags);
+    Task<int>  SaveChangesAsync();
 }

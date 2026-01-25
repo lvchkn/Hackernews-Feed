@@ -47,10 +47,13 @@ public class CustomExceptionHandler
 
             BadHttpRequestException => (int) HttpStatusCode.BadRequest,
             JsonException => (int) HttpStatusCode.BadRequest,
+            ArgumentOutOfRangeException => (int) HttpStatusCode.BadRequest,
+
             EntityAlreadyExistsException => (int) HttpStatusCode.BadRequest,
             UserAlreadyExistsException => (int) HttpStatusCode.BadRequest,
             InterestAlreadyExistsException => (int) HttpStatusCode.BadRequest,
             StoryAlreadyExistsException => (int) HttpStatusCode.BadRequest,
+
             QueryParameterException => (int) HttpStatusCode.BadRequest,
 
             _ => (int) HttpStatusCode.InternalServerError

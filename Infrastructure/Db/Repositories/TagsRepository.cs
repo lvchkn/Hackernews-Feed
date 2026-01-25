@@ -17,6 +17,7 @@ public class TagsRepository : ITagsRepository
     public async Task<PagedTags> GetPagedAsync(int skip, int take)
     {
         var tags = _dbContext.Tags
+            .AsNoTracking()
             .Include(t => t.Aliases)
             .OrderBy(t => t.Name);
 
@@ -28,6 +29,7 @@ public class TagsRepository : ITagsRepository
     public async Task<List<Tag>> GetAllAsync()
     {
         var tags = await _dbContext.Tags
+            .AsNoTracking()
             .Include(t => t.Aliases)
             .ToListAsync();
 
@@ -43,6 +45,12 @@ public class TagsRepository : ITagsRepository
     {
         await _dbContext.Tags.AddRangeAsync(tags);
         await _dbContext.SaveChangesAsync();
+    }
+
+    public async Task<int> SaveChangesAsync()
+    {
+        int changes = await _dbContext.SaveChangesAsync();
+        return changes;
     }
 
     private async Task<PagedTags> PageAsync(IQueryable<Tag> tags, int skip, int take)

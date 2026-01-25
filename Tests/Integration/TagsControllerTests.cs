@@ -1,3 +1,4 @@
+using System.Net;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using Application.Paging;
@@ -98,7 +99,7 @@ public class TagsControllerTests
     }
 
     [Fact]
-    public async Task GetStoryTags_NonExistentStory_ReturnsEmptyList()
+    public async Task GetStoryTags_NonExistentStory_ReturnsNotFound()
     {
         // Arrange
         var client = _webAppFactory.CreateClient();
@@ -108,9 +109,6 @@ public class TagsControllerTests
         var response = await client.GetAsync("/api/stories/9999/tags", TestContext.Current.CancellationToken);
 
         // Assert
-        response.EnsureSuccessStatusCode();
-        var tags = await response.Content.ReadFromJsonAsync<List<TagDto>>(TestContext.Current.CancellationToken);
-        Assert.NotNull(tags);
-        Assert.Empty(tags);
+        Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
     }
 }
