@@ -1,7 +1,6 @@
-using Application.Interests;
 using Domain.Entities;
 
-namespace Application.Mappers;
+namespace Application.Interests;
 
 public static class InterestMapper
 {
@@ -13,7 +12,7 @@ public static class InterestMapper
             Text = interestDto.Text,
         };
     }
-    
+
     public static InterestDto ToInterestDto(this Interest interest)
     {
         return new InterestDto

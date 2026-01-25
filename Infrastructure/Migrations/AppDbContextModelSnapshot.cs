@@ -17,7 +17,7 @@ namespace Infrastructure.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "10.0.0")
+                .HasAnnotation("ProductVersion", "10.0.2")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
@@ -107,6 +107,11 @@ namespace Infrastructure.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
+                    b.Property<string>("Category")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("category");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("text")
@@ -116,6 +121,33 @@ namespace Infrastructure.Migrations
                         .HasName("pk_tags");
 
                     b.ToTable("tags", (string)null);
+                });
+
+            modelBuilder.Entity("Domain.Entities.TagAlias", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("name");
+
+                    b.Property<int>("TagId")
+                        .HasColumnType("integer")
+                        .HasColumnName("tag_id");
+
+                    b.HasKey("Id")
+                        .HasName("pk_tag_aliases");
+
+                    b.HasIndex("TagId")
+                        .HasDatabaseName("ix_tag_aliases_tag_id");
+
+                    b.ToTable("tag_aliases", (string)null);
                 });
 
             modelBuilder.Entity("Domain.Entities.User", b =>
@@ -204,6 +236,16 @@ namespace Infrastructure.Migrations
                     b.ToTable("story_user", (string)null);
                 });
 
+            modelBuilder.Entity("Domain.Entities.TagAlias", b =>
+                {
+                    b.HasOne("Domain.Entities.Tag", null)
+                        .WithMany("Aliases")
+                        .HasForeignKey("TagId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_tag_aliases_tags_tag_id");
+                });
+
             modelBuilder.Entity("InterestUser", b =>
                 {
                     b.HasOne("Domain.Entities.User", null)
@@ -253,6 +295,11 @@ namespace Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("fk_story_user_users_favourited_by_id");
+                });
+
+            modelBuilder.Entity("Domain.Entities.Tag", b =>
+                {
+                    b.Navigation("Aliases");
                 });
 #pragma warning restore 612, 618
         }

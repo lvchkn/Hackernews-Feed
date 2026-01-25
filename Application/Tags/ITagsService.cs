@@ -1,8 +1,10 @@
-using Application.Stories;
+using Application.Paging;
 
 namespace Application.Tags;
 
 public interface ITagsService
 {
-    List<TagDto> GetAll(StoryDto story);
+    Task<List<TagDto>> GetAllAsync();
+    Task<PagedTagsDto> GetPagedAsync(int pageNumber, int pageSize);
+    Task SeedAsync();
 }

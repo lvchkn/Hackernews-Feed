@@ -3,6 +3,7 @@ using Application.Interests;
 using Application.Ranking;
 using Application.Sort;
 using Application.Stories;
+using Application.Tags;
 using Application.Users;
 using Domain.Entities;
 using Infrastructure.Db;
@@ -22,7 +23,7 @@ public static class DI
     public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
     {
         _configuration = configuration;
-            
+
         services
             .AddRabbitMq()
             .AddRepos()
@@ -69,7 +70,7 @@ public static class DI
                 .ConfigureWarnings(w =>
                     w.Default(WarningBehavior.Throw));
         });
-            
+
         services.AddScoped<IQuerySort<Story>, StorySort>();
         services.AddScoped<IQueryFilter<Story>, StoryFilter>();
         services.AddScoped<IQueryRank<Story>, StoryRank>();
@@ -77,6 +78,7 @@ public static class DI
         services.AddScoped<IUsersRepository, UsersRepository>();
         services.AddScoped<IInterestsRepository, InterestsRepository>();
         services.AddScoped<IStoriesRepository, StoriesRepository>();
+        services.AddScoped<ITagsRepository, TagsRepository>();
 
         return services;
     }

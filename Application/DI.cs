@@ -20,8 +20,6 @@ public static class DI
         services.AddScoped<IUsersService, UsersService>();
         services.AddScoped<IInterestsService, InterestsService>();
         services.AddScoped<IStoriesService, StoriesService>();
-
-        services.AddSingleton<TagsCache>();
         services.AddScoped<ITagsService, TagsService>();
 
         return services;

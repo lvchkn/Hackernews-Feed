@@ -1,5 +1,4 @@
-﻿using Application.Mappers;
-using Shared.Exceptions;
+﻿using Shared.Exceptions;
 
 namespace Application.Interests;
 

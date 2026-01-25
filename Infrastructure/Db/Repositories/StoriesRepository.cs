@@ -15,9 +15,9 @@ public class StoriesRepository : IStoriesRepository
     private readonly IQueryFilter<Story> _queryFilter;
     private readonly IQueryRank<Story> _queryRank;
 
-    public StoriesRepository(AppDbContext dbContext, 
-        IQuerySort<Story> storiesQuerySort, 
-        IQueryFilter<Story> queryFilter, 
+    public StoriesRepository(AppDbContext dbContext,
+        IQuerySort<Story> storiesQuerySort,
+        IQueryFilter<Story> queryFilter,
         IQueryRank<Story> queryRank)
     {
         _dbContext = dbContext;
@@ -37,7 +37,7 @@ public class StoriesRepository : IStoriesRepository
 
         return story;
     }
-    
+
     private async Task<Story?> GetByIdAsyncWithTracking(int id)
     {
         var story = await _dbContext.Stories
@@ -73,10 +73,17 @@ public class StoriesRepository : IStoriesRepository
 
         return stories;
     }
-    
-    public async Task<PagedStories> GetPagedAsync(IEnumerable<SortParameters> sortingParameters, 
-        SearchCriteria searchCriteria, 
-        int skip, 
+
+    public async Task<List<Tag>> GetTagsAsync(int storyId)
+    {
+        var story = await GetByIdAsync(storyId);
+
+        return story?.Tags.ToList() ?? [];
+    }
+
+    public async Task<PagedStories> GetPagedAsync(IEnumerable<SortParameters> sortingParameters,
+        SearchCriteria searchCriteria,
+        int skip,
         int take)
     {
         var filteredStories = Filter(searchCriteria);
@@ -98,7 +105,7 @@ public class StoriesRepository : IStoriesRepository
 
         newStory.Rank = _queryRank.CalculateRank(newStory);
         await _dbContext.Stories.AddAsync(newStory);
-        
+
         await _dbContext.SaveChangesAsync();
 
         return true;
@@ -116,7 +123,7 @@ public class StoriesRepository : IStoriesRepository
 
         updatedStory.Id = id;
         _dbContext.Update(updatedStory);
-        
+
         await _dbContext.SaveChangesAsync();
 
         return true;
@@ -126,7 +133,7 @@ public class StoriesRepository : IStoriesRepository
     {
         var story = await GetByIdAsyncWithTracking(id);
 
-        if (story is null) 
+        if (story is null)
         {
             return false;
             //throw new NotFoundException("This story doesn't exist!");
@@ -134,10 +141,10 @@ public class StoriesRepository : IStoriesRepository
 
         _dbContext.Stories.Remove(story);
         await _dbContext.SaveChangesAsync();
-        
+
         return true;
     }
-    
+
     private IQueryable<Story> Filter(SearchCriteria searchCriteria)
     {
         var stories = _dbContext.Stories
@@ -148,16 +155,16 @@ public class StoriesRepository : IStoriesRepository
             .AsSplitQuery();
 
         var filteredStories = _queryFilter.Filter(stories, searchCriteria);
-        
+
         return filteredStories;
     }
-    
+
     private IQueryable<Story> Sort(IQueryable<Story> stories, IEnumerable<SortParameters> sortingParameters)
     {
         var sortedStories = _querySort.Sort(stories, sortingParameters);
         return sortedStories;
     }
-    
+
     private IQueryable<Story> Rank(IQueryable<Story> stories)
     {
         var rankedStories = stories.OrderBy(s => s.Rank);

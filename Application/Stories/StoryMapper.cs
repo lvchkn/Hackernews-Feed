@@ -1,7 +1,7 @@
-using Application.Stories;
+using Application.Tags;
 using Domain.Entities;
 
-namespace Application.Mappers;
+namespace Application.Stories;
 
 public static class StoryMapper
 {

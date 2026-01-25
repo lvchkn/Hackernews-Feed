@@ -1,5 +1,4 @@
 using Application.Filter;
-using Application.Mappers;
 using Application.Paging;
 using Application.Sort;
 using Application.Tags;
@@ -10,24 +9,14 @@ namespace Application.Stories;
 public class StoriesService : IStoriesService
 {
     private readonly IStoriesRepository _storiesRepository;
-    private readonly ITagsService _tagsService;
-
-    public StoriesService(IStoriesRepository storiesRepository, ITagsService tagsService)
+    public StoriesService(IStoriesRepository storiesRepository)
     {
         _storiesRepository = storiesRepository;
-        _tagsService = tagsService;
     }
 
     public async Task AddAsync(StoryDto storyDto)
     {
-        var tags = _tagsService.GetAll(storyDto);
-
-        var storyWithTags = storyDto with
-        {
-            Tags = tags,
-        };
-
-        var story = storyWithTags.ToStory();
+        var story = storyDto.ToStory();
         bool operationResult = await _storiesRepository.AddAsync(story);
 
         if (operationResult is false)
@@ -40,6 +29,12 @@ public class StoriesService : IStoriesService
     {
         var stories = await _storiesRepository.GetAllAsync();
         return stories.Select(s => s.ToStoryDto()).ToList();
+    }
+
+    public async Task<List<TagDto>> GetTagsAsync(int storyId)
+    {
+        var tags = await _storiesRepository.GetTagsAsync(storyId);
+        return tags.Select(s => s.ToTagDto()).ToList();
     }
 
     public async Task<StoryDto> GetByIdAsync(int id)
