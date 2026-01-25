@@ -22,6 +22,7 @@ services:
       - GithubAuth:ClientSecret=${GH_CLIENT_SECRET}
 
       - ClientUrl=${CLIENT_URL}
+      - AdminUsernames=${ADMIN_USERNAMES}
     restart: on-failure
     depends_on:
       postgres:

@@ -34,13 +34,14 @@ jobs:
           echo GH_APP_NAME=${{ secrets.GH_AUTH_APP_NAME }} >> .env
           echo GH_CLIENT_ID=${{ secrets.GH_AUTH_CLIENT_ID }} >> .env
           echo GH_CLIENT_SECRET=${{ secrets.GH_AUTH_CLIENT_SECRET }} >> .env
-          
+
           echo CLIENT_URL=${{ secrets.CLIENT_URL }} >> .env
           echo DOMAIN=${{ secrets.DOMAIN }} >> .env
+          echo ADMIN_USERNAMES=${{ secrets.ADMIN_USERNAMES }} >> .env
 
       - name: Prepare config file
         run: chmod +x ./prepareConfig.sh && ./prepareConfig.sh domain ${{ secrets.DOMAIN }} nginx.production.conf
-        
+
       - name: Copy file via ssh key
         uses: appleboy/scp-action@v1.0.0
         with:
