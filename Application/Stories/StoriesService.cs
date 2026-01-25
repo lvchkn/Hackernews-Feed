@@ -22,8 +22,7 @@ public class StoriesService : IStoriesService
         var story = storyDto.ToStory();
 
         var textToAnalyze = $"{story.Title} {story.Text}";
-        var tagDtos = await _tagsService.GetTagsForTextAsync(textToAnalyze);
-        var tags = tagDtos.Select(dto => dto.ToTag()).ToList();
+        var tags = await _tagsService.GetTagsForTextAsync(textToAnalyze);
 
         if (tags.Count != 0)
         {

@@ -23,7 +23,7 @@ public class TagsService : ITagsService
         return tags.Select(t => t.ToTagDto()).ToList();
     }
 
-    public async Task<List<TagDto>> GetTagsForTextAsync(string text)
+    public async Task<List<Tag>> GetTagsForTextAsync(string text)
     {
         if (string.IsNullOrWhiteSpace(text))
         {
@@ -51,7 +51,7 @@ public class TagsService : ITagsService
             }
         }
 
-        return matchedTags.Select(tag => tag.ToTagDto()).ToList();
+        return matchedTags.ToList();
     }
 
     private static bool IsWordMatch(string text, string keyword)
