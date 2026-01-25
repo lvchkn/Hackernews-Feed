@@ -1,3 +1,4 @@
+using Api.ServiceCollectionExtensions;
 using Application.Interests;
 using Application.Users;
 using Microsoft.AspNetCore.Mvc;
@@ -17,7 +18,7 @@ public static class UsersController
 
             return Results.Ok(userInterests);
             
-        }).RequireAuthorization().WithTags(EndpointGroupTags.UsersInterests);
+        }).RequireAuthorization(GithubAuth.AuthorizationPolicy).WithTags(EndpointGroupTags.UsersInterests);
 
         app.MapPost("/api/user/{id}/interests", async (
             [FromRoute] int id,
@@ -28,7 +29,7 @@ public static class UsersController
 
             return Results.Created();
 
-        }).RequireAuthorization().WithTags(EndpointGroupTags.UsersInterests);
+        }).RequireAuthorization(GithubAuth.AuthorizationPolicy).WithTags(EndpointGroupTags.UsersInterests);
 
         app.MapDelete("/api/user/{userId}/interests/{interestId}", async (
             [FromRoute] int userId, 
@@ -39,7 +40,7 @@ public static class UsersController
 
             return Results.NoContent();
 
-        }).RequireAuthorization().WithTags(EndpointGroupTags.UsersInterests);
+        }).RequireAuthorization(GithubAuth.AuthorizationPolicy).WithTags(EndpointGroupTags.UsersInterests);
 
         app.MapGet("/api/user/{id}/favourites", async (
             [FromRoute] int id,
@@ -49,7 +50,7 @@ public static class UsersController
 
             return Results.Ok(stories);
 
-        }).RequireAuthorization().WithTags(EndpointGroupTags.UsersFavourites);
+        }).RequireAuthorization(GithubAuth.AuthorizationPolicy).WithTags(EndpointGroupTags.UsersFavourites);
 
         app.MapPost("/api/user/{id}/favourites/{storyId}", async (
             [FromRoute] int id, 
@@ -60,7 +61,7 @@ public static class UsersController
 
             return Results.Created();
 
-        }).RequireAuthorization().WithTags(EndpointGroupTags.UsersFavourites);
+        }).RequireAuthorization(GithubAuth.AuthorizationPolicy).WithTags(EndpointGroupTags.UsersFavourites);
 
         app.MapDelete("/api/user/{id}/favourites/{storyId}", async (
             [FromRoute] int id,
@@ -71,7 +72,7 @@ public static class UsersController
 
             return Results.NoContent();
 
-        }).RequireAuthorization().WithTags(EndpointGroupTags.UsersFavourites);
+        }).RequireAuthorization(GithubAuth.AuthorizationPolicy).WithTags(EndpointGroupTags.UsersFavourites);
 
         return app;
     }

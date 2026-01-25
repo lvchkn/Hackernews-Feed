@@ -210,7 +210,7 @@ public class UsersControllerTests
     }
     
     [Fact]
-    public async Task GetFavouriteStories_ReturnsSeededStories()
+    public async Task GetFavouriteStories_ReturnsAddedStory()
     {
         // Arrange
         var client = _webAppFactory.CreateClient();
@@ -231,9 +231,8 @@ public class UsersControllerTests
         var getResponse = await client.GetAsync($"/api/user/{user.Id}/favourites", TestContext.Current.CancellationToken);
 
         // Assert
-        var stories = await getResponse.Content.ReadFromJsonAsync<List<StoryDto>>(_jsonSerializerOptions, TestContext.Current.CancellationToken);
-        
         Assert.True(getResponse.IsSuccessStatusCode);
+        var stories = await getResponse.Content.ReadFromJsonAsync<List<StoryDto>>(_jsonSerializerOptions, TestContext.Current.CancellationToken);
         Assert.NotNull(stories);
         Assert.Contains(stories, s => s.Id == story.Id && s.Title == story.Title);
     }

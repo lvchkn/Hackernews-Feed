@@ -32,7 +32,13 @@ public class TestAuthHandler : AuthenticationHandler<AuthenticationSchemeOptions
             return Task.FromResult(AuthenticateResult.NoResult());
         }
 
-        var claims = new[] { new Claim(ClaimTypes.Name, "Test user") };
+        var claims = new List<Claim> 
+        { 
+            new(ClaimTypes.Name, "Test user"),
+            // Add Admin role claim for test users by default
+            new(ClaimTypes.Role, "Admin")
+        };
+        
         var identity = new ClaimsIdentity(claims, "Test");
         var principal = new ClaimsPrincipal(identity);
         var ticket = new AuthenticationTicket(principal, "Test");
