@@ -5,6 +5,60 @@ namespace Tests.Integration;
 
 public static class DataSeeder
 {
+    public static int SeedTags(this AppDbContext dbContext)
+    {
+        dbContext.Tags.RemoveRange(dbContext.Tags);
+
+        var tags = new[]
+        {
+            new Tag
+            {
+                Name = ".NET",
+                Aliases = [
+                    new TagAlias { Name = "dotnet" },
+                    new TagAlias { Name = "dotnet core" },
+                    new TagAlias { Name = ".NET Core" },
+                    new TagAlias { Name = "Dotnet" },
+                ],
+                Category = "Frameworks",
+            },
+            new Tag
+            {
+                Name = "PostgreSQL",
+                Aliases = [
+                    new TagAlias { Name = "Postgres" },
+                    new TagAlias { Name = "psql" },
+                ],
+                Category = "Databases",
+            },
+            new Tag
+            {
+                Name = "Redis",
+                Aliases = [],
+                Category = "Databases",
+            },
+            new Tag
+            {
+                Name = "Kubernetes",
+                Aliases = [
+                    new TagAlias { Name = "K8s" },
+                ],
+                Category = "Programming Tools",
+            },
+            new Tag
+            {
+                Name = "Docker",
+                Aliases = [],
+                Category = "Programming Tools",
+            },
+        };
+
+        dbContext.Tags.AddRange(tags);
+        dbContext.SaveChanges();
+
+        return tags.Length;
+    }
+
     public static int SeedStories(this AppDbContext dbContext)
     {
         dbContext.Stories.RemoveRange(dbContext.Stories);
@@ -45,9 +99,9 @@ public static class DataSeeder
                 Title = "B Story",
                 Score = 250,
                 Time = 9,
-            }, 
+            },
         };
-        
+
         dbContext.Stories.AddRange(stories);
 
         dbContext.SaveChanges();

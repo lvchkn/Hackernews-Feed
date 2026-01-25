@@ -7,4 +7,6 @@ public static class EndpointGroupTags
     public const string Interests = nameof(Interests);
     public const string Stories = nameof(Stories);
     public const string UsersInterests = Users + " " + Interests;
+    public const string Tags = nameof(Tags);
+
 }

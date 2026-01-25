@@ -1,7 +1,6 @@
-using Application.Tags;
 using Domain.Entities;
 
-namespace Application.Mappers;
+namespace Application.Tags;
 
 public static class TagMapper
 {
@@ -9,17 +8,19 @@ public static class TagMapper
     {
         return new Tag
         {
-            Id = tagDto.Id,
             Name = tagDto.Name,
+            Category = tagDto.Category,
+            Aliases = tagDto.Aliases.Select(a => a.ToTag()).ToList(),
         };
     }
-    
+
     public static TagDto ToTagDto(this Tag tag)
     {
         return new TagDto
         {
-            Id = tag.Id,
             Name = tag.Name,
+            Category = tag.Category,
+            Aliases = tag.Aliases.Select(a => a.ToTagAliasDto()).ToList(),
         };
     }
 }

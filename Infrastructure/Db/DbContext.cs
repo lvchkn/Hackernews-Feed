@@ -9,6 +9,7 @@ public class AppDbContext : DbContext
     public DbSet<Story> Stories { get; set; }
     public DbSet<Interest> Interests { get; set; }
     public DbSet<Tag> Tags { get; set; }
+    public DbSet<TagAlias> TagAliases { get; set; }
 
     public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)
     {

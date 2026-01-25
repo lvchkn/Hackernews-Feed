@@ -1,6 +1,7 @@
 using Api.Controllers;
 using Api.Middleware;
 using Api.ServiceCollectionExtensions;
+using Application.Tags;
 using Infrastructure.Db;
 using Microsoft.EntityFrameworkCore;
 
@@ -17,12 +18,16 @@ await using (var scope = app.Services.CreateAsyncScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
     await db.Database.MigrateAsync();
+
+    var tagsService = scope.ServiceProvider.GetRequiredService<ITagsService>();
+    await tagsService.SeedAsync();
 }
 
 app.MapItemsEndpoints()
     .MapAuthEndpoints()
     .MapUsersEndpoints()
-    .MapInterestsEndpoints();
+    .MapInterestsEndpoints()
+    .MapTagsEndpoints();
 
 app.Run();
 

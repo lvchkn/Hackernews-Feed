@@ -1,7 +1,8 @@
-﻿using Application.Users;
+﻿using Application.Interests;
+using Application.Stories;
 using Domain.Entities;
 
-namespace Application.Mappers;
+namespace Application.Users;
 
 public static class UserMapper
 {
@@ -17,7 +18,7 @@ public static class UserMapper
             FavouriteStories = userDto.FavouriteStories.Select(s => s.ToStory()).ToList(),
         };
     }
-    
+
     public static UserDto ToUserDto(this User user)
     {
         return new UserDto

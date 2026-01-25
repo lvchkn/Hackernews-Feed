@@ -33,7 +33,7 @@ public class StoriesControllerTests
         // Arrange
         var client = _webAppFactory.CreateClient();
         client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Test");
-        
+
         using var scope = _webAppFactory.Services.CreateScope();
         var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
         var storiesCount = dbContext.SeedStories();
@@ -60,7 +60,7 @@ public class StoriesControllerTests
         // Arrange
         var client = _webAppFactory.CreateClient();
         client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Test");
-        
+
         using var scope = _webAppFactory.Services.CreateScope();
         var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
         var storiesCount = dbContext.SeedStories();
@@ -69,7 +69,7 @@ public class StoriesControllerTests
             .OrderByDescending(s => s.Title)
             .Select(s => MapToStoryDto(s))
             .ToList();
-        
+
         // Act
         var response = await client.GetAsync("/api/stories?orderBy=title,desc", TestContext.Current.CancellationToken);
         var responseJson = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
@@ -89,7 +89,7 @@ public class StoriesControllerTests
         // Arrange
         var client = _webAppFactory.CreateClient();
         client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Test");
-        
+
         using var scope = _webAppFactory.Services.CreateScope();
         var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
         dbContext.SeedStories();
@@ -98,7 +98,7 @@ public class StoriesControllerTests
             .Where(s => EF.Functions.ILike(s.Title, $"%{search}%"))
             .Select(s => MapToStoryDto(s))
             .ToList();
-        
+
         // Act
         var response = await client.GetAsync($"/api/stories?search={search}", TestContext.Current.CancellationToken);
         var responseJson = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
@@ -122,14 +122,14 @@ public class StoriesControllerTests
         using var scope = _webAppFactory.Services.CreateScope();
         var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
         dbContext.SeedStories();
-        
+
         var orderBy = "score asc";
         var expectedStories = dbContext.Stories
             .Where(s => EF.Functions.ILike(s.Title, $"%{search}%"))
             .OrderBy(s => s.Score)
             .Select(s => MapToStoryDto(s))
             .ToList();
-        
+
         // Act
         var response = await client.GetAsync($"/api/stories?orderBy={orderBy}&search={search}", TestContext.Current.CancellationToken);
         var responseJson = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
@@ -160,7 +160,7 @@ public class StoriesControllerTests
         // Arrange
         var client = _webAppFactory.CreateClient();
         client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Test");
-        
+
         using var scope = _webAppFactory.Services.CreateScope();
         var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
         dbContext.SeedStories();
@@ -169,7 +169,7 @@ public class StoriesControllerTests
         var response = await client.GetAsync($"/api/stories?pageNumber={pageNumber}&pageSize={pageSize}", TestContext.Current.CancellationToken);
         var responseJson = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
         var pagedData = JsonSerializer.Deserialize<PagedStoriesDto>(responseJson, _jsonSerializerOptions);
-        
+
         // Assert
         Assert.Equivalent(returnedStoriesCount, pagedData?.Stories.Count);
         Assert.Equal(totalPagesCount, pagedData?.TotalPagesCount);
@@ -185,14 +185,14 @@ public class StoriesControllerTests
         // Arrange
         var client = _webAppFactory.CreateClient();
         client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Test");
-        
+
         using var scope = _webAppFactory.Services.CreateScope();
         var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
         dbContext.SeedStories();
 
         // Act
         var response = await client.GetAsync($"/api/stories?pageNumber={pageNumber}&pageSize={pageSize}", TestContext.Current.CancellationToken);
-        
+
         // Assert
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
 
@@ -221,7 +221,6 @@ public class StoriesControllerTests
             Tags = story.Tags
                 .Select(t => new TagDto
                 {
-                    Id = t.Id, 
                     Name = t.Name,
                 })
                 .ToList(),

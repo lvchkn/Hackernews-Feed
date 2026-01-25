@@ -20,7 +20,7 @@ public class RankUpdater : BackgroundService
 
     protected override async Task ExecuteAsync(CancellationToken token)
     {
-        _logger.LogInformation("Rank updateer executing");
+        _logger.LogInformation("Rank updater executing");
 
         while (!token.IsCancellationRequested)
         {
