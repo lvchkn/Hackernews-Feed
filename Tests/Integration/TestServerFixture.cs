@@ -67,6 +67,12 @@ public class TestServerFixture<T> : WebApplicationFactory<T>, IAsyncLifetime whe
             .AddScheme<AuthenticationSchemeOptions, TestAuthHandler>(
                 "Test", _ => {});
 
+            services.AddAuthorization(options =>
+            {
+                options.AddPolicy("AdminOnly", policy =>
+                    policy.RequireRole("Admin"));
+            });
+
             var storyFetcherDescriptor = services.SingleOrDefault(s => s.ImplementationType == typeof(StoryFetcher));
 
             if (storyFetcherDescriptor is not null)

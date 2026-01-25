@@ -12,7 +12,11 @@ public static class ServiceCollectionExtension
             .AddInfrastructure(configuration)
             .AddRateLimiter()
             .AddGithubAuth(configuration)
-            .AddAuthorization()
+            .AddAuthorization(options =>
+            {
+                options.AddPolicy(GithubAuth.AuthorizationPolicy, policy =>
+                    policy.RequireRole(GithubAuth.AuthorizationRole));
+            })
             .AddCorsPolicy(configuration)
             .AddEndpointsApiExplorer()
             .AddSwaggerGen(options => options.SwaggerDoc("v1", new OpenApiInfo { Title = "HN Feed API", Version = "1.0"}))

@@ -11,6 +11,9 @@ namespace Api.ServiceCollectionExtensions;
 
 public static class GithubAuth
 {
+    public const string AuthorizationPolicy = "AdminOnly";
+    public const string AuthorizationRole = "Admin";
+
     private record GithubAuthSettings
     {
         public required string ClientId { get; init; }
@@ -19,6 +22,7 @@ public static class GithubAuth
         public required string AuthorizationEndpoint { get; init; }
         public required string TokenEndpoint { get; init; }
         public required string UserInformationEndpoint { get; init; }
+        public string[] AdminUsernames { get; init; } = [];
     }
 
     public static IServiceCollection AddGithubAuth(this IServiceCollection services, IConfiguration configuration)
@@ -65,6 +69,14 @@ public static class GithubAuth
                     
                     using var payload = JsonDocument.Parse(await response.Content.ReadAsStringAsync(context.HttpContext.RequestAborted));
                     context.RunClaimActions(payload.RootElement);
+
+                    var username = payload.RootElement.GetProperty("login").GetString();
+                    if (username is not null && githubAuth.AdminUsernames.Contains(username))
+                    {
+                        var claimsIdentity = new ClaimsIdentity(context.Principal?.Claims ?? []);
+                        claimsIdentity.AddClaim(new Claim(ClaimTypes.Role, AuthorizationRole));
+                        context.Principal = new ClaimsPrincipal(claimsIdentity);
+                    }
                 },
 
                 OnRedirectToAuthorizationEndpoint = context => 
