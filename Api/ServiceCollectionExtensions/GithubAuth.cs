@@ -73,9 +73,8 @@ public static class GithubAuth
                     var username = payload.RootElement.GetProperty("login").GetString();
                     if (username is not null && githubAuth.AdminUsernames.Contains(username))
                     {
-                        var claimsIdentity = new ClaimsIdentity(context.Principal?.Claims ?? []);
-                        claimsIdentity.AddClaim(new Claim(ClaimTypes.Role, AuthorizationRole));
-                        context.Principal = new ClaimsPrincipal(claimsIdentity);
+                        var claimsIdentity = context.Principal?.Identity as ClaimsIdentity;
+                        claimsIdentity?.AddClaim(new Claim(ClaimTypes.Role, AuthorizationRole));
                     }
                 },
 

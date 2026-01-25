@@ -35,9 +35,14 @@ public class TestAuthHandler : AuthenticationHandler<AuthenticationSchemeOptions
         var claims = new List<Claim> 
         { 
             new(ClaimTypes.Name, "Test user"),
-            // Add Admin role claim for test users by default
-            new(ClaimTypes.Role, "Admin")
+            new(ClaimTypes.NameIdentifier, "12345")
         };
+        
+        if (Request.Headers.TryGetValue("X-Test-Admin", out StringValues adminHeader) 
+            && adminHeader.ToString().Equals("true", StringComparison.OrdinalIgnoreCase))
+        {
+            claims.Add(new(ClaimTypes.Role, "Admin"));
+        }
         
         var identity = new ClaimsIdentity(claims, "Test");
         var principal = new ClaimsPrincipal(identity);
